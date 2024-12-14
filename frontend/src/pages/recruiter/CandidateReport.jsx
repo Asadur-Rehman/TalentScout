@@ -1,68 +1,116 @@
+// Import necessary libraries
 import React from "react";
-import { CiMail, CiLocationOn } from "react-icons/ci";
 
-export default function CandidateReport() {
-  const candidateData = {
-    name: "Raghupathi Sahiti",
-    overallScore: "83%",
-    technicalSkills: "68%",
-    communication: "60%",
-    jobRole: "React Developer",
-    interviewLevel: "Medium",
-    assessmentName: "AI-based Interview",
-    mcqScore: "72%",
-    hrInterviewScore: "63%",
-    techInterviewScore: "75%",
-    questions: {
-      reasoning: "7/10",
-      verbal: "9/10",
-      aptitude: "8/10",
-      technical: "8/10",
-    },
-  };
-
+const CandidateReport = () => {
   return (
-    <div className="p-5">
-      <div className="p-4 bg-white rounded-md shadow-sm flex flex-row items-center justify-between h-auto">
-        <div className="flex flex-row items-center space-x-16">
-          {/* Candidate Image */}
-          <div className="w-24 h-24 bg-black rounded-full"></div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Candidate Assessment
+        </h1>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+          Hire Candidate
+        </button>
+      </div>
 
-          {/* Candidate Details */}
+      {/* Candidate Information Section */}
+      <div className="bg-white shadow-md rounded-md p-6 mb-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-gray-800">
-              Asad ur Rehman
-            </h1>
-            <h2 className="text-sm text-gray-500 p-1">Nov 29, 2024</h2>
-
-            {/* Location and Email */}
-            <div className="flex flex-row space-x-16 mt-2">
-              <div className="flex items-center space-x-2">
-                <CiLocationOn className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-500">Karachi</span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <CiMail className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-500">asad@gmail.com</span>
-              </div>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-800">Name name</h2>
+            <p className="text-gray-500">oct10,2024 | Karachi</p>
+            <p className="text-gray-500">testing@123</p>
           </div>
-        </div>
-
-        <div className="flex flex-col items-end space-y-4">
-          <div className="flex space-x-4">
-            <button className="px-12 py-3 text-base font-semibold text-white bg-gray-600 rounded-lg hover:bg-gray-600 ">
-              Shortlisted
-            </button>
-            <button className="px-12 py-3 text-base font-semibold text-white bg-gray-400 rounded-lg hover:bg-gray-600 ">
-              Hire Candidate
-            </button>
+          <div className="flex items-center space-x-4">
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-700">
+                Technical skills
+              </h3>
+              <p className="text-blue-600 text-2xl font-bold">68%</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-700">
+                Communication
+              </h3>
+              <p className="text-blue-600 text-2xl font-bold">60%</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div></div>
+      {/* Assessment Scores */}
+      <div className="bg-white shadow-md rounded-md p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Assessment Status
+        </h2>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-blue-50 p-4 rounded-md text-center">
+            <h3 className="text-lg font-medium text-gray-700">MCQ Test</h3>
+            <p className="text-blue-600 font-bold">72%</p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-md text-center">
+            <h3 className="text-lg font-medium text-gray-700">HR Interview</h3>
+            <p className="text-blue-600 font-bold">63%</p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-md text-center">
+            <h3 className="text-lg font-medium text-gray-700">
+              Technical Interview
+            </h3>
+            <p className="text-blue-600 font-bold">75%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Recorded Session */}
+      <div className="bg-white shadow-md rounded-md p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Recorded Session
+        </h2>
+        <video controls className="w-full rounded-md shadow-sm">
+          <source src="session.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      {/* Detailed Reports */}
+      <div className="bg-white shadow-md rounded-md p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Detailed Reports
+        </h2>
+        <div className="space-y-4">
+          <div className="border p-4 rounded-md">
+            <h3 className="text-lg font-medium text-gray-700">
+              MCQ Test Report
+            </h3>
+            <p className="text-gray-600">Name of the assessment: name</p>
+            <p className="text-gray-600">Aptitude: 8/10 Questions</p>
+            <p className="text-gray-600">Technical: 8/10 Questions</p>
+          </div>
+          <div className="border p-4 rounded-md">
+            <h3 className="text-lg font-medium text-gray-700">
+              Technical Interview Report
+            </h3>
+            <p className="text-gray-600">
+              Type of interview: AI-based interview
+            </p>
+            <p className="text-gray-600">Level of interview: Medium</p>
+            <p className="text-gray-600">Number of questions: 8</p>
+          </div>
+          <div className="border p-4 rounded-md">
+            <h3 className="text-lg font-medium text-gray-700">
+              HR Interview Report
+            </h3>
+            <p className="text-gray-600">
+              Type of interview: AI-based interview
+            </p>
+            <p className="text-gray-600">Level of interview: Medium</p>
+            <p className="text-gray-600">Number of questions: 8</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default CandidateReport;
