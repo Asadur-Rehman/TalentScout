@@ -26,7 +26,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/recruiter/open-job" element={<OpenJobForm />} />
         <Route path="/recruiter/job-description" element={<JobDescription />} />
-        <Route path="recruiter/job-dashboard" element={<JobDashboard />} />
+        <Route path="/recruiter/job-dashboard" element={<JobDashboard />} />
         <Route path="/recruiter" element={<RecruiterHome />} />
         <Route path="/job-application" element={<JobApplication />} />
         <Route path="/faq" element={<FAQPage />} />

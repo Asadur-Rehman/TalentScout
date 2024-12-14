@@ -41,7 +41,7 @@ const JobApplication = () => {
 
           <p className="text-gray-600 mb-4">
             <strong className="text-gray-500">Job Description:</strong>
-            {/* <textarea
+            <textarea
               className="w-full bg-white text-gray-500 border border-gray-500 rounded p-2 mt-2 rounded-xl resize-none"
               readOnly
               rows="6"
@@ -52,9 +52,9 @@ const JobApplication = () => {
               mobile applications for both iOS and Android platforms using React
               Native. You will collaborate with cross-functional teams to
               design, develop, and implement innovative solutions, ensuring a
-              seamless user experience. <br></br>Key Responsibilities: Develop
-              and maintain high-quality mobile applications using React Native.
-              Work with UI/UX designers to implement visually appealing and
+              seamless user experience. Key Responsibilities: Develop and
+              maintain high-quality mobile applications using React Native. Work
+              with UI/UX designers to implement visually appealing and
               responsive user interfaces. Write clean, efficient, and reusable
               code. Integrate third-party libraries and APIs. Troubleshoot and
               debug application issues. Collaborate with backend developers to
@@ -64,7 +64,7 @@ const JobApplication = () => {
               maintaining cross-platform mobile applications for iOS and
               Android. Strong understanding of UI/UX design principles,
               responsive design, and implementing visually appealing interface.
-            </textarea> */}
+            </textarea>
           </p>
 
           <p className="font-medium text-gray-500 mb-2">Required Skills:</p>
