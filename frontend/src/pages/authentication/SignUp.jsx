@@ -1,53 +1,15 @@
-// Import necessary libraries
 import React from "react";
-import Group5 from "../assets/Group 5.svg"; // Adjust the path if necessary
-import Logo from "../assets/Logo.svg"; // Adjust the path if necessary
+import Logo from "../../assets/Logo.svg";
+import Layout from "./Layout";
 
 const SignupPage = () => {
   return (
-    <div
-      className="min-h-screen relative flex items-center justify-center h-full"
-      style={{
-        backgroundColor: "#F2FDFF",
-      }}
-    >
-      <div
-        className="absolute top-0 left-0 w-full h-full"
-        style={{
-          backgroundColor: "rgba(255, 255, 255, 0)",
-          zIndex: 0,
-        }}
-      ></div>
-
-      {/* Top-left image */}
-      <img
-        src={Group5}
-        alt="Top-left decoration"
-        className="absolute top-0 left-10 w-40 h-20 m-4"
-      />
-
-      {/* Top-right sign-in button */}
-      <button
-        onClick={() => (window.location.href = "/sign-in")}
-        className="absolute top-10 right-20 border w-35 border-black text-black font-bold px-4 py-2"
-      >
-        SIGN IN
-      </button>
-
-      <div
-        className="absolute top-0 left-0 w-full h-full bg-white"
-        style={{
-          clipPath: "polygon(0 50%, 100% 25%, 100% 100%, 0 100%)",
-          //opacity: 0.25,
-        }}
-      ></div>
-
+    <Layout buttonText="SIGN IN">
       <div
         className="relative flex items-center justify-center h-full bg-white"
         style={{ zindex: 2 }}
       >
         <div className="w-[572px] bg-white shadow-md rounded-md px-8 py-10">
-          {/* Logo and Header */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-semibold text-gray-800">
               Sign up to TalentScout
@@ -57,9 +19,7 @@ const SignupPage = () => {
             </p>
           </div>
 
-          {/* Form Fields */}
           <form className="space-y-4">
-            {/* First Name */}
             <div>
               <label
                 htmlFor="firstName"
@@ -75,7 +35,6 @@ const SignupPage = () => {
               />
             </div>
 
-            {/* Email Address */}
             <div>
               <label
                 htmlFor="email"
@@ -91,7 +50,6 @@ const SignupPage = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -107,7 +65,6 @@ const SignupPage = () => {
               />
             </div>
 
-            {/* Terms and Conditions */}
             <div className="flex items-center">
               <input
                 id="terms"
@@ -129,13 +86,10 @@ const SignupPage = () => {
               </label>
             </div>
 
-            {/* Submit Button */}
             <div>
               <button
                 type="button"
-                onClick={() =>
-                  (window.location.href = "/recruiter/opened-jobs")
-                }
+                onClick={() => (window.location.href = "/recruiter")}
                 className="w-full text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 style={{ background: "#144066" }}
               >
@@ -144,14 +98,12 @@ const SignupPage = () => {
             </div>
           </form>
 
-          {/* Divider */}
           <div className="my-6 flex items-center">
             <div className="border-t border-gray-300 flex-grow"></div>
             <span className="mx-4 text-gray-500">OR</span>
             <div className="border-t border-gray-300 flex-grow"></div>
           </div>
 
-          {/* Google Sign-In */}
           <div>
             <button className="w-full flex items-center justify-center border border-gray-300 text-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               <img src={Logo} alt="Google" className="w-10 h-10 mr-0" />
@@ -160,7 +112,45 @@ const SignupPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
+    // <div
+    //   className="min-h-screen relative flex items-center justify-center h-full"
+    //   style={{
+    //     backgroundColor: "#F2FDFF",
+    //   }}
+    // >
+    //   <div
+    //     className="absolute top-0 left-0 w-full h-full"
+    //     style={{
+    //       backgroundColor: "rgba(255, 255, 255, 0)",
+    //       zIndex: 0,
+    //     }}
+    //   ></div>
+
+    //   {/* Top-left image */}
+    //   <img
+    //     src={Group5}
+    //     alt="Top-left decoration"
+    //     className="absolute top-0 left-10 w-40 h-20 m-4"
+    //   />
+
+    //   {/* Top-right sign-in button */}
+    //   <button
+    //     onClick={() => (window.location.href = "/sign-in")}
+    //     className="absolute top-10 right-20 border w-35 border-black text-black font-bold px-4 py-2"
+    //   >
+    //     SIGN IN
+    //   </button>
+
+    //   <div
+    //     className="absolute top-0 left-0 w-full h-full bg-white"
+    //     style={{
+    //       clipPath: "polygon(0 50%, 100% 25%, 100% 100%, 0 100%)",
+    //       //opacity: 0.25,
+    //     }}
+    //   ></div>
+
+    // </div>
   );
 };
 

@@ -1,12 +1,12 @@
 import React from "react";
-import Group5 from "../assets/Group 5.svg"; // Adjust the path if necessary
+import Group5 from "../../assets/Group 5.svg"; // Adjust the path if necessary
 import CoverLetterSection from "./CoverLetterSection";
-import Cloud from "../assets/cloud.svg";
+import Cloud from "../../assets/cloud.svg";
 
 const JobApplication = () => {
   return (
     <div>
-      <div className="" style={{ backgroundColor: "#9EE4F2" }}>
+      <div className="" style={{ backgroundColor: "#F2FDFF" }}>
         {/* Header */}
         <header className="flex justify-between items-center p-4 bg-white">
           <div className="flex justify-between items-center">

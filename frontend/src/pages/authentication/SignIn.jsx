@@ -1,47 +1,11 @@
 // Import necessary libraries
 import React from "react";
-import Group5 from "../assets/Group 5.svg"; // Adjust the path if necessary
-import Logo from "../assets/Logo.svg"; // Adjust the path if necessary
+import Logo from "../../assets/Logo.svg"; // Adjust the path if necessary
+import Layout from "./Layout";
 
 const SignupPage = () => {
   return (
-    <div
-      className="min-h-screen relative flex items-center justify-center h-full"
-      style={{
-        backgroundColor: "#F2FDFF",
-      }}
-    >
-      <div
-        className="absolute top-0 left-0 w-full h-full"
-        style={{
-          backgroundColor: "rgba(255, 255, 255, 0)",
-          zIndex: 0,
-        }}
-      ></div>
-
-      {/* Top-left image */}
-      <img
-        src={Group5}
-        alt="Top-left decoration"
-        className="absolute top-0 left-10 w-40 h-20 m-4"
-      />
-
-      {/* Top-right sign-in button */}
-      <button
-        onClick={() => (window.location.href = "/sign-up")}
-        className="absolute top-10 right-20 border w-35 border-black text-black font-bold px-4 py-2"
-      >
-        SIGN UP
-      </button>
-
-      <div
-        className="absolute top-0 left-0 w-full h-full bg-white"
-        style={{
-          clipPath: "polygon(0 50%, 100% 25%, 100% 100%, 0 100%)",
-          //opacity: 0.25,
-        }}
-      ></div>
-
+    <Layout buttonText="SIGN UP">
       <div
         className="relative flex items-center justify-center h-full bg-white"
         style={{ zindex: 2 }}
@@ -125,7 +89,7 @@ const SignupPage = () => {
               </div>
               <div>
                 <a
-                  href="/forgot-password"
+                  href="/forgotpassword"
                   className="text-sm text-blue-600 hover:underline"
                 >
                   Forgot Password?
@@ -137,9 +101,7 @@ const SignupPage = () => {
             <div>
               <button
                 type="button"
-                onClick={() =>
-                  (window.location.href = "/recruiter/opened-jobs")
-                }
+                onClick={() => (window.location.href = "/recruiter")}
                 className="w-full text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 style={{ background: "#144066" }}
               >
@@ -164,7 +126,7 @@ const SignupPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
