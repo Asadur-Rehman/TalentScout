@@ -35,3 +35,26 @@
 
 ## 📂 Folder Structure  
 
+TalentScout/ ├── client/ # Frontend code
+├── server/ # Backend API
+├── models/ # Database models
+├── routes/ # API routes
+├── public/ # Static assets
+├── utils/ # Utility functions
+└── README.md # Project documentation
+
+---
+
+## 🌟 How to Get Started  
+
+### Prerequisites  
+- Node.js (>= 16.x)  
+- MongoDB (local or cloud instance)  
+- AWS account for hosting (optional)  
+
+### Installation  
+
+1. Clone the repository:  
+   ```bash  
+   git clone https://github.com/your-username/TalentScout.git  
+   cd TalentScout  
