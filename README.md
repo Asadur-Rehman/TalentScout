@@ -43,11 +43,8 @@ TalentScout/ ├── client/ # Frontend code
 ├── utils/ # Utility functions
 └── README.md # Project documentation
 
----
-
-## 🌟 How to Get Started  
-
 ### Prerequisites  
+
 - Node.js (>= 16.x)  
 - MongoDB (local or cloud instance)  
 - AWS account for hosting (optional)  
@@ -55,6 +52,28 @@ TalentScout/ ├── client/ # Frontend code
 ### Installation  
 
 1. Clone the repository:  
-   ```bash  
    git clone https://github.com/your-username/TalentScout.git  
-   cd TalentScout  
+   cd TalentScout
+   
+2. Install dependencies for both client and server:
+   cd client && npm install  
+   cd ../server && npm install
+   
+3. Set up environment variables in a .env file for the server:
+   MONGO_URI=your-mongodb-uri  
+   OPENAI_API_KEY=your-api-key  
+   AWS_ACCESS_KEY=your-access-key  
+   AWS_SECRET_KEY=your-secret-key  
+
+4. Start the development server:
+   cd server && npm run dev  
+   cd ../client && npm start
+    
+### 📄 License
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+### 📧 Contact
+For queries or feedback, please contact:
+
+Asad ur Rehman
+Email: aurehman.bese21seecs@seecs.edu.pk
