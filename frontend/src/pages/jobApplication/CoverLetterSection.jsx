@@ -41,7 +41,7 @@ const CoverLetterSection = () => {
           Bold
         </button>
         <button
-          className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200"
+          className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 Phover:bg-blue-200"
           onClick={() => setEditorValue(editorValue + "_Italic_")} // Just an example for Italic
         >
           Italic
