@@ -48,7 +48,7 @@ export default function App() {
           />
           <Route path="/recruiter/job-dashboard" element={<JobDashboard />} />
           <Route path="/recruiter" element={<RecruiterHome />} />
-          <Route path="/job-application" element={<JobApplication />} />
+          
 
           <Route
             path="/recruiter/shortlisted-candidates"
@@ -56,6 +56,8 @@ export default function App() {
           />
           <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
         </Route>
+
+        <Route path="/job-application" element={<JobApplication />} />
 
         <Route path="/faq" element={<FAQPage />} />
         <Route
