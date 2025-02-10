@@ -1,7 +1,9 @@
-import React from "react";
-
-export function ShareModal({ isOpen, onClose }) {
+export function ShareModal({ isOpen, onClose, jobId }) {
   if (!isOpen) return null;
+
+  // Dynamically detect the base URL (localhost vs. production)
+  const baseURL = window.location.origin;
+  const jobApplicationURL = jobId ? `${baseURL}/job-application/${jobId}` : "";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -30,11 +32,15 @@ export function ShareModal({ isOpen, onClose }) {
         </div>
         <input
           type="text"
-          placeholder="job.sample.com"
+          value={jobApplicationURL}
+          readOnly
           className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
         />
-        <button className="w-full px-4 py-2 bg-[#144066] hover:bg-[#0B2544] text-white rounded-md transition-colors">
-          Share
+        <button
+          onClick={() => navigator.clipboard.writeText(jobApplicationURL)}
+          className="w-full px-4 py-2 bg-[#144066] hover:bg-[#0B2544] text-white rounded-md transition-colors"
+        >
+          Copy Link
         </button>
         <button
           onClick={onClose}

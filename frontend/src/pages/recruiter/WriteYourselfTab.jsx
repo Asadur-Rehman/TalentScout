@@ -1,12 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
-export default function JobDescriptionForm() {
-  const [description, setDescription] = useState("");
-
+export default function WriteYourselfTab({ description, setDescription }) {
   const handleGenerate = () => {
-    // Handle AI generation here
     console.log("Generating description...");
   };
 
@@ -49,7 +44,10 @@ export default function JobDescriptionForm() {
           <div className="p-4">
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                console.log(e.target.value);
+              }}
               placeholder="Write Job description"
               className="w-full min-h-[200px] resize-none border-0 focus:outline-none focus:ring-0 text-sm"
             />

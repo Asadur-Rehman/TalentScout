@@ -1,23 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
-export default function JobDescriptionForm() {
-  const defaultDescription = `We are seeking a skilled React Native Developer with at least 2 years of experience to join our dynamic development team. The ideal candidate will be responsible for building and maintaining mobile applications for both iOS and Android platforms using React Native. You will collaborate with cross-functional teams to design, develop, and implement innovative solutions, ensuring a seamless user experience.
-
-Key Responsibilities:
-• Develop and maintain high-quality mobile applications using React Native.
-• Work with UI/UX designers to implement visually appealing and responsive user interfaces.
-• Write clean, efficient, and reusable code.
-• Integrate third-party libraries and APIs.
-• Troubleshoot and debug application issues.
-• Collaborate with backend developers to integrate frontend with backend systems.
-• Participate in code reviews and follow best practices for mobile development.`;
-
-  const [description, setDescription] = useState(defaultDescription);
-
+export default function UploadTab({ description, setDescription }) {
   const handleGenerate = () => {
-    // Handle AI generation here
     console.log("Generating description...");
   };
 
