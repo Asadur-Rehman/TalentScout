@@ -30,6 +30,10 @@ const jobSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
     recruiterRef: {
       type: String,
       required: true,

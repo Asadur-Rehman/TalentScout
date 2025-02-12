@@ -1,5 +1,5 @@
-import Job from '../models/job.model.js';
-import { errorHandler } from '../utils/error.js';
+import Job from "../models/job.model.js";
+import { errorHandler } from "../utils/error.js";
 
 export const createJob = async (req, res, next) => {
   try {
@@ -14,16 +14,16 @@ export const deleteJob = async (req, res, next) => {
   const job = await Job.findById(req.params.id);
 
   if (!job) {
-    return next(errorHandler(404, 'Job not found!'));
+    return next(errorHandler(404, "Job not found!"));
   }
 
-  if (req.user.id !== job.userRef) {
-    return next(errorHandler(401, 'You can only delete your own jobs!'));
-  }
+  // if (req.recruiter.id !== job.recruiterRef) {
+  //   return next(errorHandler(401, "You can only delete your own jobs!"));
+  // }
 
   try {
     await JOb.findByIdAndDelete(req.params.id);
-    res.status(200).json('Job has been deleted!');
+    res.status(200).json("Job has been deleted!");
   } catch (error) {
     next(error);
   }
@@ -32,18 +32,16 @@ export const deleteJob = async (req, res, next) => {
 export const updateJob = async (req, res, next) => {
   const job = await Job.findById(req.params.id);
   if (!job) {
-    return next(errorHandler(404, 'Job not found!'));
+    return next(errorHandler(404, "Job not found!"));
   }
-  if (req.user.id !== job.userRef) {
-    return next(errorHandler(401, 'You can only update your own jobs!'));
-  }
+  // if (req.recruiter.id !== job.recruiterRef) {
+  //   return next(errorHandler(401, "You can only update your own jobs!"));
+  // }
 
   try {
-    const updatedJob = await Job.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     res.status(200).json(updatedJob);
   } catch (error) {
     next(error);
@@ -54,7 +52,7 @@ export const getJob = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
     if (!job) {
-      return next(errorHandler(404, 'Job not found!'));
+      return next(errorHandler(404, "Job not found!"));
     }
     res.status(200).json(job);
   } catch (error) {
@@ -64,48 +62,31 @@ export const getJob = async (req, res, next) => {
 
 export const getJobs = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 9;
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    let offer = req.query.offer;
+    // const filters = {
+    //   title: { $regex: req.query.searchTerm || "", $options: "i" },
+    //   location: { $regex: req.query.location || "", $options: "i" },
+    //   type: req.query.type || undefined,
+    //   active: req.query.active === "false" ? false : true,
+    // };
 
-    if (offer === undefined || offer === 'false') {
-      offer = { $in: [false, true] };
-    }
+    // if (req.query.minSalary) {
+    //   filters.salary = { $gte: parseInt(req.query.minSalary) };
+    // }
 
-    let furnished = req.query.furnished;
+    // if (req.query.skills) {
+    //   filters.skills = { $all: req.query.skills.split(",") };
+    // }
 
-    if (furnished === undefined || furnished === 'false') {
-      furnished = { $in: [false, true] };
-    }
+    // console.log("Final Query Filters:", filters);
 
-    let parking = req.query.parking;
+    // const jobs = await Job.find(filters)
+    //   .sort({ createdAt: -1 })
+    //   .limit(10)
+    //   .skip(0);
 
-    if (parking === undefined || parking === 'false') {
-      parking = { $in: [false, true] };
-    }
+    const jobs = await Job.find();
 
-    let type = req.query.type;
-
-    if (type === undefined || type === 'all') {
-      type = { $in: ['sale', 'rent'] };
-    }
-
-    const searchTerm = req.query.searchTerm || '';
-
-    const sort = req.query.sort || 'createdAt';
-
-    const order = req.query.order || 'desc';
-
-    const jobs = await Job.find({
-      name: { $regex: searchTerm, $options: 'i' },
-      offer,
-      furnished,
-      parking,
-      type,
-    })
-      .sort({ [sort]: order })
-      .limit(limit)
-      .skip(startIndex);
+    // console.log("Jobs Found:", jobs.length);
 
     return res.status(200).json(jobs);
   } catch (error) {
