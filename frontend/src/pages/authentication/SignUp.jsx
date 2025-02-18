@@ -6,7 +6,7 @@ import OAuth from "./OAuth";
 const SignupPage = () => {
   const [formData, setFormData] = useState({
     username: "",
-    organization: "",
+    organizationname: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -68,10 +68,10 @@ const SignupPage = () => {
 
   return (
     <Layout buttonText="SIGN IN">
-     <div className="w-full max-w-lg  flex relative items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 font-inter">
+      <div className="w-full max-w-lg  flex relative items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 font-inter">
         <div className="w-full max-w-lg sm:max-w-xl bg-white shadow-md rounded-md px-8 sm:px-10 py-6 sm:py-8 max-h-[95vh] font-inter">
           <div className="text-center mb-4 sm:mb-5">
-          <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-gray-800">
+            <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-gray-800">
               Sign up to TalentScout
             </h1>
             <p className="text-gray-500 text-xs sm:text-sm mt-1">
@@ -79,7 +79,11 @@ const SignupPage = () => {
             </p>
           </div>
 
-          {error && <p className="text-red-500 text-xs sm:text-sm mb-3 text-center">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-xs sm:text-sm mb-3 text-center">
+              {error}
+            </p>
+          )}
           <form className="space-y-2 sm:space-y-3" onSubmit={handleSubmit}>
             {[
               {
@@ -89,7 +93,7 @@ const SignupPage = () => {
                 placeholder: "John",
               },
               {
-                id: "organization",
+                id: "organizationname",
                 label: "Organization Name",
                 type: "text",
                 placeholder: "Your Organization",
@@ -114,7 +118,10 @@ const SignupPage = () => {
               },
             ].map(({ id, label, type, placeholder }) => (
               <div key={id}>
-                <label htmlFor={id} className="block text-xs sm:text-sm md:text-base font-medium text-gray-700">
+                <label
+                  htmlFor={id}
+                  className="block text-xs sm:text-sm md:text-base font-medium text-gray-700"
+                >
                   {label}
                 </label>
                 <input
@@ -137,7 +144,10 @@ const SignupPage = () => {
                 onChange={handleChange}
                 className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <label htmlFor="terms" className="ml-2 block text-xs sm:text-sm text-gray-700">
+              <label
+                htmlFor="terms"
+                className="ml-2 block text-xs sm:text-sm text-gray-700"
+              >
                 I agree to the{" "}
                 <Link to="/terms" className="text-blue-500">
                   Terms of Service
@@ -161,7 +171,9 @@ const SignupPage = () => {
 
           <div className="my-2 sm:my-2 flex items-center">
             <div className="border-t border-gray-300 flex-grow"></div>
-            <span className="mx-3 sm:mx-4 text-gray-500 text-xs sm:text-sm">OR</span>
+            <span className="mx-3 sm:mx-4 text-gray-500 text-xs sm:text-sm">
+              OR
+            </span>
             <div className="border-t border-gray-300 flex-grow"></div>
           </div>
 
