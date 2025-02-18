@@ -24,7 +24,6 @@ import CodingInterview from "./pages/candidate/CodingInterview";
 import InterviewCompletion from "./pages/candidate/InterviewCompletion";
 import RecruiterPrivateRoute from "./pages/recruiter/RecruiterPrivateRoute";
 
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -49,7 +48,6 @@ export default function App() {
           />
           <Route path="/recruiter/job-dashboard" element={<JobDashboard />} />
           <Route path="/recruiter" element={<RecruiterHome />} />
-          
 
           <Route
             path="/recruiter/shortlisted-candidates"
@@ -58,7 +56,7 @@ export default function App() {
           <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
         </Route>
 
-        <Route path="/job-application" element={<JobApplication />} />
+        <Route path="/job-application/:id" element={<JobApplication />} />
 
         <Route path="/faq" element={<FAQPage />} />
         <Route
