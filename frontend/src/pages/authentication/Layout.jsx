@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import Group5 from "../../assets/logo.svg";
+import Group5 from "../../assets/Logo.svg";
 
 export default function Layout({ children, buttonText }) {
   const navigate = useNavigate(); // Initialize useNavigate hook
