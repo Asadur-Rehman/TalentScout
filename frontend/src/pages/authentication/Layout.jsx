@@ -23,7 +23,7 @@ export default function Layout({ children, buttonText }) {
         {/* Logo */}
         <img
           src={Group5}
-          alt="Top-left decoration"
+          alt="TalentScout"
           className="w-28 sm:w-36 md:w-44 lg:w-48 h-auto"
         />
 
