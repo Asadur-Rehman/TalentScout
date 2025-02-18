@@ -24,6 +24,7 @@ import CodingInterview from "./pages/candidate/CodingInterview";
 import InterviewCompletion from "./pages/candidate/InterviewCompletion";
 import RecruiterPrivateRoute from "./pages/recruiter/RecruiterPrivateRoute";
 
+
 export default function App() {
   return (
     <BrowserRouter>
