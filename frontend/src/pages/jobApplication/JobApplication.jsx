@@ -11,6 +11,8 @@ const JobApplication = () => {
   const [error, setError] = useState(null);
   const fileRef = useRef(null);
   const [file, setFile] = useState(null);
+  const [resumeText, setResumeText] = useState("");
+
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -48,9 +50,26 @@ const JobApplication = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    console.log(e.target.files[0]);
+  const handleFileChange = async (e) => {
+    const uploadedFile = e.target.files[0];
+    const formData = new FormData();
+    formData.append("resume", uploadedFile);
+
+    try {
+      const res = await fetch("/api/text-extract/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        console.log("Extracted text:", data.text);
+      } else {
+        console.error("Failed to extract text:", data.message);
+      }
+    } catch (error) {
+      console.error("Error extracting resume text:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
