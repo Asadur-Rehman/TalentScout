@@ -8,6 +8,7 @@ import candidateRouter from "./routes/candidate.route.js";
 import interviewRouter from "./routes/interview.route.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+import textExtractRouter from "./routes/textExtract.route.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/job", jobRouter);
 app.use("/api/candidate", candidateRouter);
 app.use("/api/interview", interviewRouter);
+app.use("/api/text-extract", textExtractRouter);
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
