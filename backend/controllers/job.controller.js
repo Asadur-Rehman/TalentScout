@@ -93,3 +93,18 @@ export const getJobs = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getJobsByRecruiter = async (req, res, next) => {
+  try {
+    const { recruiterRef } = req.params;
+    const jobs = await Job.find({ recruiterRef });
+
+    if (jobs.length === 0) {
+      return next(errorHandler(404, "No jobs found for this recruiter!"));
+    }
+
+    res.status(200).json(jobs);
+  } catch (error) {
+    next(error);
+  }
+};

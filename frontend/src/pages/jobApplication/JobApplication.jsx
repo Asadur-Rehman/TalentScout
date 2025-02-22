@@ -52,6 +52,7 @@ const JobApplication = () => {
 
   const handleFileChange = async (e) => {
     const uploadedFile = e.target.files[0];
+    setFile(uploadedFile);
     const formData = new FormData();
     formData.append("resume", uploadedFile);
 

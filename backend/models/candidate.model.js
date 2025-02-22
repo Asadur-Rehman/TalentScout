@@ -12,10 +12,11 @@ const candidateSchema = new mongoose.Schema(
     experience: { type: Number, required: true },
     coverletter: { type: String, required: true },
     resume: {
-      data: Buffer, // Stores resume as binary
-      contentType: String, // Stores file type (e.g., "application/pdf")
+      data: Buffer,
+      contentType: String,
     },
     shortlist: { type: Boolean, default: false },
+    hired: { type: Boolean, default: false },
     resumeScore: { type: Number, required: false },
     jobRef: { type: String, required: true },
   },

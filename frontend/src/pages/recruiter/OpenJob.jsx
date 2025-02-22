@@ -25,6 +25,12 @@ const SKILL_OPTIONS = [
 ];
 
 const OpenJobForm = () => {
+  const persistRoot = localStorage.getItem("persist:root");
+
+  const parsedRoot = JSON.parse(persistRoot);
+  const recruiterData = JSON.parse(parsedRoot.recruiter);
+  const recruiterRef = recruiterData.currentRecruiter?._id;
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
@@ -33,7 +39,7 @@ const OpenJobForm = () => {
     location: "",
     type: "Full time",
     salary: "50-100k",
-    recruiterRef: "sgnongoi",
+    recruiterRef: recruiterRef,
   });
   const [skillInput, setSkillInput] = useState("");
 

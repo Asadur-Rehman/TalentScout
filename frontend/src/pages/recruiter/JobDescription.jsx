@@ -18,8 +18,6 @@ const JobDescription = () => {
   const [error, setError] = useState(null);
   const [jobId, setJobId] = useState(null); // Store job ID from API response
 
-  const recruiterRef = "snvaefoiw"; // This should come dynamically from context or props
-
   const handleNext = async () => {
     setLoading(true);
     setError(null);
@@ -27,7 +25,6 @@ const JobDescription = () => {
     const jobData = {
       ...formData,
       description,
-      recruiterRef,
     };
 
     try {

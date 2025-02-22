@@ -125,3 +125,28 @@ export const getCandidateResume = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getCandidateStats = async (req, res, next) => {
+  try {
+    const { jobRef } = req.params;
+
+    const totalCandidates = await Candidate.countDocuments({ jobRef });
+    const shortlistedCandidates = await Candidate.countDocuments({
+      jobRef,
+      shortlist: true,
+    });
+    const hiredCandidates = await Candidate.countDocuments({
+      jobRef,
+      hired: true,
+    });
+
+    res.status(200).json({
+      jobRef,
+      totalCandidates,
+      shortlistedCandidates,
+      hiredCandidates,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

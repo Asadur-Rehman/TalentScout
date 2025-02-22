@@ -17,7 +17,7 @@ export function JobCard({
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         <div className="mt-2 flex items-center gap-2 text-sm">
           <span className="text-gray-600">Date Posted:</span>
-          <span className="text-green-600 font-medium">{status}</span>
+          <span className="text-green-600 font-medium">{datePosted}</span>
         </div>
         <div className="text-sm text-gray-600">Hires: {hires}</div>
 
