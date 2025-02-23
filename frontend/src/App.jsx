@@ -46,7 +46,10 @@ export default function App() {
             path="/recruiter/job-description"
             element={<JobDescription />}
           />
-          <Route path="/recruiter/job-dashboard" element={<JobDashboard />} />
+          <Route
+            path="/recruiter/job-dashboard/:id"
+            element={<JobDashboard />}
+          />
           <Route path="/recruiter" element={<RecruiterHome />} />
 
           <Route

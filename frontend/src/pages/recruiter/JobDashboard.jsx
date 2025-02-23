@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import TalentScout from "../../assets/Group 5.svg";
 import ProfileModal from "./ProfileModal";
 import Layout from "./RecruiterLayout";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 const JobDashboard = () => {
+  const { id } = useParams();
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const applicants = [
@@ -37,6 +43,28 @@ const JobDashboard = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`/api/job/get/${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch job details");
+        }
+        const data = await response.json();
+        setJob(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+  }, [id]);
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+
   return (
     <div>
       <Layout>
@@ -46,6 +74,7 @@ const JobDashboard = () => {
           </h2>
         </header>
 
+        {/* Section 1: Job Details */}
         <section className="mb-8 border-b pb-6 bg-white m-6 p-6 rounded-xl shadow">
           <h2
             className="text-xl font-semibold mb-4"
@@ -54,10 +83,7 @@ const JobDashboard = () => {
             Job Specific Information
           </h2>
           <p className="text-gray-500 mb-2">
-            <strong>
-              Job Title: Junior ReactJS Frontend Engineer required at
-              CodeVenture LLC
-            </strong>
+            <strong>Job Title: {job.title}</strong>
           </p>
 
           <p className="text-gray-600 mb-4">
@@ -65,32 +91,14 @@ const JobDashboard = () => {
             <textarea
               className="w-full bg-white text-gray-500 border border-gray-500 rounded p-2 mt-2 rounded-xl resize-none"
               readOnly
-              rows="8"
-            >
-              We are seeking a skilled React Native Developer with at least 2
-              years of experience to join our dynamic development team. The
-              ideal candidate will be responsible for building and maintaining
-              mobile applications for both iOS and Android platforms using React
-              Native. You will collaborate with cross-functional teams to
-              design, develop, and implement innovative solutions, ensuring a
-              seamless user experience. Key Responsibilities: Develop and
-              maintain high-quality mobile applications using React Native. Work
-              with UI/UX designers to implement visually appealing and
-              responsive user interfaces. Write clean, efficient, and reusable
-              code. Integrate third-party libraries and APIs. Troubleshoot and
-              debug application issues. Collaborate with backend developers to
-              integrate frontend with backend systems. Participate in code
-              reviews and follow best practices for mobile development. Skills:
-              Proficient in React Native, with expertise in building and
-              maintaining cross-platform mobile applications for iOS and
-              Android. Strong understanding of UI/UX design principles,
-              responsive design, and implementing visually appealing interface.
-            </textarea>
+              rows="6"
+              value={job.description}
+            />
           </p>
 
           <p className="font-medium text-gray-500 mb-2">Required Skills:</p>
           <div className="flex gap-2 flex-wrap mb-4">
-            {["React", "JavaScript", "Node", "HTML", "CSS"].map((skill) => (
+            {job.skills.map((skill) => (
               <span
                 key={skill}
                 className="text-white px-3 py-1 rounded-2xl text-sm"
@@ -100,58 +108,19 @@ const JobDashboard = () => {
               </span>
             ))}
           </div>
-          <div>
-            <p className="font-medium text-gray-500">Number Of Vacancies: 3</p>
-          </div>
 
-          <div className="font-medium text-gray-500">
-            <p className="font-medium text-gray-500">
-              Job Location: Karachi, Pakistan
-            </p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-500 mb-2">Employment Type:</p>
-            <div className="flex gap-2 flex-wrap mb-4">
-              {["Part-time", "On-site"].map((type) => (
-                <span
-                  key={type}
-                  className="p-3 rounded-lg text-sm bg-white text-[#21315C] border border-gray-300"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-500 mb-2">Experience:</p>
-            <div className="flex gap-2 flex-wrap mb-4">
-              {["Junior-level"].map((type) => (
-                <span
-                  key={type}
-                  className="p-3 rounded-lg text-sm bg-white text-[#21315C] border border-gray-300"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="font-medium text-gray-500 mb-2">
-              Expected Monthly Salary?
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              {["Rs. 100k-150k"].map((type) => (
-                <span
-                  key={type}
-                  className="p-3 rounded-lg text-sm bg-white text-[#21315C] border border-gray-300"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
+          <p className="font-medium text-gray-500">
+            Number Of Vacancies: {job.hires}
+          </p>
+          <p className="font-medium text-gray-500">
+            Job Location: {job.location}
+          </p>
+          <p className="font-medium text-gray-500">
+            Employment Type: {job.type}
+          </p>
+          <p className="font-medium text-gray-500">
+            Expected Monthly Salary: {job.salary}
+          </p>
         </section>
 
         <section className="mb-8 bg-white m-6 p-6 rounded-xl shadow">
@@ -177,15 +146,15 @@ const JobDashboard = () => {
                   key={index}
                   className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
                 >
-                  <div className="flex items-center gap-3">
-                    <img
+                  <div className="text-[#121212] text-center">
+                    {/* <img
                       src={applicant.image}
                       alt={applicant.name}
                       className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <span className="font-medium text-[#121212]">
+                    /> */}
+                    {/* <span className="font-medium text-[#121212]"> */}
                       {applicant.name}
-                    </span>
+                    {/* </span> */}
                   </div>
                   <div className="text-[#121212] text-center">
                     {applicant.education}

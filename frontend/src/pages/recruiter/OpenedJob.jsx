@@ -107,7 +107,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow px-8">
           {jobs.map((job, i) => (
             <JobCard
-              key={job._id || i}
+              key={i}
+              jobId={job._id}
               title={job.title}
               datePosted={new Date(job.createdAt).toISOString().split("T")[0]}
               status="Active"
