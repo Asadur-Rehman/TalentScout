@@ -7,6 +7,8 @@ import {
   getCandidates,
   getCandidateResume,
   getCandidateStats,
+  getCandidatesByJob,
+  getShortlistedCandidates,
 } from "../controllers/candidate.controller.js";
 import upload from "../multerConfig.js"; // Import multer config
 
@@ -17,7 +19,9 @@ router.delete("/delete/:id", deleteCandidate);
 router.post("/update/:id", upload.single("resume"), updateCandidate);
 router.get("/get/:id", getCandidate);
 router.get("/get", getCandidates);
-router.get("/resume/:id", getCandidateResume); // <-- New Route for Resume Download
+router.get("/resume/:id", getCandidateResume);
 router.get("/stats/:jobRef", getCandidateStats);
+router.get("/getbyjob/:jobRef", getCandidatesByJob);
+router.get("/shortlisted/:jobRef", getShortlistedCandidates);
 
 export default router;

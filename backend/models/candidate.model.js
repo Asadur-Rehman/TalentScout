@@ -1,3 +1,4 @@
+import { FileSpreadsheet } from "lucide-react";
 import mongoose from "mongoose";
 
 const candidateSchema = new mongoose.Schema(
@@ -15,9 +16,10 @@ const candidateSchema = new mongoose.Schema(
       data: Buffer,
       contentType: String,
     },
-    shortlist: { type: Boolean, default: false },
+    shortlist: { type: Boolean, default: true },
     hired: { type: Boolean, default: false },
-    resumeScore: { type: Number, required: false },
+    resumeScore: { type: Number, default: 0 },
+    evaluationScore: { type: Number, default: 0 },
     jobRef: { type: String, required: true },
   },
   { timestamps: true }

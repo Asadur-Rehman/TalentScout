@@ -53,7 +53,7 @@ export default function App() {
           <Route path="/recruiter" element={<RecruiterHome />} />
 
           <Route
-            path="/recruiter/shortlisted-candidates"
+            path="/recruiter/shortlisted-candidates/:id"
             element={<ShortlistedCandidates />}
           />
           <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />

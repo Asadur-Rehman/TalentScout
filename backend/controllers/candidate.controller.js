@@ -150,3 +150,37 @@ export const getCandidateStats = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getCandidatesByJob = async (req, res, next) => {
+  try {
+    const { jobRef } = req.params;
+    const candidates = await Candidate.find({ jobRef }).select("-resume");
+
+    if (!candidates.length) {
+      return next(errorHandler(404, "No candidates found for this job!"));
+    }
+
+    res.status(200).json(candidates);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getShortlistedCandidates = async (req, res, next) => {
+  try {
+    const { jobRef } = req.params;
+
+    const shortlistedCandidates = await Candidate.find({
+      jobRef,
+      shortlist: true,
+    }).select("-resume");
+
+    if (!shortlistedCandidates.length) {
+      return next(errorHandler(404, "No shortlisted candidates found!"));
+    }
+
+    res.status(200).json(shortlistedCandidates);
+  } catch (error) {
+    next(error);
+  }
+};
