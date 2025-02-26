@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Layout from "./RecruiterLayout";
 import { useNavigate } from "react-router-dom";
+import { FiMenu, FiX, FiMinus, FiPlus } from "react-icons/fi"; 
 
 const SKILL_OPTIONS = [
   "React",
@@ -79,17 +80,16 @@ const OpenJobForm = () => {
       </header>
 
       <section className="mb-8 border-b pb-6 bg-white p-6 rounded-xl shadow-sm flex justify-between items-center">
-        <p className="text-black">TELL US ABOUT THE JOB</p>
+        <p className="text-black text-md">TELL US ABOUT THE JOB</p>
         <div className="w-1/5 flex justify-between items-center">
           <div className="w-full h-1 bg-gray-200">
             <div className="w-1/2 h-full bg-[#144066]"></div>
           </div>
-          <p className="text-black text-right">1/2</p>
+          <p className="text-black text-right font-[Montserrat]">1/2</p>
         </div>
       </section>
 
       <form className="bg-white rounded-xl shadow-sm p-6">
-        {/* Job Title */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">JOB TITLE*</label>
           <input
@@ -104,9 +104,7 @@ const OpenJobForm = () => {
 
         {/* Skills Selection */}
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">
-            WHAT SKILLS SHOULD I HAVE?*
-          </label>
+          <label className="block text-sm font-medium mb-2">WHAT SKILLS SHOULD I HAVE?*</label>
           <div className="flex flex-wrap gap-2 border rounded-md px-4 py-2">
             {formData.skills.map((skill) => (
               <span
@@ -119,7 +117,7 @@ const OpenJobForm = () => {
                   onClick={() => removeSkill(skill)}
                   className="ml-2 text-white hover:text-red-400"
                 >
-                  ✕
+                  <FiX />
                 </button>
               </span>
             ))}
@@ -167,7 +165,7 @@ const OpenJobForm = () => {
               onClick={decrementHires}
               className="px-4 py-2 border rounded-md text-lg bg-[#144066] text-white"
             >
-              -
+              <FiMinus/>
             </button>
             <span className="text-lg">{formData.hires}</span>
             <button
@@ -175,7 +173,7 @@ const OpenJobForm = () => {
               onClick={incrementHires}
               className="px-4 py-2 border rounded-md text-lg bg-[#144066] text-white"
             >
-              +
+              <FiPlus/>
             </button>
           </div>
         </div>
@@ -189,7 +187,7 @@ const OpenJobForm = () => {
             {["Fully Remote", "Hybrid", "Onsite"].map((location) => (
               <label
                 key={location}
-                className={`px-4 py-2 border rounded-md text-lg flex items-center space-x-2 ${
+                className={`px-4 py-2 border rounded-md text-md flex items-center space-x-2 ${
                   formData.locationType === location
                     ? "bg-[#144066] text-white"
                     : "text-[#144066]"
@@ -263,8 +261,7 @@ const OpenJobForm = () => {
           </div>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-end mt-8">
           <button
             type="button"
             className="px-6 py-2 border border-gray-300 rounded-md text-sm text-gray-700"
@@ -276,7 +273,7 @@ const OpenJobForm = () => {
             onClick={() =>
               navigate("/recruiter/job-description", { state: { formData } })
             }
-            className="px-6 py-2 bg-[#144066] text-white rounded-md text-sm"
+            className="px-6 py-2 bg-[#144066] text-white rounded-md text-sm ml-4"
           >
             Next
           </button>
