@@ -25,13 +25,18 @@ export default function Dashboard() {
     const fetchJobs = async () => {
       try {
         const response = await fetch(`/api/job/getbyrecruiter/${recruiterRef}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch jobs");
-        }
         const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+          // If API returns a structured error message, use it
+          setError(data.message || "Something went wrong while fetching jobs");
+          setJobs([]); // Ensure jobs state is empty
+          return;
+        }
+
         setJobs(data);
       } catch (err) {
-        setError(err.message);
+        setError("Something went wrong while fetching jobs");
       } finally {
         setLoading(false);
       }
