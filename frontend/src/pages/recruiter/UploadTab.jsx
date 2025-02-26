@@ -1,8 +1,32 @@
 "use client";
+import { useRef, useState } from "react";
 
 export default function UploadTab({ description, setDescription }) {
-  const handleGenerate = () => {
-    console.log("Generating description...");
+  const [file, setFile] = useState(null);
+  const fileRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const uploadedFile = e.target.files[0];
+    setFile(uploadedFile);
+    const formData = new FormData();
+    formData.append("resume", uploadedFile);
+
+    try {
+      const res = await fetch("/api/text-extract/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        console.log("Extracted text:", data.text);
+        setDescription(data.text); // Set extracted text in the textarea
+      } else {
+        console.error("Failed to extract text:", data.message);
+      }
+    } catch (error) {
+      console.error("Error extracting resume text:", error);
+    }
   };
 
   return (
@@ -30,14 +54,23 @@ export default function UploadTab({ description, setDescription }) {
                 </svg>
               </div>
               <span className="text-sm font-medium text-gray-700">
-                Generate with AI
+                Upload a PDF
               </span>
             </div>
             <button
-              onClick={handleGenerate}
+              onClick={() => fileRef.current.click()}
               className="px-4 py-2 text-sm font-medium text-white bg-[#0B2544] hover:bg-[#0B2544]/90 rounded-md transition-colors"
             >
               Upload
+              <input
+                type="file"
+                ref={fileRef}
+                name="resume"
+                hidden
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="opacity-0 absolute w-full h-full cursor-pointer"
+              />
             </button>
           </div>
 

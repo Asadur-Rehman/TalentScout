@@ -18,6 +18,8 @@ const JobDescription = () => {
   const [error, setError] = useState(null);
   const [jobId, setJobId] = useState(null); // Store job ID from API response
 
+  
+
   const handleNext = async () => {
     setLoading(true);
     setError(null);

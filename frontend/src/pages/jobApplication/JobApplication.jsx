@@ -62,9 +62,15 @@ const JobApplication = () => {
         body: formData,
       });
 
+      if (!res.ok) {
+        throw new Error(`Failed to extract text: ${res.status}`);
+      }
+
       const data = await res.json();
+      console.log("API Response:", data); // Log full response
+
       if (data.success) {
-        console.log("Extracted text:", data.text);
+        setResumeText(data.text); // Update state
       } else {
         console.error("Failed to extract text:", data.message);
       }
@@ -72,6 +78,66 @@ const JobApplication = () => {
       console.error("Error extracting resume text:", error);
     }
   };
+
+  useEffect(() => {
+    const cosineSimilarity = (vec1, vec2) => {
+      const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
+      const norm1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
+      const norm2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
+
+      return dotProduct / (norm1 * norm2);
+    };
+
+    const handleEmbedding = async () => {
+      try {
+        const uploadData = {
+          model: "text-embedding-nomic-embed-text-v1.5",
+          input: [job.description, resumeText], // Ensure resumeText is updated
+        };
+
+        console.log("Embedding Request:", uploadData);
+
+        const res = await fetch("http://192.168.56.1:1234/v1/embeddings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(uploadData),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Embedding request failed: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("Embedding Response:", data);
+
+        const embeddings = data.data.map((item) => item.embedding);
+
+        if (embeddings.length === 2) {
+          const similarity = cosineSimilarity(embeddings[0], embeddings[1]);
+          const similarityPercentage = (similarity * 100).toFixed(2); // Convert to percentage
+
+          console.log("Similarity Percentage:", similarityPercentage);
+
+          // Update formData with resume score
+          setFormData((prevData) => ({
+            ...prevData,
+            resumeScore: similarityPercentage,
+          }));
+        } else {
+          console.log(
+            "Expected exactly 2 embeddings but got:",
+            embeddings.length
+          );
+        }
+      } catch (error) {
+        console.error("Error extracting resume text:", error);
+      }
+    };
+
+    if (resumeText && job?.description) {
+      handleEmbedding();
+    }
+  }, [resumeText, job?.description]);
 
   const handleSubmit = async (e) => {
     if (!file) return alert("Please select a resume file.");
@@ -85,9 +151,7 @@ const JobApplication = () => {
     try {
       const res = await fetch("/api/candidate/create", {
         method: "POST",
-        // headers: {
-        //   "Content-Type": "multipart/form-data",
-        // },
+
         body: uploadData,
       });
 

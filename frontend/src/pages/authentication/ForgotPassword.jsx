@@ -8,12 +8,8 @@ const ForgotPassword = () => {
             <div className="w-full max-w-lg relative flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 font-inter">
       <div className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-white shadow-md rounded-md px-4 py-6 sm:px-8 sm:py-10 font-inter">
           <div className="text-center mb-4 sm:mb-6">
-            <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">
-              Forgot Password?
-            </h1>
-            <p className="text-gray-500 text-xs sm:text-sm md:text-base mt-1">
-              Don’t worry, we have got you covered!
-            </p>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800">Forgot Password?</h1>
+            <p className="text-gray-500 text-xs sm:text-sm mt-1">Don’t worry, we have got you covered!</p>
           </div>
 
           <form className="space-y-3 sm:space-y-4">
