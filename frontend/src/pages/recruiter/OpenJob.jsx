@@ -1,28 +1,200 @@
 import React, { useState } from "react";
 import Layout from "./RecruiterLayout";
 import { useNavigate } from "react-router-dom";
-import { FiMenu, FiX, FiMinus, FiPlus } from "react-icons/fi"; 
+import { FiMenu, FiX, FiMinus, FiPlus } from "react-icons/fi";
 
 const SKILL_OPTIONS = [
+  // Frontend Technologies
   "React",
+  "Next.js",
+  "Vue.js",
+  "Angular",
+  "Svelte",
+  "Redux",
+  "Recoil",
+  "Tailwind CSS",
+  "Bootstrap",
+  "Material-UI",
+  "Chakra UI",
+  "Three.js",
+  "WebGL",
+  "Framer Motion",
+
+  // Backend Technologies
   "Node.js",
+  "Express.js",
+  "NestJS",
+  "Fastify",
+  "Koa",
+  "Hapi.js",
+  "Django",
+  "Flask",
+  "Spring Boot",
+  "Ruby on Rails",
+  "ASP.NET Core",
+  "Laravel",
+  "Go Fiber",
+  "Gin (Go)",
+
+  // Databases
+  "MongoDB",
+  "PostgreSQL",
+  "MySQL",
+  "MariaDB",
+  "Firebase",
+  "SQLite",
+  "Cassandra",
+  "Redis",
+  "DynamoDB",
+  "Neo4j",
+  "Supabase",
+  "PlanetScale",
+
+  // DevOps & Cloud
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "Azure",
+  "Google Cloud Platform",
+  "Heroku",
+  "Vercel",
+  "Netlify",
+  "Terraform",
+  "CI/CD",
+  "Jenkins",
+  "GitHub Actions",
+  "CircleCI",
+  "Travis CI",
+
+  // Programming Languages
   "JavaScript",
   "TypeScript",
-  "MongoDB",
-  "Express.js",
-  "Redux",
-  "Next.js",
-  "GraphQL",
-  "Docker",
-  "AWS",
   "Python",
-  "Django",
   "Java",
-  "Spring Boot",
   "C++",
-  "MySQL",
-  "PostgreSQL",
-  "Firebase",
+  "C",
+  "C#",
+  "Go",
+  "Rust",
+  "Ruby",
+  "PHP",
+  "Swift",
+  "Kotlin",
+  "Dart",
+  "R",
+  "Scala",
+
+  // Testing & QA
+  "Jest",
+  "Mocha",
+  "Chai",
+  "Cypress",
+  "Playwright",
+  "Selenium",
+  "JUnit",
+  "PyTest",
+  "Karma",
+  "Enzyme",
+  "TestNG",
+  "Postman",
+  "SoapUI",
+
+  // Version Control & Collaboration
+  "Git",
+  "GitHub",
+  "GitLab",
+  "Bitbucket",
+  "SVN",
+  "Mercurial",
+
+  // Mobile Development
+  "React Native",
+  "Flutter",
+  "Swift (iOS)",
+  "Kotlin (Android)",
+  "Xamarin",
+  "Ionic",
+
+  // Security
+  "OAuth",
+  "JWT",
+  "OpenID Connect",
+  "SSO",
+  "OWASP",
+  "Penetration Testing",
+  "Ethical Hacking",
+
+  // Data Science & AI
+  "TensorFlow",
+  "PyTorch",
+  "Scikit-Learn",
+  "Pandas",
+  "NumPy",
+  "Matplotlib",
+  "OpenCV",
+  "NLP",
+  "Hugging Face",
+  "MLflow",
+  "Jupyter Notebook",
+  "Apache Spark",
+
+  // Blockchain
+  "Ethereum",
+  "Solidity",
+  "Web3.js",
+  "Hardhat",
+  "Truffle",
+  "Smart Contracts",
+  "Hyperledger",
+  "IPFS",
+
+  // Miscellaneous
+  "GraphQL",
+  "Apollo Client",
+  "REST API",
+  "Microservices",
+  "RabbitMQ",
+  "Kafka",
+  "gRPC",
+  "Serverless",
+  "TDD",
+  "DDD",
+  "Event-Driven Architecture",
+  "WebSockets",
+  "PWA (Progressive Web Apps)",
+  "Electron.js",
+  "Figma",
+  "UX/UI Design",
+
+  // Soft Skills
+  "Problem-Solving",
+  "Critical Thinking",
+  "Communication Skills",
+  "Teamwork",
+  "Collaboration",
+  "Time Management",
+  "Adaptability",
+  "Leadership",
+  "Creativity",
+  "Attention to Detail",
+  "Decision-Making",
+  "Analytical Thinking",
+  "Emotional Intelligence",
+  "Conflict Resolution",
+  "Project Management",
+  "Self-Motivation",
+  "Interpersonal Skills",
+  "Networking",
+  "Public Speaking",
+  "Active Listening",
+  "Negotiation Skills",
+  "Presentation Skills",
+  "Mentoring",
+  "Work Ethic",
+  "Agile Methodologies",
+  "Scrum",
+  "Kanban",
+  "Stakeholder Management",
 ];
 
 const OpenJobForm = () => {
@@ -104,7 +276,9 @@ const OpenJobForm = () => {
 
         {/* Skills Selection */}
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">WHAT SKILLS SHOULD I HAVE?*</label>
+          <label className="block text-sm font-medium mb-2">
+            WHAT SKILLS SHOULD I HAVE?*
+          </label>
           <div className="flex flex-wrap gap-2 border rounded-md px-4 py-2">
             {formData.skills.map((skill) => (
               <span
@@ -165,7 +339,7 @@ const OpenJobForm = () => {
               onClick={decrementHires}
               className="px-4 py-2 border rounded-md text-lg bg-[#144066] text-white"
             >
-              <FiMinus/>
+              <FiMinus />
             </button>
             <span className="text-lg">{formData.hires}</span>
             <button
@@ -173,7 +347,7 @@ const OpenJobForm = () => {
               onClick={incrementHires}
               className="px-4 py-2 border rounded-md text-lg bg-[#144066] text-white"
             >
-              <FiPlus/>
+              <FiPlus />
             </button>
           </div>
         </div>

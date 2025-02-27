@@ -1,5 +1,77 @@
-export default function ProfileModal({ isOpen, onClose }) {
+import { useEffect } from "react";
+import { useState } from "react";
+
+export default function ProfileModal({ isOpen, onClose, candidateId }) {
   if (!isOpen) return null;
+
+  const [candidate, setCandidate] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const id = candidateId;
+
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  const viewResume = async (userId) => {
+    try {
+      const response = await fetch(`/api/candidate/resume/${userId}`);
+      if (!response.ok) throw new Error("Failed to fetch resume");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank"); // Opens in a new tab
+    } catch (error) {
+      console.error("Error viewing resume:", error);
+    }
+  };
+
+  const downloadResume = async (userId) => {
+    try {
+      const response = await fetch(`/api/candidate/resume/${userId}`);
+      if (!response.ok) throw new Error("Failed to fetch resume");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resume.docx"; // Change extension if needed
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Updated Candidate Data:", candidate);
+  }, [candidate]);
+
+  useEffect(() => {
+    const fetchCandidate = async () => {
+      try {
+        const response = await fetch(`/api/candidate/get/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch candidates");
+        const data = await response.json();
+        console.log("Candidate fetched:", data);
+        setCandidate(data);
+      } catch (err) {
+        console.error("Error fetching candidate:", err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCandidate();
+  }, [id]);
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -35,9 +107,11 @@ export default function ProfileModal({ isOpen, onClose }) {
             />
             <div className="flex-1">
               <h2 className="text-2xl font-semibold text-gray-900">
-                Shahmeer Sheraz
+                {candidate?.firstname} {candidate?.lastname}
               </h2>
-              <p className="text-gray-600">Website Designer (UI/UX)</p>
+              <p className="text-gray-600">
+                {candidate?.jobTitle || "Frontend Developer"}
+              </p>
             </div>
             <button className="px-6 py-2 text-sm text-white font-medium rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors">
               Shortlist
@@ -50,28 +124,15 @@ export default function ProfileModal({ isOpen, onClose }) {
             <div>
               <h3 className="text-lg font-semibold mb-6">COVER LETTER</h3>
               <div className="space-y-4 text-gray-600">
-                <p>Dear Sir,</p>
-                <p>
-                  I am writing to express my interest in the fourth grade
-                  instructional position that is currently available in the Fort
-                  Wayne Community School System. I learned of the opening
-                  through a notice posted on JobZone, IPFW's job database. I am
-                  confident that my academic background and curriculum
-                  development skills would be successfully utilized in this
-                  teaching position.
-                </p>
-                <p>
-                  I have just completed my Bachelor of Science degree in
-                  Elementary Education and have successfully completed Praxis I
-                  and Praxis II. During my student teaching experience, I
-                  developed and initiated a three-week curriculum sequence on
-                  animal species and earth resources. This collaborative unit
-                  involved working with three other third grade teachers within
-                  my team, and culminated in a field trip to the Indianapolis
-                  Zoo Animal Research Unit.
-                </p>
-                <p>Sincerely,</p>
-                <p>Esther Howard</p>
+                {candidate?.coverletter ? (
+                  candidate.coverletter
+                    .split("\n")
+                    .map((para, index) => <p key={index}>{para}</p>)
+                ) : (
+                  <p className="text-gray-500 italic">
+                    No cover letter provided.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -92,7 +153,9 @@ export default function ProfileModal({ isOpen, onClose }) {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">DATE OF BIRTH</p>
-                    <p className="font-medium">14 June, 2021</p>
+                    <p className="font-medium">
+                      {formatDate(candidate?.birth)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -108,7 +171,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">NATIONALITY</p>
-                    <p className="font-medium">Pakistan</p>
+                    <p className="font-medium">{candidate?.country}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -124,7 +187,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">EXPERIENCE</p>
-                    <p className="font-medium">7 Years</p>
+                    <p className="font-medium">{candidate.experience}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -146,7 +209,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">EDUCATIONS</p>
-                    <p className="font-medium">Master Degree</p>
+                    <p className="font-medium">{candidate.education}</p>
                   </div>
                 </div>
               </div>
@@ -162,11 +225,14 @@ export default function ProfileModal({ isOpen, onClose }) {
                       PDF
                     </div>
                     <div>
-                      <p className="font-medium">Esther Howard</p>
+                      <p className="font-medium">Resume</p>
                       <p className="text-sm text-gray-500">PDF</p>
                     </div>
                   </div>
-                  <button className="text-[#144066] hover:text-[#0B2544]">
+                  <button
+                    className="text-[#144066] hover:text-[#0B2544]"
+                    onClick={() => viewResume(id)}
+                  >
                     <svg
                       className="w-6 h-6"
                       fill="none"
@@ -207,7 +273,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">EMAIL ADDRESS</p>
-                      <p className="font-medium">esther.howard@gmail.com</p>
+                      <p className="font-medium">{candidate?.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -227,7 +293,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">PHONE</p>
-                      <p className="font-medium">+92 123456789</p>
+                      <p className="font-medium">+92 {candidate.contact}</p>
                     </div>
                   </div>
                 </div>

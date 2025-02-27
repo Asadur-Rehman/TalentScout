@@ -11,15 +11,20 @@ const JobDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [selectedCandidateId, setSelectedCandidateId] = useState(null);
 
   useEffect(() => {
+    console.log("Fetching job and candidates for job ID:", id);
+
     const fetchJobDetails = async () => {
       try {
         const response = await fetch(`/api/job/get/${id}`);
         if (!response.ok) throw new Error("Failed to fetch job details");
         const data = await response.json();
+        console.log("Job details fetched:", data);
         setJob(data);
       } catch (err) {
+        console.error("Error fetching job details:", err.message);
         setError(err.message);
       }
     };
@@ -29,8 +34,10 @@ const JobDashboard = () => {
         const response = await fetch(`/api/candidate/getbyjob/${id}`);
         if (!response.ok) throw new Error("Failed to fetch candidates");
         const data = await response.json();
+        console.log("Candidates fetched:", data);
         setCandidates(data);
       } catch (err) {
+        console.error("Error fetching candidates:", err.message);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -40,6 +47,12 @@ const JobDashboard = () => {
     fetchJobDetails();
     fetchCandidates();
   }, [id]);
+
+  const handleViewProfile = (candidateId) => {
+    console.log("Opening profile modal for candidate ID:", candidateId);
+    setSelectedCandidateId(candidateId);
+    setIsProfileModalOpen(true);
+  };
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
@@ -139,7 +152,7 @@ const JobDashboard = () => {
                     <div className="flex justify-center">
                       <button
                         className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
-                        onClick={() => setIsProfileModalOpen(true)}
+                        onClick={() => handleViewProfile(candidate._id)}
                       >
                         View Profile
                       </button>
@@ -180,7 +193,11 @@ const JobDashboard = () => {
 
       <ProfileModal
         isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
+        onClose={() => {
+          console.log("Closing profile modal");
+          setIsProfileModalOpen(false);
+        }}
+        candidateId={selectedCandidateId} // Pass candidateId to ProfileModal
       />
     </div>
   );

@@ -93,7 +93,7 @@ export const updateCandidate = async (req, res, next) => {
 
 export const getCandidate = async (req, res, next) => {
   try {
-    const candidate = await Candidate.findById(req.params.id);
+    const candidate = await Candidate.findById(req.params.id).select("-resume");
     if (!candidate) {
       return next(errorHandler(404, "Candidate not found!"));
     }
@@ -112,15 +112,33 @@ export const getCandidates = async (req, res, next) => {
   }
 };
 
+// export const getCandidateResume = async (req, res, next) => {
+//   try {
+//     const candidate = await Candidate.findById(req.params.id);
+//     if (!candidate || !candidate.resume.data) {
+//       return next(errorHandler(404, "Resume not found!"));
+//     }
+
+//     res.set("Content-Type", candidate.resume.contentType);
+//     res.send(candidate.resume.data);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 export const getCandidateResume = async (req, res, next) => {
   try {
     const candidate = await Candidate.findById(req.params.id);
-    if (!candidate || !candidate.resume.data) {
+
+    if (!candidate || !candidate.resume || !candidate.resume.data) {
       return next(errorHandler(404, "Resume not found!"));
     }
 
+    // Set correct content type (e.g., PDF, DOCX, etc.)
     res.set("Content-Type", candidate.resume.contentType);
-    res.send(candidate.resume.data);
+
+    // Convert the Buffer data properly
+    res.send(Buffer.from(candidate.resume.data));
   } catch (error) {
     next(error);
   }
@@ -184,3 +202,20 @@ export const getShortlistedCandidates = async (req, res, next) => {
     next(error);
   }
 };
+
+// export const getCandidateResume = async (req, res, next) => {
+//   try {
+//     const { candidateId } = req.params;
+
+//     const candidate = await Candidate.findById(candidateId).select("resume");
+
+//     if (!candidate || !candidate.resume) {
+//       return next(errorHandler(404, "Resume not found!"));
+//     }
+
+//     res.set("Content-Type", candidate.resume.contentType);
+//     res.send(Buffer.from(candidate.resume.data.data));
+//   } catch (error) {
+//     next(error);
+//   }
+// };

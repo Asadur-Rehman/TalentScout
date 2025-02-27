@@ -5,10 +5,10 @@ import {
   updateCandidate,
   getCandidate,
   getCandidates,
-  getCandidateResume,
   getCandidateStats,
   getCandidatesByJob,
   getShortlistedCandidates,
+  getCandidateResume,
 } from "../controllers/candidate.controller.js";
 import upload from "../multerConfig.js"; // Import multer config
 
