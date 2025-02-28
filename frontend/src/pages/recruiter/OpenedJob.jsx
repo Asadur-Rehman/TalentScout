@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StatsCard } from "./StatsCard";
 import { JobCard } from "./JobCard";
+import NoJobs from "./NoJobs"; // Fixed import
 
 export default function Dashboard() {
   const persistRoot = localStorage.getItem("persist:root");
@@ -21,6 +22,7 @@ export default function Dashboard() {
   // Fetch jobs for recruiter
   useEffect(() => {
     if (!recruiterRef) return;
+    setError(null); // Reset error before fetching
 
     const fetchJobs = async () => {
       try {
@@ -28,9 +30,8 @@ export default function Dashboard() {
         const data = await response.json();
 
         if (!response.ok || data.success === false) {
-          // If API returns a structured error message, use it
           setError(data.message || "Something went wrong while fetching jobs");
-          setJobs([]); // Ensure jobs state is empty
+          setJobs([]);
           return;
         }
 
@@ -63,14 +64,12 @@ export default function Dashboard() {
 
             const data = await response.json();
 
-            // Store stats per job
             statsMap[job._id] = {
               totalCandidates: Number(data.totalCandidates) || 0,
               shortlistedCandidates: Number(data.shortlistedCandidates) || 0,
               hiredCandidates: Number(data.hiredCandidates) || 0,
             };
 
-            // Update global totals
             total += statsMap[job._id].totalCandidates;
             shortlisted += statsMap[job._id].shortlistedCandidates;
             hired += statsMap[job._id].hiredCandidates;
@@ -80,7 +79,7 @@ export default function Dashboard() {
         })
       );
 
-      setJobStats(statsMap); // Set individual job stats
+      setJobStats(statsMap);
       setTotalApplicants(total);
       setShortlistedApplications(shortlisted);
       setHires(hired);
@@ -90,42 +89,53 @@ export default function Dashboard() {
   }, [jobs]);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <StatsCard title="Total Open Jobs" value={jobs.length} variant="dark" />
-        <StatsCard
-          title="Total Applicants"
-          value={totalApplicants}
-          variant="light"
-        />
-        <StatsCard
-          title="Shortlisted Application"
-          value={shortlistedApplications}
-          variant="dark"
-        />
-        <StatsCard title="Hires" value={hires} variant="light" />
-      </div>
-      <div className="p-6 bg-white min-h-screen rounded-xl flex flex-col">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow px-8">
-          {jobs.map((job, i) => (
-            <JobCard
-              key={i}
-              jobId={job._id}
-              title={job.title}
-              datePosted={new Date(job.createdAt).toISOString().split("T")[0]}
-              status="Active"
-              hires={jobStats[job._id]?.hiredCandidates || 0}
-              totalApplications={jobStats[job._id]?.totalCandidates || 0}
-              shortlistedApplications={
-                jobStats[job._id]?.shortlistedCandidates || 0
-              }
+      {error === "No jobs found for this recruiter!" ? (
+        <NoJobs />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <StatsCard
+              title="Total Open Jobs"
+              value={jobs.length}
+              variant="dark"
             />
-          ))}
-        </div>
-      </div>
+            <StatsCard
+              title="Total Applicants"
+              value={totalApplicants}
+              variant="light"
+            />
+            <StatsCard
+              title="Shortlisted Applications"
+              value={shortlistedApplications}
+              variant="dark"
+            />
+            <StatsCard title="Hires" value={hires} variant="light" />
+          </div>
+          <div className="p-6 bg-white min-h-screen rounded-xl flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow px-8">
+              {jobs.map((job) => (
+                <JobCard
+                  key={job._id}
+                  jobId={job._id}
+                  title={job.title}
+                  datePosted={
+                    new Date(job.createdAt).toISOString().split("T")[0]
+                  }
+                  status="Active"
+                  hires={jobStats[job._id]?.hiredCandidates || 0}
+                  totalApplications={jobStats[job._id]?.totalCandidates || 0}
+                  shortlistedApplications={
+                    jobStats[job._id]?.shortlistedCandidates || 0
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
