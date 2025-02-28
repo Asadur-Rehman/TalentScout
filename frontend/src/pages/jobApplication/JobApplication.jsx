@@ -12,6 +12,7 @@ const JobApplication = () => {
   const fileRef = useRef(null);
   const [file, setFile] = useState(null);
   const [resumeText, setResumeText] = useState("");
+  const [uploadStatus, setUploadStatus] = useState("");
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -53,6 +54,8 @@ const JobApplication = () => {
   const handleFileChange = async (e) => {
     const uploadedFile = e.target.files[0];
     setFile(uploadedFile);
+    setUploadStatus("Uploading...");
+
     const formData = new FormData();
     formData.append("resume", uploadedFile);
 
@@ -67,15 +70,18 @@ const JobApplication = () => {
       }
 
       const data = await res.json();
-      console.log("API Response:", data); // Log full response
+      console.log("API Response:", data);
 
       if (data.success) {
-        setResumeText(data.text); // Update state
+        setResumeText(data.text);
+        setUploadStatus("Resume uploaded successfully!");
       } else {
         console.error("Failed to extract text:", data.message);
+        setUploadStatus("Failed to process the resume");
       }
     } catch (error) {
       console.error("Error extracting resume text:", error);
+      setUploadStatus("Error uploading resume");
     }
   };
 
@@ -211,15 +217,15 @@ const JobApplication = () => {
             className="w-full bg-white text-gray-500  rounded resize-none"
             readOnly
           >
-          {job?.description ? (
-                  job.description
-                    .split("\n")
-                    .map((para, index) => <p key={index}>{para}</p>)
-                ) : (
-                  <p className="text-gray-500 italic">
-                    No job description provided
-                  </p>
-                )}
+            {job?.description ? (
+              job.description
+                .split("\n")
+                .map((para, index) => <p key={index}>{para}</p>)
+            ) : (
+              <p className="text-gray-500 italic">
+                No job description provided
+              </p>
+            )}
           </text>
         </p>
 
@@ -236,16 +242,10 @@ const JobApplication = () => {
           ))}
         </div>
 
-        <p className="text-gray-500">
-          Number Of Vacancies: {job.hires}
-        </p>
-        <p className=" text-gray-500">
-          Job Location: {job.location}
-        </p>
+        <p className="text-gray-500">Number Of Vacancies: {job.hires}</p>
+        <p className=" text-gray-500">Job Location: {job.location}</p>
         <p className="text-gray-500">Employment Type: {job.type}</p>
-        <p className="text-gray-500">
-          Expected Monthly Salary: {job.salary}
-        </p>
+        <p className="text-gray-500">Expected Monthly Salary: {job.salary}</p>
       </section>
 
       {/* Section 2: Applicant's Information */}
@@ -401,6 +401,9 @@ const JobApplication = () => {
               onChange={handleFileChange}
               className="opacity-0 absolute w-full h-full cursor-pointer"
             />
+            {uploadStatus && (
+              <p className="text-sm text-gray-600">{uploadStatus}</p>
+            )}
           </div>
         </div>
       </section>

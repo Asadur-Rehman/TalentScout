@@ -14,10 +14,8 @@ const JobDashboard = () => {
     const fetchShortlistedCandidates = async () => {
       try {
         const response = await fetch(`/api/candidate/shortlisted/${id}`);
-        if (!response.ok)
-          throw new Error("Failed to fetch shortlisted candidates");
+        if (!response.ok) setError("Failed to fetch shortlisted candidates");
         const data = await response.json();
-        console.log(data);
         setApplicants(data);
       } catch (err) {
         setError(err.message);
@@ -30,7 +28,7 @@ const JobDashboard = () => {
   }, [id]);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  // if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
     <div className="flex min-h-screen bg-[#F2FDFF]">

@@ -28,6 +28,28 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
     }
   };
 
+  const handleShortlist = async () => {
+    try {
+      const response = await fetch(`/api/candidate/update/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ shortlist: true }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to shortlist candidate");
+      }
+
+      const updatedCandidate = await response.json();
+      setCandidate(updatedCandidate); // Update state with the new candidate data
+      console.log("Candidate shortlisted successfully:", updatedCandidate);
+    } catch (error) {
+      console.error("Error shortlisting candidate:", error);
+    }
+  };
+
   const downloadResume = async (userId) => {
     try {
       const response = await fetch(`/api/candidate/resume/${userId}`);
@@ -114,7 +136,10 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                 {candidate?.jobTitle || "Frontend Developer"}
               </p>
             </div>
-            <button className="px-6 py-2 text-sm text-white font-medium rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors">
+            <button
+              className="px-6 py-2 text-sm text-white font-medium rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors"
+              onClick={handleShortlist} // Remove the arrow function wrapping
+            >
               Shortlist
             </button>
           </div>
