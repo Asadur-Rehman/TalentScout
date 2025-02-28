@@ -207,12 +207,20 @@ const JobApplication = () => {
 
         <p className="text-gray-600 mb-4">
           <strong className="text-gray-500">Job Description:</strong>
-          <textarea
-            className="w-full bg-white text-gray-500 border border-gray-500 rounded p-2 mt-2 rounded-xl resize-none"
+          <text
+            className="w-full bg-white text-gray-500  rounded resize-none"
             readOnly
-            rows="6"
-            value={job.description}
-          />
+          >
+          {job?.description ? (
+                  job.description
+                    .split("\n")
+                    .map((para, index) => <p key={index}>{para}</p>)
+                ) : (
+                  <p className="text-gray-500 italic">
+                    No job description provided
+                  </p>
+                )}
+          </text>
         </p>
 
         <p className="font-medium text-gray-500 mb-2">Required Skills:</p>
@@ -250,18 +258,18 @@ const JobApplication = () => {
             {
               label: "First Name",
               name: "firstname",
-              placeholder: "React Developer",
+              placeholder: "John",
             },
             {
               label: "Last Name",
               name: "lastname",
-              placeholder: "React Developer",
+              placeholder: "Doe",
             },
             { label: "Date Of Birth", name: "birth", type: "date" },
             {
               label: "Email",
               name: "email",
-              placeholder: "shahmeer@gmail.com",
+              placeholder: "john.doe@gmail.com",
             },
             {
               label: "Contact Number",

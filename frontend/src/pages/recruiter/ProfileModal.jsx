@@ -122,7 +122,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
           <div className="mt-8 grid grid-cols-[2fr,1fr] gap-12">
             {/* Left Column: Cover Letter */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">COVER LETTER</h3>
+              <h3 className="text-lg font-semibold mb-6">Cover Letter</h3>
               <div className="space-y-4 text-gray-600">
                 {candidate?.coverletter ? (
                   candidate.coverletter
@@ -152,7 +152,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">DATE OF BIRTH</p>
+                    <p className="text-sm text-gray-500">Date of Birth</p>
                     <p className="font-medium">
                       {formatDate(candidate?.birth)}
                     </p>
@@ -170,7 +170,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">NATIONALITY</p>
+                    <p className="text-sm text-gray-500">Nationality</p>
                     <p className="font-medium">{candidate?.country}</p>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">EXPERIENCE</p>
+                    <p className="text-sm text-gray-500">Experience</p>
                     <p className="font-medium">{candidate.experience}</p>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">EDUCATIONS</p>
+                    <p className="text-sm text-gray-500">Education</p>
                     <p className="font-medium">{candidate.education}</p>
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
-                      PDF
+                      Pdf
                     </div>
                     <div>
                       <p className="font-medium">Resume</p>
@@ -272,7 +272,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">EMAIL ADDRESS</p>
+                      <p className="text-sm text-gray-500">Email Address</p>
                       <p className="font-medium">{candidate?.email}</p>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">PHONE</p>
+                      <p className="text-sm text-gray-500">Phone</p>
                       <p className="font-medium">+92 {candidate.contact}</p>
                     </div>
                   </div>
