@@ -33,7 +33,9 @@ export default function SidebarLayout({ children }) {
         <nav>
           <ul className="space-y-0">
             {/* Dashboard Button */}
-            <a href="/recruiter/dashboard" className="block" onClick={() => setCurrentSelection("dashboard")}>
+            <a 
+            href="/recruiter/dashboard" 
+            className="block" onClick={() => setCurrentSelection("dashboard")}>
               <li className={`py-3 px-6 font-bold cursor-pointer ${currentSelection === "dashboard" ? "text-white bg-[#144066]" : "text-[#5E5E5E]"}`}>
                 Dashboard
               </li>

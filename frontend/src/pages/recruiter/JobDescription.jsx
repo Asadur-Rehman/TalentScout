@@ -61,7 +61,7 @@ const JobDescription = () => {
   return (
     <Layout>
       <header className="flex justify-between items-center mb-8">
-        <h2 className="text-xl font-bold">OPEN A JOB</h2>
+        <h2 className="text-xl font-bold">Open a Job</h2>
       </header>
 
       <section className="mb-8 border-b bg-white p-6 rounded-xl shadow">

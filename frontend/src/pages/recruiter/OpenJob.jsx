@@ -248,11 +248,11 @@ const OpenJobForm = () => {
   return (
     <Layout>
       <header className="mb-8">
-        <h2 className="text-xl font-bold">OPEN A JOB</h2>
+        <h2 className="text-xl font-bold">Open a Job</h2>
       </header>
 
       <section className="mb-8 border-b pb-6 bg-white p-6 rounded-xl shadow-sm flex justify-between items-center">
-        <p className="text-black text-md">TELL US ABOUT THE JOB</p>
+        <p className="text-black text-md">Tell us about the job</p>
         <div className="w-1/5 flex justify-between items-center">
           <div className="w-full h-1 bg-gray-200">
             <div className="w-1/2 h-full bg-[#144066]"></div>
@@ -263,7 +263,7 @@ const OpenJobForm = () => {
 
       <form className="bg-white rounded-xl shadow-sm p-6">
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">JOB TITLE*</label>
+          <label className="block text-sm font-medium mb-2">Job title*</label>
           <input
             type="text"
             name="title"
@@ -277,7 +277,7 @@ const OpenJobForm = () => {
         {/* Skills Selection */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            WHAT SKILLS SHOULD I HAVE?*
+            What skills should I have?*
           </label>
           <div className="flex flex-wrap gap-2 border rounded-md px-4 py-2">
             {formData.skills.map((skill) => (
@@ -331,7 +331,7 @@ const OpenJobForm = () => {
         {/* How Many Hires */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            HOW MANY HIRES?
+            How many hires?
           </label>
           <div className="flex items-center space-x-4">
             <button
@@ -355,7 +355,7 @@ const OpenJobForm = () => {
         {/* Job Location */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            JOB LOCATION*
+            Job location*
           </label>
           <div className="flex items-center space-x-4 mb-2">
             {["Fully Remote", "Hybrid", "Onsite"].map((location) => (

@@ -11,10 +11,10 @@ const RecruiterHome = () => {
     <Layout>
       <header className="flex justify-between items-center mb-8">
         {activeTab === "opened" && (
-          <h2 className="text-xl font-bold">OPENED JOBS</h2>
+          <h2 className="text-xl font-bold">Opened Jobs</h2>
         )}
         {activeTab === "closed" && (
-          <h2 className="text-xl font-bold">CLOSED JOBS</h2>
+          <h2 className="text-xl font-bold">Closed Jobs</h2>
         )}
 
         <button

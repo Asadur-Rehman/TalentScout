@@ -228,14 +228,14 @@ const JobApplication = () => {
           ))}
         </div>
 
-        <p className="font-medium text-gray-500">
+        <p className="text-gray-500">
           Number Of Vacancies: {job.hires}
         </p>
-        <p className="font-medium text-gray-500">
+        <p className=" text-gray-500">
           Job Location: {job.location}
         </p>
-        <p className="font-medium text-gray-500">Employment Type: {job.type}</p>
-        <p className="font-medium text-gray-500">
+        <p className="text-gray-500">Employment Type: {job.type}</p>
+        <p className="text-gray-500">
           Expected Monthly Salary: {job.salary}
         </p>
       </section>
