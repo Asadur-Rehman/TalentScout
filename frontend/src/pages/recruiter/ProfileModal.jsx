@@ -72,6 +72,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  console.log("useless comit");
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
