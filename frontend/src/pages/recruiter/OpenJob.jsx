@@ -211,7 +211,9 @@ const OpenJobForm = () => {
     hires: 0,
     location: "",
     type: "Full time",
-    salary: "50-100k",
+    experience:"Mid-level",
+    maxSalary: "6000k",
+    minSalary:"50000k",
     recruiterRef: recruiterRef,
   });
   const [skillInput, setSkillInput] = useState("");
@@ -361,7 +363,7 @@ const OpenJobForm = () => {
             {["Fully Remote", "Hybrid", "Onsite"].map((location) => (
               <label
                 key={location}
-                className={`px-4 py-2 border rounded-md text-md flex items-center space-x-2 ${
+                className={`px-4 py-2 border rounded-md text-sm ${
                   formData.locationType === location
                     ? "bg-[#144066] text-white"
                     : "text-[#144066]"
@@ -375,7 +377,9 @@ const OpenJobForm = () => {
                   onChange={handleChange}
                   className="form-radio"
                 />
-                <span>{location}</span>
+                <span
+                className="ml-3"
+                >{location}</span>
               </label>
             ))}
           </div>
@@ -392,10 +396,10 @@ const OpenJobForm = () => {
         {/* Employment Type */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            EMPLOYMENT TYPE
+            Employment Type
           </label>
           <div className="flex items-center space-x-4">
-            {["Full time", "Part time"].map((type) => (
+            {["Full time", "Part time","Project based"].map((type) => (
               <button
                 key={type}
                 type="button"
@@ -412,28 +416,59 @@ const OpenJobForm = () => {
           </div>
         </div>
 
-        {/* Salary Expectations */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            EXPECTED MONTHLY SALARY?
+            Experience
           </label>
           <div className="flex items-center space-x-4">
-            {["50-100k", "100-200k", "200k+"].map((range) => (
+            {["Intern", "Junior","Mid-level","Senior"].map((experience) => (
               <button
-                key={range}
+                key={experience}
                 type="button"
-                onClick={() => setFormData({ ...formData, salary: range })}
+                onClick={() => setFormData({ ...formData, experience: experience })}
                 className={`px-4 py-2 border rounded-md text-sm ${
-                  formData.salary === range
+                  formData.experience === experience
                     ? "bg-[#144066] text-white"
                     : "text-[#144066]"
                 }`}
               >
-                {range}
+                {experience}
               </button>
             ))}
           </div>
         </div>
+
+        {/* Salary Expectations */}
+       {/* Salary Expectations */}
+<div className="mb-6">
+  <label className="block text-sm font-medium mb-2">
+    Expected Monthly Salary Range (In PKR)?
+  </label>
+  <div className="flex items-center space-x-2">
+    <input
+      type="number"
+      name="minSalary"
+      value={formData.minSalary}
+      onChange={(e) =>
+        setFormData({ ...formData, minSalary: e.target.value })
+      }
+      placeholder="50000"
+      className="w-half border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
+    />
+    <span className="text-gray-500">-</span>
+    <input
+      type="number"
+      name="maxSalary"
+      value={formData.maxSalary}
+      onChange={(e) =>
+        setFormData({ ...formData, maxSalary: e.target.value })
+      }
+      placeholder="60000"
+      className="w-half border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
+    />
+  </div>
+</div>
+
 
         <div className="flex justify-end mt-8">
           <button

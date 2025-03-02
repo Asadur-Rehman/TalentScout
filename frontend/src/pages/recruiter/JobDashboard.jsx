@@ -175,7 +175,7 @@ const JobDashboard = () => {
 
         <section className="p-8" style={{ marginTop: -40 }}>
           <div className="flex justify-end mt-6 space-x-4">
-            <button className="px-6 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm">
+            <button className="px-6 py-2 text-sm text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm">
               Back
             </button>
 

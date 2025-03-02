@@ -69,7 +69,7 @@ const SignupPage = () => {
   return (
     <Layout buttonText="SIGN IN">
       <div className="w-full max-w-lg  flex relative items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 font-inter">
-        <div className="w-full max-w-lg sm:max-w-xl bg-white shadow-md rounded-md px-8 sm:px-10 py-6 sm:py-8 max-h-[95vh] font-inter">
+        <div className="w-full max-w-lg sm:max-w-xl bg-white shadow-md rounded-md px-8 sm:px-10 py-6 sm:py-8  font-inter">
           <div className="text-center mb-4 sm:mb-5">
             <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-gray-800">
               Sign up to TalentScout
