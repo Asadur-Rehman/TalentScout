@@ -64,8 +64,14 @@ const JobDescription = () => {
         <h2 className="text-xl font-bold">Open a Job</h2>
       </header>
 
-      <section className="mb-8 border-b bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-bold">Job Description</h2>
+      <section className="mb-8 border-b pb-6 bg-white p-6 rounded-xl shadow-sm flex justify-between items-center">
+        <h2 className="text-black text-md">Job Description</h2>
+        <div className="w-1/5 flex justify-between items-center">
+          <div className="w-full h-1 bg-gray-200">
+            <div className="w-full h-full bg-[#144066]"></div>
+          </div>
+          <p className="text-black text-right font-[Montserrat] ml-3">2/2</p>
+        </div>
       </section>
 
       <section className="mb-8 border-b bg-white p-6 rounded-xl shadow">

@@ -28,6 +28,10 @@ const JobApplication = () => {
     jobRef: id,
   });
 
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
@@ -48,7 +52,22 @@ const JobApplication = () => {
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    if (name === 'coverletter') {
+      const words = value.trim().split(/\s+/).filter(word => word.length > 0);
+      if (words.length > 100) {
+        // Take only first 100 words
+        const first100Words = words.slice(0, 100).join(' ');
+        setFormData({ ...formData, [name]: first100Words });
+        setWordCount(100);
+      } else {
+        setFormData({ ...formData, [name]: value });
+        setWordCount(words.length);
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleFileChange = async (e) => {
@@ -145,6 +164,23 @@ const JobApplication = () => {
     }
   }, [resumeText, job?.description]);
 
+  // Add validation check whenever form data changes
+  useEffect(() => {
+    const isValid = 
+      formData.firstname.trim() !== "" &&
+      formData.lastname.trim() !== "" &&
+      formData.birth !== "" &&
+      formData.email.trim() !== "" &&
+      formData.contact.trim() !== "" &&
+      formData.country.trim() !== "" &&
+      formData.education !== "" &&
+      formData.experience !== "" &&
+      formData.coverletter.trim() !== "" &&
+      file !== null;
+
+    setIsFormValid(isValid);
+  }, [formData, file]);
+
   const handleSubmit = async (e) => {
     if (!file) return alert("Please select a resume file.");
 
@@ -157,7 +193,6 @@ const JobApplication = () => {
     try {
       const res = await fetch("/api/candidate/create", {
         method: "POST",
-
         body: uploadData,
       });
 
@@ -170,13 +205,36 @@ const JobApplication = () => {
         return;
       }
 
-      // await axios.post("/api/candidate/create", uploadData, {
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // });
-      alert("Application Submitted successfully!");
+      setSubmitSuccess(true);
+      // Reset form
+      setFormData({
+        firstname: "",
+        lastname: "",
+        birth: "",
+        email: "",
+        contact: "",
+        country: "",
+        education: "",
+        experience: "",
+        coverletter: "",
+        resumeScore: "",
+        jobRef: id,
+      });
+      setFile(null);
+      setWordCount(0);
+      setUploadStatus("");
+      // Clear file input
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 5000);
     } catch (error) {
       console.error("Submission error:", error);
-      alert("Submission failed.");
+      setError("Submission failed.");
     }
   };
 
@@ -284,7 +342,7 @@ const JobApplication = () => {
           ].map(({ label, name, type = "text", placeholder }, idx) => (
             <div key={idx}>
               <label className="block text-sm font-medium text-gray-500 mb-2">
-                {label}
+                {label} <span className="text-red-500">*</span>
               </label>
               <input
                 type={type}
@@ -292,6 +350,7 @@ const JobApplication = () => {
                 placeholder={placeholder}
                 value={formData[name]}
                 onChange={handleChange}
+                required
                 className="w-full border border-gray-300 text-[#21315C] rounded-md py-2 px-4 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -305,15 +364,15 @@ const JobApplication = () => {
           Applicant's Experience
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Education Level */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-2">
-              Education Level
+              Education Level <span className="text-red-500">*</span>
             </label>
             <select
               name="education"
               value={formData.education}
               onChange={handleChange}
+              required
               className="w-full border border-gray-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Select</option>
@@ -324,27 +383,9 @@ const JobApplication = () => {
             </select>
           </div>
 
-          {/* Other Education */}
-          {formData.education === "Other" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                If Other (Specify)
-              </label>
-              <input
-                type="text"
-                name="otherEducation"
-                placeholder="e.g PHD"
-                value={formData.otherEducation}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          )}
-
-          {/* Work Experience */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-2">
-              Work Experience (In Years)
+              Work Experience (In Years) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -352,6 +393,7 @@ const JobApplication = () => {
               placeholder="3"
               value={formData.experience}
               onChange={handleChange}
+              required
               className="w-full border border-gray-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -364,25 +406,25 @@ const JobApplication = () => {
           Job-Specific Information
         </h2>
 
-        {/* Cover Letter */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600 mb-2">
-            Cover Letter
+            Cover Letter <span className="text-red-500">*</span>
+            <span className="text-sm text-gray-500 ml-2">({wordCount}/100 words)</span>
           </label>
           <textarea
             name="coverletter"
             rows="5"
-            placeholder="Write down a small cover letter to the hiring manager"
+            placeholder="Write down a small cover letter to the hiring manager (maximum 100 words)"
             value={formData.coverletter}
             onChange={handleChange}
+            required
             className="w-full border border-gray-300 rounded-md p-2 mt-1 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
-        {/* Resume Upload */}
         <div onClick={() => fileRef.current.click()}>
           <label className="block text-sm font-medium text-gray-600 mb-2">
-            Resume
+            Resume <span className="text-red-500">*</span>
           </label>
           <div className="p-12 rounded-md text-center bg-[#F1F2F4]">
             <img src={Cloud} alt="Cloud" className="w-20 h-20 mx-auto" />
@@ -399,6 +441,7 @@ const JobApplication = () => {
               hidden
               accept=".pdf,.doc,.docx"
               onChange={handleFileChange}
+              required
               className="opacity-0 absolute w-full h-full cursor-pointer"
             />
             {uploadStatus && (
@@ -410,11 +453,21 @@ const JobApplication = () => {
 
       {/* Submit Button */}
       <section className="p-8">
+        {submitSuccess && (
+          <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md text-center">
+            Application submitted successfully!
+          </div>
+        )}
         <div className="text-right mt-6">
           <button
             type="submit"
-            className="bg-[#144066] text-white px-6 py-2 rounded hover:bg-blue-800"
+            className={`text-white px-6 py-2 rounded ${
+              isFormValid 
+                ? "bg-[#144066] hover:bg-blue-800 cursor-pointer" 
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
             onClick={handleSubmit}
+            disabled={!isFormValid}
           >
             Submit
           </button>

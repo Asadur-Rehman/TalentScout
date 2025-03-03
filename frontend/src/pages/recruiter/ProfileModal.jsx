@@ -98,10 +98,14 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <button
+      
+
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] relative">
+        {/* Close Button - Positioned relative to modal */}
+        <button
         onClick={onClose}
-        className="absolute h-10 w-10 bg-white right-4 top-4 text-black text-center hover:text-gray-600 z-10 rounded-3xl"
-      >
+        className="absolute h-10 w-10 bg-white right-[-10px] top-[-10px] text-black hover:text-gray-600 z-10 rounded-3xl flex items-center justify-center"
+        >
         <svg
           className="w-6 h-6"
           fill="none"
@@ -116,18 +120,9 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
           />
         </svg>
       </button>
-
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
-        {/* Close Button - Positioned relative to modal */}
-
         <div className="p-8">
           {/* Profile Header */}
           <div className="flex items-start gap-4">
-            <img
-              src="/placeholder.svg?height=80&width=80"
-              alt=""
-              className="w-20 h-20 rounded-full bg-gray-200"
-            />
             <div className="flex-1">
               <h2 className="text-2xl font-semibold text-gray-900">
                 {candidate?.firstname} {candidate?.lastname}
@@ -137,28 +132,35 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
               </p>
             </div>
             <button
-              className="px-6 py-2 text-sm text-white font-medium rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors"
-              onClick={handleShortlist} // Remove the arrow function wrapping
+              className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
+                candidate?.shortlist
+                  ? "bg-white border border-[#0B2544] hover:bg-white text-[#0B2544]"
+                  : "bg-[#144066] hover:bg-[#0B2544] text-white"
+              }`}
+              onClick={handleShortlist}
+              disabled={candidate?.shortlist}
             >
-              Shortlist
+              {candidate?.shortlist ? "Shortlisted" : "Shortlist"}
             </button>
           </div>
 
           {/* Two-column Layout */}
-          <div className="mt-8 grid grid-cols-[2fr,1fr] gap-12">
+          <div className="mt-2 grid grid-cols-[2fr,1fr] gap-12">
             {/* Left Column: Cover Letter */}
             <div>
               <h3 className="text-lg font-semibold mb-6">Cover Letter</h3>
-              <div className="space-y-4 text-gray-600">
-                {candidate?.coverletter ? (
-                  candidate.coverletter
-                    .split("\n")
-                    .map((para, index) => <p key={index}>{para}</p>)
-                ) : (
-                  <p className="text-gray-500 italic">
-                    No cover letter provided.
-                  </p>
-                )}
+              <div className="">
+                <div className="space-y-4 text-gray-600">
+                  {candidate?.coverletter ? (
+                    candidate.coverletter
+                      .split("\n")
+                      .map((para, index) => <p key={index}>{para}</p>)
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      No cover letter provided.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 

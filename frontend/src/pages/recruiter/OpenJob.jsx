@@ -259,7 +259,7 @@ const OpenJobForm = () => {
           <div className="w-full h-1 bg-gray-200">
             <div className="w-1/2 h-full bg-[#144066]"></div>
           </div>
-          <p className="text-black text-right font-[Montserrat]">1/2</p>
+          <p className="text-black text-right font-[Montserrat] ml-3">1/2</p>
         </div>
       </section>
 

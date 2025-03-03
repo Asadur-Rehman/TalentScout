@@ -1,4 +1,5 @@
 "use client";
+import Stars from "../../assets/stars.svg";
 
 export default function WriteYourselfTab({ description, setDescription }) {
   const handleGenerate = () => {
@@ -16,18 +17,7 @@ export default function WriteYourselfTab({ description, setDescription }) {
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-6 h-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-5 h-5 text-blue-500"
-                >
-                  <path d="M12 3v3m6.366 2.366a9 9 0 010 12.728M7.634 7.634a9 9 0 000 12.728M3 12h3m9-9h3M3 21h3m9-9h3m-3 9h3" />
-                </svg>
+              <img src={Stars}  className="h-10" />
               </div>
               <span className="text-sm font-medium text-gray-700">
                 Generate with AI
