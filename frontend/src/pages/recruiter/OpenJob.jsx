@@ -211,9 +211,9 @@ const OpenJobForm = () => {
     hires: 0,
     location: "",
     type: "Full time",
-    experience:"Mid-level",
-    maxSalary: "6000k",
-    minSalary:"50000k",
+    experience: "Mid-level",
+    maxSalary: "60000",
+    minSalary: "50000",
     recruiterRef: recruiterRef,
   });
   const [skillInput, setSkillInput] = useState("");
@@ -221,6 +221,19 @@ const OpenJobForm = () => {
   // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleNext = () => {
+    const updatedFormData = {
+      ...formData,
+      salary: `${formData.minSalary} - ${formData.maxSalary}`,
+    };
+
+    console.log("Updated Form Data:", updatedFormData);
+
+    navigate("/recruiter/job-description", {
+      state: { formData: updatedFormData },
+    });
   };
 
   // Handle Adding Skills
@@ -377,9 +390,7 @@ const OpenJobForm = () => {
                   onChange={handleChange}
                   className="form-radio"
                 />
-                <span
-                className="ml-3"
-                >{location}</span>
+                <span className="ml-3">{location}</span>
               </label>
             ))}
           </div>
@@ -399,7 +410,7 @@ const OpenJobForm = () => {
             Employment Type
           </label>
           <div className="flex items-center space-x-4">
-            {["Full time", "Part time","Project based"].map((type) => (
+            {["Full time", "Part time", "Project based"].map((type) => (
               <button
                 key={type}
                 type="button"
@@ -417,15 +428,15 @@ const OpenJobForm = () => {
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">
-            Experience
-          </label>
+          <label className="block text-sm font-medium mb-2">Experience</label>
           <div className="flex items-center space-x-4">
-            {["Intern", "Junior","Mid-level","Senior"].map((experience) => (
+            {["Intern", "Junior", "Mid-level", "Senior"].map((experience) => (
               <button
                 key={experience}
                 type="button"
-                onClick={() => setFormData({ ...formData, experience: experience })}
+                onClick={() =>
+                  setFormData({ ...formData, experience: experience })
+                }
                 className={`px-4 py-2 border rounded-md text-sm ${
                   formData.experience === experience
                     ? "bg-[#144066] text-white"
@@ -439,36 +450,31 @@ const OpenJobForm = () => {
         </div>
 
         {/* Salary Expectations */}
-       {/* Salary Expectations */}
-<div className="mb-6">
-  <label className="block text-sm font-medium mb-2">
-    Expected Monthly Salary Range (In PKR)?
-  </label>
-  <div className="flex items-center space-x-2">
-    <input
-      type="number"
-      name="minSalary"
-      value={formData.minSalary}
-      onChange={(e) =>
-        setFormData({ ...formData, minSalary: e.target.value })
-      }
-      placeholder="50000"
-      className="w-half border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
-    />
-    <span className="text-gray-500">-</span>
-    <input
-      type="number"
-      name="maxSalary"
-      value={formData.maxSalary}
-      onChange={(e) =>
-        setFormData({ ...formData, maxSalary: e.target.value })
-      }
-      placeholder="60000"
-      className="w-half border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
-    />
-  </div>
-</div>
-
+        {/* Salary Expectations */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">
+            Expected Monthly Salary Range (In PKR)?
+          </label>
+          <div className="flex items-center space-x-2">
+            <input
+              type="number"
+              name="minSalary"
+              value={formData.minSalary}
+              onChange={handleChange}
+              placeholder="50000"
+              className="w-half border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
+            />
+            <span className="text-gray-500">-</span>
+            <input
+              type="number"
+              name="maxSalary"
+              value={formData.maxSalary}
+              onChange={handleChange}
+              placeholder="60000"
+              className="w-half border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
+            />
+          </div>
+        </div>
 
         <div className="flex justify-end mt-8">
           <button
@@ -479,9 +485,7 @@ const OpenJobForm = () => {
           </button>
           <button
             type="button"
-            onClick={() =>
-              navigate("/recruiter/job-description", { state: { formData } })
-            }
+            onClick={handleNext}
             className="px-6 py-2 bg-[#144066] text-white rounded-md text-sm ml-4"
           >
             Next
