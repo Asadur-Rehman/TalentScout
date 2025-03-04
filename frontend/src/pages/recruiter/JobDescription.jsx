@@ -18,8 +18,6 @@ const JobDescription = () => {
   const [error, setError] = useState(null);
   const [jobId, setJobId] = useState(null); // Store job ID from API response
 
-  
-
   const handleNext = async () => {
     setLoading(true);
     setError(null);
@@ -108,6 +106,7 @@ const JobDescription = () => {
           <WriteYourselfTab
             description={description}
             setDescription={setDescription}
+            formData={formData}
           />
         )}
       </section>

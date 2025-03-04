@@ -9,7 +9,7 @@ const JobDashboard = () => {
   const [job, setJob] = useState(null);
   const [candidates, setCandidates] = useState([]);
   const [shortlistedCandidates, setShortlistedCandidates] = useState([]);
-  const [activeTab, setActiveTab] = useState('applicants');
+  const [activeTab, setActiveTab] = useState("applicants");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -40,20 +40,21 @@ const JobDashboard = () => {
         setCandidates(data);
       } catch (err) {
         console.error("Error fetching candidates:", err.message);
-        setError(err.message);
+        setCandidates([]); // Instead of setting error, fallback to an empty list
       }
     };
 
     const fetchShortlistedCandidates = async () => {
       try {
         const response = await fetch(`/api/candidate/shortlisted/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch shortlisted candidates");
+        if (!response.ok)
+          throw new Error("Failed to fetch shortlisted candidates");
         const data = await response.json();
         console.log("Shortlisted candidates fetched:", data);
         setShortlistedCandidates(data);
       } catch (err) {
         console.error("Error fetching shortlisted candidates:", err.message);
-        // Don't set error here as it's not critical
+        setShortlistedCandidates([]); // Ensure fallback to empty array
       } finally {
         setLoading(false);
       }
@@ -137,21 +138,21 @@ const JobDashboard = () => {
             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
               <button
                 className={`${
-                  activeTab === 'applicants'
-                    ? 'border-[#144066] text-[#144066]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "applicants"
+                    ? "border-[#144066] text-[#144066]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                onClick={() => setActiveTab('applicants')}
+                onClick={() => setActiveTab("applicants")}
               >
                 Job Applicants ({candidates.length})
               </button>
               <button
                 className={`${
-                  activeTab === 'shortlisted'
-                    ? 'border-[#144066] text-[#144066]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "shortlisted"
+                    ? "border-[#144066] text-[#144066]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                onClick={() => setActiveTab('shortlisted')}
+                onClick={() => setActiveTab("shortlisted")}
               >
                 Shortlisted Candidates ({shortlistedCandidates.length})
               </button>
@@ -163,13 +164,17 @@ const JobDashboard = () => {
               <div className="text-center">Name</div>
               <div className="text-center">Education</div>
               <div className="text-center">Experience</div>
-              <div className="text-center">{activeTab === 'applicants' ? 'Resume Score' : 'Evaluation Score'}</div>
+              <div className="text-center">
+                {activeTab === "applicants"
+                  ? "Resume Score"
+                  : "Evaluation Score"}
+              </div>
               <div className="text-center">Profile</div>
               <div className="text-center">Action</div>
             </div>
 
             <div className="divide-y divide-gray-200">
-              {activeTab === 'applicants' ? (
+              {activeTab === "applicants" ? (
                 candidates.length > 0 ? (
                   candidates.map((candidate, index) => (
                     <div
@@ -208,53 +213,51 @@ const JobDashboard = () => {
                     No applicants found
                   </p>
                 )
-              ) : (
-                shortlistedCandidates.length > 0 ? (
-                  shortlistedCandidates.map((candidate, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
-                    >
-                      <div className="text-[#121212] text-center">
-                        {candidate.firstname + " " + candidate.lastname}
-                      </div>
-                      <div className="text-[#121212] text-center">
-                        {candidate.education}
-                      </div>
-                      <div className="text-[#121212] text-center">
-                        {candidate.experience} years
-                      </div>
-                      <div className="text-center">
-                        {candidate.evaluationScore === 0 ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
-                            • Pending Interview
-                          </span>
-                        ) : (
-                          <span className="text-[#121212]">
-                            {candidate.evaluationScore}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex justify-center">
-                        <button
-                          className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
-                          onClick={() => handleViewProfile(candidate._id)}
-                        >
-                          View Profile
-                        </button>
-                      </div>
-                      <div className="flex justify-center">
-                        <button className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm">
-                          Download Report
-                        </button>
-                      </div>
+              ) : shortlistedCandidates.length > 0 ? (
+                shortlistedCandidates.map((candidate, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
+                  >
+                    <div className="text-[#121212] text-center">
+                      {candidate.firstname + " " + candidate.lastname}
                     </div>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500 p-4">
-                    No shortlisted candidates found
-                  </p>
-                )
+                    <div className="text-[#121212] text-center">
+                      {candidate.education}
+                    </div>
+                    <div className="text-[#121212] text-center">
+                      {candidate.experience} years
+                    </div>
+                    <div className="text-center">
+                      {candidate.evaluationScore === 0 ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
+                          • Pending Interview
+                        </span>
+                      ) : (
+                        <span className="text-[#121212]">
+                          {candidate.evaluationScore}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
+                        onClick={() => handleViewProfile(candidate._id)}
+                      >
+                        View Profile
+                      </button>
+                    </div>
+                    <div className="flex justify-center">
+                      <button className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm">
+                        Download Report
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500 p-4">
+                  No shortlisted candidates found
+                </p>
               )}
             </div>
           </div>
