@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StatsCard } from "./StatsCard";
 import { JobCard } from "./JobCard";
-import NoJobs from "./NoJobs"; // Fixed import
+import NoJobs from "./nojobs"; // Fixed import
 
 export default function Dashboard() {
   const persistRoot = localStorage.getItem("persist:root");
