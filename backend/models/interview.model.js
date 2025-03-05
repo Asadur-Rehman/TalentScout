@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 
 const interviewSchema = new mongoose.Schema(
   {
-    date: {
-      type: Date,
-      required: true,
-    },
+    // date: {
+    //   type: Date,
+    //   required: true,
+    // },
     candidateRef: {
       type: String,
       required: true,
@@ -20,11 +20,11 @@ const interviewSchema = new mongoose.Schema(
     },
     videoQuestions: {
       type: Array,
-      required: true,
+      required: false,
     },
     videoAnswers: {
       type: Array,
-      required: true,
+      required: false,
     },
     CodingQuestion: {
       type: String,
@@ -36,11 +36,11 @@ const interviewSchema = new mongoose.Schema(
     },
     technicalResults: {
       type: Array,
-      required: true,
+      required: false,
     },
     evaluationScore: {
       type: Number,
-      required: true,
+      required: false,
     },
   },
   { timestamps: true }

@@ -1,20 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  currentRecruiter: null,
+  currentCandidate: null,
   error: null,
   loading: false,
 };
 
-const recruiterSlice = createSlice({
-  name: "recruiter",
+const candidateSlice = createSlice({
+  name: "candidate",
   initialState,
   reducers: {
     signInStart: (state) => {
       state.loading = true;
     },
     signInSuccess: (state, action) => {
-      state.currentRecruiter = action.payload;
+      state.currentCandidate = action.payload;
       state.loading = false;
       state.error = null;
     },
@@ -23,39 +23,39 @@ const recruiterSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    updateRecruiterStart: (state) => {
+    updateCandidateStart: (state) => {
       state.loading = true;
     },
-    updateRecruiterSuccess: (state, action) => {
-      state.currentRecruiter = action.payload;
+    updateCandidateSuccess: (state, action) => {
+      state.currentCandidate = action.payload;
       state.loading = false;
       state.error = null;
     },
-    updateRecruiterFailure: (state, action) => {
+    updateCandidateFailure: (state, action) => {
       state.error = action.payload;
       state.loading = false;
     },
-    deleteRecruiterStart: (state) => {
+    deleteCandidateStart: (state) => {
       state.loading = true;
     },
-    deleteRecruiterSuccess: (state) => {
-      state.currentRecruiter = null;
+    deleteCandidateSuccess: (state) => {
+      state.currentCandidate = null;
       state.loading = false;
       state.error = null;
     },
-    deleteRecruiterFailure: (state, action) => {
+    deleteCandidateFailure: (state, action) => {
       state.error = action.payload;
       state.loading = false;
     },
-    signOutRecruiterStart: (state) => {
+    signOutCandidateStart: (state) => {
       state.loading = true;
     },
-    signOutRecruiterSuccess: (state) => {
-      state.currentRecruiter = null;
+    signOutCandidateSuccess: (state) => {
+      state.currentCandidate = null;
       state.loading = false;
       state.error = null;
     },
-    signOutRecruiterFailure: (state, action) => {
+    signOutCandidateFailure: (state, action) => {
       state.error = action.payload;
       state.loading = false;
     },
@@ -66,15 +66,15 @@ export const {
   signInStart,
   signInSuccess,
   signInFailure,
-  updateRecruiterFailure,
-  updateRecruiterSuccess,
-  updateRecruiterStart,
-  deleteRecruiterFailure,
-  deleteRecruiterSuccess,
-  deleteRecruiterStart,
-  signOutRecruiterFailure,
-  signOutRecruiterSuccess,
-  signOutRecruiterStart,
-} = recruiterSlice.actions;
+  updateCandidateFailure,
+  updateCandidateSuccess,
+  updateCandidateStart,
+  deleteCandidateFailure,
+  deleteCandidateSuccess,
+  deleteCandidateStart,
+  signOutCandidateFailure,
+  signOutCandidateSuccess,
+  signOutCandidateStart,
+} = candidateSlice.actions;
 
-export default recruiterSlice.reducer;
+export default candidateSlice.reducer;

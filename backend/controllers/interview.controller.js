@@ -1,9 +1,24 @@
 import Interview from "../models/interview.model.js";
+import Candidate from "../models/candidate.model.js"; // Assuming you have this model
+import sendEmail from "../utils/email.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createInterview = async (req, res, next) => {
   try {
     const interview = await Interview.create(req.body);
+
+    // Fetch candidate details
+    const candidate = await Candidate.findById(req.body.candidateRef);
+    if (!candidate) {
+      return next(errorHandler(404, "Candidate not found!"));
+    }
+
+    // Send email
+    const emailSubject = "Interview Scheduled";
+    const emailBody = `Dear ${candidate.name},\n\nYour interview has been scheduled.\nInterview ID: ${interview._id}\nLogin using this id to https://talentscout.onrender.com/candidatelogin and attempt the interview.\n\nBest of luck!\nHR Team`;
+
+    await sendEmail(candidate.email, emailSubject, emailBody);
+
     return res.status(201).json(interview);
   } catch (error) {
     next(error);

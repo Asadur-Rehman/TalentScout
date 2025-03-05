@@ -30,21 +30,29 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
 
   const handleShortlist = async () => {
     try {
+      // Update candidate's shortlist status
       const response = await fetch(`/api/candidate/update/${id}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shortlist: true }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to shortlist candidate");
-      }
+      if (!response.ok) throw new Error("Failed to shortlist candidate");
 
       const updatedCandidate = await response.json();
-      setCandidate(updatedCandidate); // Update state with the new candidate data
-      console.log("Candidate shortlisted successfully:", updatedCandidate);
+      setCandidate(updatedCandidate);
+
+      // Create interview
+      const interviewResponse = await fetch(`/api/interview/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateRef: updatedCandidate._id }),
+      });
+
+      if (!interviewResponse.ok) throw new Error("Failed to create interview");
+
+      const interview = await interviewResponse.json();
+      console.log("Interview Created:", interview);
     } catch (error) {
       console.error("Error shortlisting candidate:", error);
     }
@@ -98,28 +106,26 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      
-
       <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] relative">
         {/* Close Button - Positioned relative to modal */}
         <button
-        onClick={onClose}
-        className="absolute h-10 w-10 bg-white right-[-10px] top-[-10px] text-black hover:text-gray-600 z-10 rounded-3xl flex items-center justify-center"
+          onClick={onClose}
+          className="absolute h-10 w-10 bg-white right-[-10px] top-[-10px] text-black hover:text-gray-600 z-10 rounded-3xl flex items-center justify-center"
         >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
         <div className="p-8">
           {/* Profile Header */}
           <div className="flex items-start gap-4">
