@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../../redux/candidate/candidateSlice";
 
 export default function CandidateSignin() {
   const [formData, setFormData] = useState({
@@ -10,16 +16,51 @@ export default function CandidateSignin() {
     interviewId: "",
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log(formData);
-  };
-
+  const { loading, error } = useSelector((state) => state.candidate);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleNext = () => {
-    navigate("/candidate/instructions");
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch(signInStart());
+
+    try {
+      const res = await fetch("/api/auth/candidatelogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
+        return;
+      }
+
+      console.log(data);
+
+      localStorage.setItem("interviewId", data.interviewId);
+      localStorage.setItem(
+        "validCandidate",
+        JSON.stringify(data.validCandidate)
+      );
+
+      dispatch(signInSuccess(data));
+      navigate("/candidate/instructions");
+    } catch (error) {
+      dispatch(signInFailure(error.message));
+    }
   };
 
   return (
@@ -37,6 +78,13 @@ export default function CandidateSignin() {
             <h2 className="text-2xl font-semibold mb-6">
               Interview credentials
             </h2>
+
+            {error && (
+              <p className="text-red-500 text-xs sm:text-sm mb-3 text-center">
+                {error}
+              </p>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-sm font-medium">
@@ -47,9 +95,7 @@ export default function CandidateSignin() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#05B4B4]"
                   placeholder="Asad ur Rehman"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={handleChange}
                 />
               </div>
 
@@ -63,9 +109,7 @@ export default function CandidateSignin() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#05B4B4]"
                   placeholder="asad@gmail.com"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={handleChange}
                 />
               </div>
 
@@ -79,10 +123,9 @@ export default function CandidateSignin() {
                 <input
                   id="interviewId"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#05B4B4]"
+                  placeholder="Interview ID"
                   value={formData.interviewId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, interviewId: e.target.value })
-                  }
+                  onChange={handleChange}
                 />
               </div>
 
@@ -90,7 +133,9 @@ export default function CandidateSignin() {
                 <CandidateButton variant="secondary" type="button">
                   Back
                 </CandidateButton>
-                <CandidateButton type="submit" onClick={handleNext}>Next</CandidateButton>
+                <CandidateButton type="submit" disabled={loading}>
+                  {loading ? "Verifying..." : "Next"}
+                </CandidateButton>
               </div>
             </form>
           </div>

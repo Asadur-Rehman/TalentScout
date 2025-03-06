@@ -3,11 +3,49 @@ import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
 import SmallVideoPlaceholder from "../../assets/SmallVideoPlaceholder.svg";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function CandidateInterview() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
+  const [error, setError] = useState(null);
+  const [job, setJob] = useState(null);
+  const [resume, setResume] = useState(null);
   const navigate = useNavigate();
+
+  const jobId = JSON.parse(localStorage.getItem("validCandidate")).jobRef;
+  const candidateId = JSON.parse(localStorage.getItem("validCandidate"))._id;
+
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`/api/job/get/${jobId}`);
+        if (!response.ok) throw new Error("Failed to fetch job details");
+        const data = await response.json();
+        console.log("Job details fetched:", data);
+        setJob(data);
+      } catch (err) {
+        console.error("Error fetching job details:", err.message);
+        setError(err.message);
+      }
+    };
+
+    const fetchCandidate = async () => {
+      try {
+        const response = await fetch(`/api/candidate/get/${candidateId}`);
+        if (!response.ok) throw new Error("Failed to fetch candidate");
+        const data = await response.json();
+        console.log("Candidate fetched:", data);
+        setResume(data.resumeText);
+      } catch (err) {
+        console.error("Error fetching resume:", err.message);
+        setError(err.message);
+      }
+    };
+
+    fetchJobDetails();
+    fetchCandidate();
+  }, [jobId, candidateId]);
 
   const questions = [
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ?",

@@ -16,6 +16,7 @@ const candidateSchema = new mongoose.Schema(
       data: Buffer,
       contentType: String,
     },
+    resumeText: { type: String, required: true },
     shortlist: { type: Boolean, default: false },
     hired: { type: Boolean, default: false },
     resumeScore: { type: Number, default: 0 },

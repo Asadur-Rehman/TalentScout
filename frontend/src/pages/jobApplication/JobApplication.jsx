@@ -53,12 +53,15 @@ const JobApplication = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'coverletter') {
-      const words = value.trim().split(/\s+/).filter(word => word.length > 0);
+
+    if (name === "coverletter") {
+      const words = value
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
       if (words.length > 100) {
         // Take only first 100 words
-        const first100Words = words.slice(0, 100).join(' ');
+        const first100Words = words.slice(0, 100).join(" ");
         setFormData({ ...formData, [name]: first100Words });
         setWordCount(100);
       } else {
@@ -166,7 +169,7 @@ const JobApplication = () => {
 
   // Add validation check whenever form data changes
   useEffect(() => {
-    const isValid = 
+    const isValid =
       formData.firstname.trim() !== "" &&
       formData.lastname.trim() !== "" &&
       formData.birth !== "" &&
@@ -188,7 +191,10 @@ const JobApplication = () => {
     Object.keys(formData).forEach((key) => {
       uploadData.append(key, formData[key]);
     });
+    uploadData.append("resumeText", resumeText);
     uploadData.append("resume", file);
+
+    console.log(uploadData);
 
     try {
       const res = await fetch("/api/candidate/create", {
@@ -227,7 +233,7 @@ const JobApplication = () => {
       if (fileRef.current) {
         fileRef.current.value = "";
       }
-      
+
       // Hide success message after 5 seconds
       setTimeout(() => {
         setSubmitSuccess(false);
@@ -409,7 +415,9 @@ const JobApplication = () => {
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600 mb-2">
             Cover Letter <span className="text-red-500">*</span>
-            <span className="text-sm text-gray-500 ml-2">({wordCount}/100 words)</span>
+            <span className="text-sm text-gray-500 ml-2">
+              ({wordCount}/100 words)
+            </span>
           </label>
           <textarea
             name="coverletter"
@@ -462,8 +470,8 @@ const JobApplication = () => {
           <button
             type="submit"
             className={`text-white px-6 py-2 rounded ${
-              isFormValid 
-                ? "bg-[#144066] hover:bg-blue-800 cursor-pointer" 
+              isFormValid
+                ? "bg-[#144066] hover:bg-blue-800 cursor-pointer"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
             onClick={handleSubmit}

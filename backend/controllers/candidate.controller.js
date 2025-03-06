@@ -13,6 +13,7 @@ export const createCandidate = async (req, res, next) => {
       education,
       experience,
       coverletter,
+      resumeText,
       resumeScore,
       jobRef,
     } = req.body;
@@ -37,6 +38,7 @@ export const createCandidate = async (req, res, next) => {
         data: req.file.buffer, // Store file as binary data
         contentType: req.file.mimetype, // Store file type
       },
+      resumeText,
       resumeScore,
       jobRef,
     });

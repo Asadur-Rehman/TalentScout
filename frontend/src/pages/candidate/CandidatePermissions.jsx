@@ -13,7 +13,7 @@ export default function CandidatePermissions() {
   const navigate = useNavigate();
   const handleNext = () => {
     navigate("/candidate/interview");
-  }
+  };
 
   const requestPermission = async (type) => {
     try {
