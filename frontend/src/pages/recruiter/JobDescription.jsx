@@ -4,10 +4,11 @@ import UploadTab from "./UploadTab";
 import WriteYourselfTab from "./WriteYourselfTab";
 import Layout from "./RecruiterLayout";
 import { ShareModal } from "./ShareModal";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const JobDescription = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const formData = location.state?.formData || {};
   console.log("Initial Form Data:", formData);
 
@@ -43,7 +44,7 @@ const JobDescription = () => {
         throw new Error(data.message || "Failed to create job");
       }
 
-      alert("Job posted successfully!");
+      // alert("Job posted successfully!");
 
       setJobId(data._id); // Save job ID from response
 
@@ -130,8 +131,11 @@ const JobDescription = () => {
 
       <ShareModal
         isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        jobId={jobId} // Pass job ID to ShareModal
+        onClose={() => {
+          setIsShareModalOpen(false);
+          navigate('/recruiter');
+        }}
+        jobId={jobId}
       />
     </Layout>
   );

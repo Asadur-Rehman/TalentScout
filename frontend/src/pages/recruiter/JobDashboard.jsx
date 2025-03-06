@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import TalentScout from "../../assets/Group 5.svg";
 import ProfileModal from "./ProfileModal";
 import Layout from "./RecruiterLayout";
+import { FiMoreVertical } from "react-icons/fi";
 
 const JobDashboard = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [candidates, setCandidates] = useState([]);
@@ -14,6 +16,7 @@ const JobDashboard = () => {
   const [error, setError] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     console.log("Fetching job and candidates for job ID:", id);
@@ -71,6 +74,21 @@ const JobDashboard = () => {
     setIsProfileModalOpen(true);
   };
 
+  const handleEditJob = () => {
+    navigate(`/recruiter/edit-job/${id}`);
+    setShowMenu(false);
+  };
+
+  const handleShareJob = () => {
+    // Implement share functionality
+    setShowMenu(false);
+  };
+
+  const handleCloseJob = () => {
+    // Implement close job functionality
+    setShowMenu(false);
+  };
+
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
@@ -85,12 +103,46 @@ const JobDashboard = () => {
 
         {/* Job Details Section */}
         <section className="mb-8 border-b pb-6 bg-white m-6 p-6 rounded-xl shadow">
-          <h2
-            className="text-xl font-semibold mb-4"
-            style={{ color: "#144066" }}
-          >
-            Job Specific Information
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2
+              className="text-xl font-semibold"
+              style={{ color: "#144066" }}
+            >
+              Job Specific Information
+            </h2>
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <FiMoreVertical className="text-gray-600 text-xl" />
+              </button>
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border">
+                  <div className="py-1">
+                    <button
+                      onClick={handleEditJob}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Edit Job
+                    </button>
+                    <button
+                      onClick={handleShareJob}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Share Job
+                    </button>
+                    <button
+                      onClick={handleCloseJob}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Close Job
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-gray-500 mb-2">
             <strong>Job Title: {job?.title}</strong>
           </p>
@@ -123,6 +175,8 @@ const JobDashboard = () => {
           <p className="font-medium text-gray-500">
             Job Location: {job?.location}
           </p>
+          <p className="font-medium text-gray-500">Job Type: {job?.type}</p>
+
           <p className="font-medium text-gray-500">
             Employment Type: {job?.type}
           </p>

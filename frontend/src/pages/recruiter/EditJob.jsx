@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Layout from "./RecruiterLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FiMenu, FiX, FiMinus, FiPlus } from "react-icons/fi";
 
 const SKILL_OPTIONS = [
@@ -197,67 +197,85 @@ const SKILL_OPTIONS = [
   "Stakeholder Management",
 ];
 
-const OpenJobForm = () => {
-  const persistRoot = localStorage.getItem("persist:root");
-  const parsedRoot = JSON.parse(persistRoot);
-  const recruiterData = JSON.parse(parsedRoot.recruiter);
-  const recruiterRef = recruiterData.currentRecruiter?._id;
-
+const EditJob = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     title: "",
-    skills: ["React"],
+    skills: [],
     hires: 0,
     location: "",
-    locationType: "",
+    locationType: "Fully Remote",
     type: "Full time",
     experience: "Mid-level",
-    maxSalary: "60000",
-    minSalary: "50000",
-    recruiterRef: recruiterRef,
+    maxSalary: "",
+    minSalary: "",
+    description: "",
   });
   const [skillInput, setSkillInput] = useState("");
-  const [isFormValid, setIsFormValid] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Validate form whenever formData changes
   useEffect(() => {
-    const validateForm = () => {
-      const requiredFields = [
-        formData.title,
-        formData.skills.length > 0,
-        formData.location,
-        formData.locationType,
-        formData.type,
-        formData.experience,
-        formData.minSalary,
-        formData.maxSalary,
-      ];
-      
-      setIsFormValid(requiredFields.every(field => field !== "" && field !== undefined && field !== null));
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`/api/job/get/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch job details");
+        const data = await response.json();
+        
+        // Parse salary range - handle both formats "X - Y" and "X-Y"
+        const salaryParts = data.salary?.split(/\s*-\s*/);
+        const [minSalary, maxSalary] = salaryParts || ["", ""];
+        
+        setFormData({
+          title: data.title || "",
+          skills: data.skills || [],
+          hires: data.hires || 0,
+          location: data.location || "",
+          locationType: data.locationType || "Fully Remote",
+          type: data.type || "Full time",
+          experience: data.experience || "Mid-level",
+          maxSalary: maxSalary?.trim() || "",
+          minSalary: minSalary?.trim() || "",
+          description: data.description || "",
+        });
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching job details:", err);
+        setLoading(false);
+      }
     };
 
-    validateForm();
-  }, [formData]);
+    fetchJobDetails();
+  }, [id]);
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleNext = () => {
-    const updatedFormData = {
-      ...formData,
-      salary: `${formData.minSalary} - ${formData.maxSalary}`,
-    };
+  const handleSave = async () => {
+    try {
+      const updatedFormData = {
+        ...formData,
+        salary: `${formData.minSalary} - ${formData.maxSalary}`,
+        locationType: formData.locationType,
+      };
 
-    console.log("Updated Form Data:", updatedFormData);
+      const response = await fetch(`/api/job/update/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedFormData),
+      });
 
-    navigate("/recruiter/job-description", {
-      state: { formData: updatedFormData },
-    });
+      if (!response.ok) throw new Error("Failed to update job");
+      
+      navigate(`/recruiter/job-dashboard/${id}`);
+    } catch (err) {
+      console.error("Error updating job:", err);
+    }
   };
 
-  // Handle Adding Skills
   const addSkill = (skill) => {
     if (skill && !formData.skills.includes(skill)) {
       setFormData({ ...formData, skills: [...formData.skills, skill] });
@@ -265,7 +283,6 @@ const OpenJobForm = () => {
     setSkillInput("");
   };
 
-  // Handle Removing Skills
   const removeSkill = (skill) => {
     setFormData({
       ...formData,
@@ -273,7 +290,6 @@ const OpenJobForm = () => {
     });
   };
 
-  // Increment & Decrement Hires
   const incrementHires = () =>
     setFormData({ ...formData, hires: formData.hires + 1 });
   const decrementHires = () => {
@@ -281,27 +297,25 @@ const OpenJobForm = () => {
       setFormData({ ...formData, hires: formData.hires - 1 });
   };
 
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen">
+          <p>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <header className="mb-8">
-        <h2 className="text-xl font-bold">Open a Job</h2>
+        <h2 className="text-xl font-bold">Edit Job</h2>
       </header>
-
-      <section className="mb-8 border-b pb-6 bg-white p-6 rounded-xl shadow-sm flex justify-between items-center">
-        <p className="text-black text-md">Tell us about the job</p>
-        <div className="w-1/5 flex justify-between items-center">
-          <div className="w-full h-1 bg-gray-200">
-            <div className="w-1/2 h-full bg-[#144066]"></div>
-          </div>
-          <p className="text-black text-right font-[Montserrat] ml-3">1/2</p>
-        </div>
-      </section>
 
       <form className="bg-white rounded-xl shadow-sm p-6">
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">
-            Job title<span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium mb-2">Job title*</label>
           <input
             type="text"
             name="title"
@@ -312,10 +326,21 @@ const OpenJobForm = () => {
           />
         </div>
 
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">Job Description*</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="6"
+            className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#144066]"
+          />
+        </div>
+
         {/* Skills Selection */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            What skills should I have?<span className="text-red-500">*</span>
+            What skills should I have?*
           </label>
           <div className="flex flex-wrap gap-2 border rounded-md px-4 py-2">
             {formData.skills.map((skill) => (
@@ -369,7 +394,7 @@ const OpenJobForm = () => {
         {/* How Many Hires */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            How many hires?<span className="text-red-500">*</span>
+            How many hires?
           </label>
           <div className="flex items-center space-x-4">
             <button
@@ -393,28 +418,22 @@ const OpenJobForm = () => {
         {/* Job Location */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            Job location<span className="text-red-500">*</span>
+            Job location*
           </label>
           <div className="flex items-center space-x-4 mb-2">
-            {["Fully Remote", "Hybrid", "Onsite"].map((location) => (
-              <label
-                key={location}
+            {["Fully Remote", "Hybrid", "Onsite"].map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setFormData({ ...formData, locationType: type })}
                 className={`px-4 py-2 border rounded-md text-sm ${
-                  formData.locationType === location
+                  formData.locationType === type
                     ? "bg-[#144066] text-white"
                     : "text-[#144066]"
                 }`}
               >
-                <input
-                  type="radio"
-                  name="locationType"
-                  value={location}
-                  checked={formData.locationType === location}
-                  onChange={handleChange}
-                  className="form-radio"
-                />
-                <span className="ml-3">{location}</span>
-              </label>
+                {type}
+              </button>
             ))}
           </div>
           <input
@@ -430,7 +449,7 @@ const OpenJobForm = () => {
         {/* Employment Type */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            Employment Type<span className="text-red-500">*</span>
+            Employment Type
           </label>
           <div className="flex items-center space-x-4">
             {["Full time", "Part time", "Project based"].map((type) => (
@@ -451,9 +470,7 @@ const OpenJobForm = () => {
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">
-            Experience<span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium mb-2">Experience</label>
           <div className="flex items-center space-x-4">
             {["Intern", "Junior", "Mid-level", "Senior"].map((experience) => (
               <button
@@ -477,7 +494,7 @@ const OpenJobForm = () => {
         {/* Salary Expectations */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            Expected Monthly Salary Range (In PKR)?<span className="text-red-500">*</span>
+            Expected Monthly Salary Range (In PKR)?
           </label>
           <div className="flex items-center space-x-2">
             <input
@@ -503,21 +520,17 @@ const OpenJobForm = () => {
         <div className="flex justify-end mt-8">
           <button
             type="button"
+            onClick={() => navigate(`/recruiter/job-dashboard/${id}`)}
             className="px-6 py-2 border border-gray-300 rounded-md text-sm text-gray-700"
           >
-            Back
+            Cancel
           </button>
           <button
             type="button"
-            onClick={handleNext}
-            disabled={!isFormValid}
-            className={`px-6 py-2 rounded-md text-sm ml-4 ${
-              isFormValid
-                ? "bg-[#144066] text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            onClick={handleSave}
+            className="px-6 py-2 bg-[#144066] text-white rounded-md text-sm ml-4"
           >
-            Next
+            Save Changes
           </button>
         </div>
       </form>
@@ -525,4 +538,4 @@ const OpenJobForm = () => {
   );
 };
 
-export default OpenJobForm;
+export default EditJob; 
