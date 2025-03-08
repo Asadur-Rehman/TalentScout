@@ -119,10 +119,13 @@ const JobDescription = () => {
           </button>
           <button
             onClick={handleNext}
-            className="px-6 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
-            disabled={loading}
+            className={`px-6 py-2 text-sm text-white rounded-md    transition-colors shadow-sm ${
+              loading || !description.trim() ? "bg-gray-400" : "bg-[#144066]"
+
+            }`}
+            disabled={loading || !description.trim()}
           >
-            {loading ? "Submitting..." : "Next"}
+            {loading ? "Submitting..." : "Create Job"}
           </button>
         </div>
 

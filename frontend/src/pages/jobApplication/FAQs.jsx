@@ -54,7 +54,7 @@ const faqs = [
   },
   {
     question:
-      "What if I don’t have all the required experience or skills listed?",
+      "What if I don't have all the required experience or skills listed?",
     answer:
       "You can still apply if you meet most of the requirements. Highlight your transferable skills in your resume and cover letter.",
   },
@@ -64,7 +64,7 @@ const faqs = [
       "Accepted formats typically include PDF, Word (.doc or .docx), or Docs files.",
   },
   {
-    question: "How will I know if I’ve been shortlisted for an interview?",
+    question: "How will I know if I've been shortlisted for an interview?",
     answer:
       "Shortlisted candidates will be notified via email or phone with further instructions regarding the interview.",
   },
@@ -87,7 +87,7 @@ const faqs = [
     question:
       "Who can I contact if I encounter technical issues with the application?",
     answer:
-      "If you face technical issues, check the job portal’s support page or contact the recruitment team using the provided contact details.",
+      "If you face technical issues, check the job portal's support page or contact the recruitment team using the provided contact details.",
   },
   {
     question: "Can I withdraw my application after submission?",
@@ -122,12 +122,6 @@ const faqs = [
 ];
 
 const FAQPage = () => {
-  //   const [openIndex, setOpenIndex] = useState(null);
-
-  //   const toggleFAQ = (index) => {
-  //     setOpenIndex(openIndex === index ? null : index);
-  //   };
-
   const [openIndex, setOpenIndex] = useState(null);
 
   const toggleFAQ = (index) => {
@@ -149,9 +143,9 @@ const FAQPage = () => {
         <button
           className="text-white px-8 py-2 rounded hover:bg-blue-800"
           style={{ backgroundColor: "#144066" }}
-          onClick={() => (window.location.href = "/job-application")}
+          onClick={() => window.history.back()}
         >
-          Job Applicaiton
+          Job Application
         </button>
       </header>
 
