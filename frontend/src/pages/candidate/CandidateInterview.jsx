@@ -11,7 +11,14 @@ export default function CandidateInterview() {
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+
+  const questions = [
+    "Tell me about yourself and your background.",
+    "What are your greatest strengths?",
+    "Where do you see yourself in 5 years?",
+  ];
 
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -20,7 +27,7 @@ export default function CandidateInterview() {
   recognition.interimResults = false;
   recognition.lang = "en-US";
 
-  const questions = JSON.parse(localStorage.getItem("questions")) || [];
+  // const questions = JSON.parse(localStorage.getItem("questions")) || [];
 
   const startRecording = async () => {
     try {
@@ -73,82 +80,82 @@ export default function CandidateInterview() {
   const handleSubmit = async () => {
     console.log("Final Answers:", answers);
 
-    const prompt = `
-Based on the following interview questions and the candidate's responses, generate:  
+    //     const prompt = `
+    // Based on the following interview questions and the candidate's responses, generate:
 
-1. **Overall Score (out of 100)** – Calculate the candidate’s total evaluation score based on a weighted scoring system:  
-   - **General Questions (Q1 - Q4): 40% weightage (10% each)**  
-   - **Technical Questions (Q5 - Q7): 60% weightage (20% each)**  
-   - If a question is not answered, assign **0 marks** for that question.  
-   - Your response should start with **just one number** (the total score).  
+    // 1. **Overall Score (out of 100)** – Calculate the candidate’s total evaluation score based on a weighted scoring system:
+    //    - **General Questions (Q1 - Q4): 40% weightage (10% each)**
+    //    - **Technical Questions (Q5 - Q7): 60% weightage (20% each)**
+    //    - If a question is not answered, assign **0 marks** for that question.
+    //    - Your response should start with **just one number** (the total score).
 
-2. **Detailed Breakdown & Report**, including:  
-   - **Scoring Breakdown:** Show the marks assigned to each question based on the weightage.  
-   - **Question-wise Performance Analysis:**  
-     - **Question Asked**  
-     - **Candidate’s Response**  
-     - **Evaluation** (Assess clarity, depth, correctness, and job relevance).  
-     - **Score Given (out of allocated weightage points)**  
-   - **Soft Skills & Communication Rating:** (Confidence, clarity, problem-solving skills).  
-   - **Overall Performance Summary:** Key strengths, weaknesses, and improvement areas.  
-   - **Final Recommendation:** (Shortlisted / Not Shortlisted + Next Steps).  
+    // 2. **Detailed Breakdown & Report**, including:
+    //    - **Scoring Breakdown:** Show the marks assigned to each question based on the weightage.
+    //    - **Question-wise Performance Analysis:**
+    //      - **Question Asked**
+    //      - **Candidate’s Response**
+    //      - **Evaluation** (Assess clarity, depth, correctness, and job relevance).
+    //      - **Score Given (out of allocated weightage points)**
+    //    - **Soft Skills & Communication Rating:** (Confidence, clarity, problem-solving skills).
+    //    - **Overall Performance Summary:** Key strengths, weaknesses, and improvement areas.
+    //    - **Final Recommendation:** (Shortlisted / Not Shortlisted + Next Steps).
 
-**Weightage Distribution:**  
-- **General Questions (Q1 - Q4):** 10 points each (Total: 40)  
-- **Technical Questions (Q5 - Q7):** 20 points each (Total: 60)  
-- **Final Score: Out of 100**  
+    // **Weightage Distribution:**
+    // - **General Questions (Q1 - Q4):** 10 points each (Total: 40)
+    // - **Technical Questions (Q5 - Q7):** 20 points each (Total: 60)
+    // - **Final Score: Out of 100**
 
-**Questions and Answers:**  
-${JSON.stringify(answers, null, 2)}
+    // **Questions and Answers:**
+    // ${JSON.stringify(answers, null, 2)}
 
-Ensure the response is structured, professional, and easy to read.
-`;
+    // Ensure the response is structured, professional, and easy to read.
+    // `;
 
-    console.log(prompt);
+    //     console.log(prompt);
 
-    // ... existing code ...
-    try {
-      const response = await axios.post(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          model: "gpt-4o",
-          messages: [{ role: "user", content: prompt }],
-        },
-        {
-          headers: {
-            Authorization: `Bearer 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`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    //     // ... existing code ...
+    //     try {
+    //       const response = await axios.post(
+    //         "https://api.openai.com/v1/chat/completions",
+    //         {
+    //           model: "gpt-4o",
+    //           messages: [{ role: "user", content: prompt }],
+    //         },
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer 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`,
+    //             "Content-Type": "application/json",
+    //           },
+    //         }
+    //       );
 
-      const responseContent = response.data.choices[0].message.content;
-      // Extract score (assuming it's the first line) and report content
-      const [scoreStr, ...reportLines] = responseContent.split("\n");
-      const score = parseInt(scoreStr);
-      const evaluationReport = reportLines.join("\n").trim();
+    // const responseContent = response.data.choices[0].message.content;
+    // Extract score (assuming it's the first line) and report content
+    // const [scoreStr, ...reportLines] = responseContent.split("\n");
+    // const score = parseInt(scoreStr);
+    // const evaluationReport = reportLines.join("\n").trim();
 
-      console.log("Score:", score);
-      console.log("Report:", evaluationReport);
+    // console.log("Score:", score);
+    // console.log("Report:", evaluationReport);
 
-      const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
-      const candidateId = validCandidate._id;
+    // const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
+    // const candidateId = validCandidate._id;
 
-      if (!isNaN(score)) {
-        const response = await fetch(`/api/candidate/update/${candidateId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            evaluationScore: score,
-            evaluationReport: evaluationReport,
-          }),
-        });
+    // if (!isNaN(score)) {
+    //   const response = await fetch(`/api/candidate/update/${candidateId}`, {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       evaluationScore: score,
+    //       evaluationReport: evaluationReport,
+    //     }),
+    //   });
 
-        if (!response.ok) throw new Error("Failed to evaluate candidate");
-      }
-    } catch (error) {
-      console.error("Error generating interview questions:", error);
-    }
+    //   if (!response.ok) throw new Error("Failed to evaluate candidate");
+    // }
+    // } catch (error) {
+    //   console.error("Error generating interview questions:", error);
+    // }
     // ... existing code ...
 
     navigate("/candidate/video-instructions");

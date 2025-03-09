@@ -73,35 +73,39 @@ export default function CandidateSignin() {
     }
   };
 
+  // ... existing code ...
+
   const fetchCandidate = async (candidateId) => {
     try {
-      const { data } = await axios.get(`/api/candidate/get/${candidateId}`);
+      const { data } = await axios.get(`/api/interview/get/${formData.interviewId}`);
       setResume(data.resumeText);
       localStorage.setItem("resume", data.resumeText); // Store resume in localStorage
+
+      // Check if candidate already has questions
+      if (data.questions && data.questions.length > 0) {
+        setQuestions(data.questions);
+        localStorage.setItem("questions", JSON.stringify(data.questions));
+      } else {
+        // Only generate questions if they don't exist
+        if (job) {
+          await generateQuestions(data._id);
+        }
+      }
     } catch (err) {
       console.error("Error fetching candidate details:", err.message);
     }
   };
 
-  // On page load, retrieve data if available
-  useEffect(() => {
-    const storedJob = localStorage.getItem("job");
-    const storedResume = localStorage.getItem("resume");
-
-    if (storedJob) setJob(JSON.parse(storedJob));
-    if (storedResume) setResume(storedResume);
-  }, []);
-
-  const generateQuestions = async () => {
+  const generateQuestions = async (candidateId) => {
     if (!job || !resume) return;
 
     const prompt = `
-      Based on the following job description and candidate resume, generate Seven total interview questions out of which four should be general-purpose and three should be technical interview questions:
-      **Job Details:** ${JSON.stringify(job, null, 2)}
-      **Candidate Resume:** ${resume}
-      The questions should be relevant to the role and assess the candidate's skills, experience, and problem-solving ability. You can use resume and ask about things mentioned in resume and also use job description to make questions as relevant as possible. 
-      Provide only the seven questions.
-    `;
+    Based on the following job description and candidate resume, generate Seven total interview questions out of which four should be general-purpose and three should be technical interview questions:
+    **Job Details:** ${JSON.stringify(job, null, 2)}
+    **Candidate Resume:** ${resume}
+    The questions should be relevant to the role and assess the candidate's skills, experience, and problem-solving ability. You can use resume and ask about things mentioned in resume and also use job description to make questions as relevant as possible. 
+    Provide only the seven questions.
+  `;
 
     try {
       const response = await axios.post(
@@ -122,18 +126,90 @@ export default function CandidateSignin() {
         .split("\n")
         .filter((q) => q.trim());
 
+      // Save questions to candidate in database
+      await axios.post(`/api/interview/update/${formData.interviewId}`, {
+        questions: generatedQuestions,
+      });
+
       setQuestions(generatedQuestions);
-      localStorage.setItem("questions", JSON.stringify(generatedQuestions)); // Store immediately
+      localStorage.setItem("questions", JSON.stringify(generatedQuestions));
     } catch (error) {
       console.error("Error generating interview questions:", error);
     }
   };
 
+  // Remove or modify this useEffect since we're now handling question generation in fetchCandidate
   useEffect(() => {
-    if (job && resume) {
-      generateQuestions();
-    }
-  }, [job, resume]);
+    const storedJob = localStorage.getItem("job");
+    const storedResume = localStorage.getItem("resume");
+
+    if (storedJob) setJob(JSON.parse(storedJob));
+    if (storedResume) setResume(storedResume);
+  }, []);
+
+  // ... existing code ...
+
+  // const fetchCandidate = async (candidateId) => {
+  //   try {
+  //     const { data } = await axios.get(`/api/candidate/get/${candidateId}`);
+  //     setResume(data.resumeText);
+  //     localStorage.setItem("resume", data.resumeText); // Store resume in localStorage
+  //   } catch (err) {
+  //     console.error("Error fetching candidate details:", err.message);
+  //   }
+  // };
+
+  // // On page load, retrieve data if available
+  // useEffect(() => {
+  //   const storedJob = localStorage.getItem("job");
+  //   const storedResume = localStorage.getItem("resume");
+
+  //   if (storedJob) setJob(JSON.parse(storedJob));
+  //   if (storedResume) setResume(storedResume);
+  // }, []);
+
+  // const generateQuestions = async () => {
+  //   if (!job || !resume) return;
+
+  //   const prompt = `
+  //     Based on the following job description and candidate resume, generate Seven total interview questions out of which four should be general-purpose and three should be technical interview questions:
+  //     **Job Details:** ${JSON.stringify(job, null, 2)}
+  //     **Candidate Resume:** ${resume}
+  //     The questions should be relevant to the role and assess the candidate's skills, experience, and problem-solving ability. You can use resume and ask about things mentioned in resume and also use job description to make questions as relevant as possible.
+  //     Provide only the seven questions.
+  //   `;
+
+  //   try {
+  //     const response = await axios.post(
+  //       "https://api.openai.com/v1/chat/completions",
+  //       {
+  //         model: "gpt-4o",
+  //         messages: [{ role: "user", content: prompt }],
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer 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`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const generatedQuestions = response.data.choices[0].message.content
+  //       .split("\n")
+  //       .filter((q) => q.trim());
+
+  //     setQuestions(generatedQuestions);
+  //     localStorage.setItem("questions", JSON.stringify(generatedQuestions)); // Store immediately
+  //   } catch (error) {
+  //     console.error("Error generating interview questions:", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (job && resume) {
+  //     generateQuestions();
+  //   }
+  // }, [job, resume]);
 
   return (
     <CandidateLayout>

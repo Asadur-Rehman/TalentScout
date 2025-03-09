@@ -150,9 +150,28 @@ const JobDashboard = () => {
     setShowMenu(false);
   };
 
-  const handleCloseJob = () => {
-    // Implement close job functionality
-    setShowMenu(false);
+  const handleCloseJob = async () => {
+    try {
+      const response = await fetch(`/api/job/update/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ active: false }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to close the job");
+      }
+
+      const updatedJob = await response.json();
+      console.log("Job closed successfully:", updatedJob);
+      setJob(updatedJob); // Update state to reflect the job is now closed
+    } catch (error) {
+      console.error("Error closing job:", error.message);
+    } finally {
+      setShowMenu(false);
+    }
   };
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;

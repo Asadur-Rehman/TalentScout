@@ -10,6 +10,10 @@ const interviewSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    questions: {
+      type: Array,
+      default: [],
+    },
     audioQuestions: {
       type: Array,
       required: false,
