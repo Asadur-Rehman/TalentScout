@@ -157,7 +157,7 @@ Ensure the response is structured, professional, and easy to read.
   return (
     <CandidateLayout>
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-12 w-2/3 mx-auto">
           <button
             onClick={handleBack}
             className="flex items-center text-gray-600 hover:text-gray-900"
@@ -198,7 +198,7 @@ Ensure the response is structured, professional, and easy to read.
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 w-2/4 mx-auto">
           <h1 className="text-3xl font-bold text-center">
             Demo Audio Question
           </h1>

@@ -215,18 +215,17 @@ export default function CandidateSignin() {
     <CandidateLayout>
       <div className="max-w-2xl mx-auto space-y-4">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">AI-powered assessment</h1>
+        <h1 className="text-2xl font-bold">AI-powered assessment</h1>
           <p className="text-gray-600">
             Please check your email for interview details
           </p>
         </div>
 
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200 mt-8">
+        <div className="bg-white shadow-sm rounded-lg border border-gray-200 mt-8 w-2/3 mx-auto">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-6">
+            <h2 className="text-lg text-center font-semibold mb-6">
               Interview credentials
             </h2>
-
             {error && (
               <p className="text-red-500 text-xs sm:text-sm mb-3 text-center">
                 {error}

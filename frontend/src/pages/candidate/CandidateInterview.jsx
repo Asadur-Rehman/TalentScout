@@ -164,7 +164,7 @@ export default function CandidateInterview() {
   return (
     <CandidateLayout>
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-12 w-2/3 mx-auto">
           <button
             onClick={handleBack}
             className="flex items-center text-gray-600 hover:text-gray-900"
@@ -205,7 +205,7 @@ export default function CandidateInterview() {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 align-center justify-center flex flex-col w-2/4 mx-auto">
           <h1 className="text-3xl font-bold text-center">
             Demo Audio Question
           </h1>
@@ -213,10 +213,10 @@ export default function CandidateInterview() {
             {questions[currentQuestion]}
           </p>
 
-          <div className="bg-gray-50 rounded-lg p-12 flex items-center justify-center">
+          <div className="bg-gray-50 rounded-lg p-12 flex items-center justify-center ">
             <button
               onClick={startRecording}
-              className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
+              className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors  ${
                 isRecording ? "bg-red-500" : "bg-[#05B4B4]"
               }`}
               disabled={loading}
@@ -234,7 +234,7 @@ export default function CandidateInterview() {
 
           <button
             onClick={handleNext}
-            className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold rounded-lg disabled:opacity-50"
+            className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold rounded-lg disabled:opacity-50 text-center"
             disabled={loading}
           >
             {currentQuestion < questions.length - 1 ? "Next" : "Submit"}
