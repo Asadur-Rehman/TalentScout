@@ -74,13 +74,39 @@ export default function CandidateInterview() {
     console.log("Final Answers:", answers);
 
     const prompt = `
-      Based on the following questions asked in an interview and candidate's responses, create an evaluation score for the candidate out of 100:
-      **Questions and Answers:** ${JSON.stringify(answers, null, 2)}
-      Provide an out of 100 score. Divide weightages among each question. If a question is not answered then count 0 marks for that. Your response should be just one number. 
+Based on the following interview questions and the candidate's responses, generate:  
+
+1. **Overall Score (out of 100)** – Calculate the candidate’s total evaluation score based on a weighted scoring system:  
+   - **General Questions (Q1 - Q4): 40% weightage (10% each)**  
+   - **Technical Questions (Q5 - Q7): 60% weightage (20% each)**  
+   - If a question is not answered, assign **0 marks** for that question.  
+   - Your response should start with **just one number** (the total score).  
+
+2. **Detailed Breakdown & Report**, including:  
+   - **Scoring Breakdown:** Show the marks assigned to each question based on the weightage.  
+   - **Question-wise Performance Analysis:**  
+     - **Question Asked**  
+     - **Candidate’s Response**  
+     - **Evaluation** (Assess clarity, depth, correctness, and job relevance).  
+     - **Score Given (out of allocated weightage points)**  
+   - **Soft Skills & Communication Rating:** (Confidence, clarity, problem-solving skills).  
+   - **Overall Performance Summary:** Key strengths, weaknesses, and improvement areas.  
+   - **Final Recommendation:** (Shortlisted / Not Shortlisted + Next Steps).  
+
+**Weightage Distribution:**  
+- **General Questions (Q1 - Q4):** 10 points each (Total: 40)  
+- **Technical Questions (Q5 - Q7):** 20 points each (Total: 60)  
+- **Final Score: Out of 100**  
+
+**Questions and Answers:**  
+${JSON.stringify(answers, null, 2)}
+
+Ensure the response is structured, professional, and easy to read.
 `;
 
     console.log(prompt);
 
+    // ... existing code ...
     try {
       const response = await axios.post(
         "https://api.openai.com/v1/chat/completions",
@@ -96,8 +122,15 @@ export default function CandidateInterview() {
         }
       );
 
-      const score = response.data.choices[0].message.content;
-      console.log(score);
+      const responseContent = response.data.choices[0].message.content;
+      // Extract score (assuming it's the first line) and report content
+      const [scoreStr, ...reportLines] = responseContent.split("\n");
+      const score = parseInt(scoreStr);
+      const evaluationReport = reportLines.join("\n").trim();
+
+      console.log("Score:", score);
+      console.log("Report:", evaluationReport);
+
       const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
       const candidateId = validCandidate._id;
 
@@ -105,7 +138,10 @@ export default function CandidateInterview() {
         const response = await fetch(`/api/candidate/update/${candidateId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ evaluationScore: score }),
+          body: JSON.stringify({
+            evaluationScore: score,
+            evaluationReport: evaluationReport,
+          }),
         });
 
         if (!response.ok) throw new Error("Failed to evaluate candidate");
@@ -113,6 +149,7 @@ export default function CandidateInterview() {
     } catch (error) {
       console.error("Error generating interview questions:", error);
     }
+    // ... existing code ...
 
     navigate("/candidate/video-instructions");
   };

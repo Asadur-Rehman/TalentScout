@@ -28,9 +28,10 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
     }
   };
 
+  // ... existing code ...
   const handleShortlist = async () => {
     try {
-      // Update candidate's shortlist status
+      // Update candidate's shortlist status only
       const response = await fetch(`/api/candidate/update/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,22 +42,11 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
 
       const updatedCandidate = await response.json();
       setCandidate(updatedCandidate);
-
-      // Create interview
-      const interviewResponse = await fetch(`/api/interview/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ candidateRef: updatedCandidate._id }),
-      });
-
-      if (!interviewResponse.ok) throw new Error("Failed to create interview");
-
-      const interview = await interviewResponse.json();
-      console.log("Interview Created:", interview);
     } catch (error) {
       console.error("Error shortlisting candidate:", error);
     }
   };
+  // ... existing code ...
 
   const downloadResume = async (userId) => {
     try {

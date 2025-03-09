@@ -4,6 +4,7 @@ import TalentScout from "../../assets/Group 5.svg";
 import ProfileModal from "./ProfileModal";
 import Layout from "./RecruiterLayout";
 import { FiMoreVertical } from "react-icons/fi";
+import jsPDF from "jspdf";
 
 const JobDashboard = () => {
   const navigate = useNavigate();
@@ -68,6 +69,71 @@ const JobDashboard = () => {
     fetchShortlistedCandidates();
   }, [id]);
 
+  // ... existing code ...
+
+  const handleDownloadReport = async (candidateId) => {
+    try {
+      // Fetch candidate data including evaluation report
+      const response = await fetch(`/api/candidate/get/${candidateId}`);
+      if (!response.ok) throw new Error("Failed to fetch candidate data");
+      const candidateData = await response.json();
+
+      // Create new PDF document
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(16);
+      doc.text("Candidate Evaluation Report", 20, 20);
+
+      // Add candidate info
+      doc.setFontSize(12);
+      doc.text(
+        `Candidate Name: ${candidateData.firstname} ${candidateData.lastname}`,
+        20,
+        40
+      );
+      doc.text(`Evaluation Score: ${candidateData.evaluationScore}`, 20, 50);
+
+      // Add evaluation report content
+      doc.setFontSize(11);
+      const reportText = doc.splitTextToSize(
+        candidateData.evaluationReport,
+        doc.internal.pageSize.width - 40
+      );
+      doc.text(reportText, 20, 70);
+
+      // Generate timestamp for filename
+      const timestamp = new Date().toISOString().split("T")[0];
+
+      // Download PDF
+      doc.save(`candidate-evaluation-${candidateData.name}-${timestamp}.pdf`);
+    } catch (error) {
+      console.error("Error downloading report:", error);
+      // Handle error (show notification to user)
+    }
+  };
+
+  const handleInviteInterview = async (candidateId) => {
+    try {
+      // Create interview
+      const interviewResponse = await fetch(`/api/interview/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateRef: candidateId }),
+      });
+
+      if (!interviewResponse.ok) throw new Error("Failed to create interview");
+
+      const interview = await interviewResponse.json();
+      console.log("Interview Created:", interview);
+
+      // You might want to show a success message or update the UI here
+    } catch (error) {
+      console.error("Error creating interview:", error);
+      // Handle error (show notification to user)
+    }
+  };
+
   const handleViewProfile = (candidateId) => {
     console.log("Opening profile modal for candidate ID:", candidateId);
     setSelectedCandidateId(candidateId);
@@ -104,10 +170,7 @@ const JobDashboard = () => {
         {/* Job Details Section */}
         <section className="mb-8 border-b pb-6 bg-white m-6 p-6 rounded-xl shadow">
           <div className="flex justify-between items-center mb-4">
-            <h2
-              className="text-xl font-semibold"
-              style={{ color: "#144066" }}
-            >
+            <h2 className="text-xl font-semibold" style={{ color: "#144066" }}>
               Job Specific Information
             </h2>
             <div className="relative">
@@ -255,11 +318,12 @@ const JobDashboard = () => {
                           View Profile
                         </button>
                       </div>
-                      <div className="flex justify-center">
-                        <button className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm">
-                          Invite for Interview
-                        </button>
-                      </div>
+                      <button
+                        className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
+                        onClick={() => handleInviteInterview(candidate._id)}
+                      >
+                        Invite for Interview
+                      </button>
                     </div>
                   ))
                 ) : (
@@ -302,7 +366,10 @@ const JobDashboard = () => {
                       </button>
                     </div>
                     <div className="flex justify-center">
-                      <button className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm">
+                      <button
+                        onClick={() => handleDownloadReport(candidate._id)}
+                        className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
+                      >
                         Download Report
                       </button>
                     </div>

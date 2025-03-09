@@ -21,6 +21,7 @@ const candidateSchema = new mongoose.Schema(
     hired: { type: Boolean, default: false },
     resumeScore: { type: Number, default: 0 },
     evaluationScore: { type: Number, default: 0 },
+    evaluationReport: { type: String, default: "" },
     jobRef: { type: String, required: true },
   },
   { timestamps: true }

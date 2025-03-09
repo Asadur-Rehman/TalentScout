@@ -96,11 +96,11 @@ export default function CandidateSignin() {
     if (!job || !resume) return;
 
     const prompt = `
-      Based on the following job description and candidate resume, generate four general-purpose interview questions:
+      Based on the following job description and candidate resume, generate Seven total interview questions out of which four should be general-purpose and three should be technical interview questions:
       **Job Details:** ${JSON.stringify(job, null, 2)}
       **Candidate Resume:** ${resume}
-      The questions should be relevant to the role and assess the candidate's skills, experience, and problem-solving ability.
-      Provide only the four questions.
+      The questions should be relevant to the role and assess the candidate's skills, experience, and problem-solving ability. You can use resume and ask about things mentioned in resume and also use job description to make questions as relevant as possible. 
+      Provide only the seven questions.
     `;
 
     try {
