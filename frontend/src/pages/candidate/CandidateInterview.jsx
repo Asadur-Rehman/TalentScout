@@ -1,58 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
 import SmallVideoPlaceholder from "../../assets/SmallVideoPlaceholder.svg";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import axios from "axios";
 
 export default function CandidateInterview() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
-  const [job, setJob] = useState(null);
-  const [resume, setResume] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const jobId = JSON.parse(localStorage.getItem("validCandidate")).jobRef;
-  const candidateId = JSON.parse(localStorage.getItem("validCandidate"))._id;
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
 
-  useEffect(() => {
-    const fetchJobDetails = async () => {
-      try {
-        const response = await fetch(`/api/job/get/${jobId}`);
-        if (!response.ok) throw new Error("Failed to fetch job details");
-        const data = await response.json();
-        console.log("Job details fetched:", data);
-        setJob(data);
-      } catch (err) {
-        console.error("Error fetching job details:", err.message);
-        setError(err.message);
-      }
-    };
+  const questions = JSON.parse(localStorage.getItem("questions")) || [];
 
-    const fetchCandidate = async () => {
-      try {
-        const response = await fetch(`/api/candidate/get/${candidateId}`);
-        if (!response.ok) throw new Error("Failed to fetch candidate");
-        const data = await response.json();
-        console.log("Candidate fetched:", data);
-        setResume(data.resumeText);
-      } catch (err) {
-        console.error("Error fetching resume:", err.message);
-        setError(err.message);
-      }
-    };
+  const startRecording = async () => {
+    try {
+      setIsRecording(true);
+      setLoading(true);
 
-    fetchJobDetails();
-    fetchCandidate();
-  }, [jobId, candidateId]);
+      const questionToSend = [questions[currentQuestion]]; // Send as an array
 
-  const questions = [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ?",
-    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat?",
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur?",
-    "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum?",
-  ];
+      const response = await axios.post("http://localhost:8000/interview/", {
+        questions: questionToSend, // Now sending as an array
+      });
+
+      // const recordedAnswer = response.data.answers[questions[currentQuestion]]; // Extract answer
+      // // console.log("Recorded Answer:", response.data.answers[questions[currentQuestion]]);
+      // console.log("Recorded Answer:", recordedAnswer);
+      const recordedAnswer = response.data.answers;
+
+      setAnswers((prevAnswers) => {
+        const updatedAnswers = [...prevAnswers];
+        updatedAnswers[currentQuestion] = recordedAnswer;
+        console.log(updatedAnswers);
+        return updatedAnswers;
+      });
+      console.log("Answers:", answers);
+
+      setIsRecording(false);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error recording answer:", error);
+      setError("Recording failed. Please try again.");
+      setIsRecording(false);
+      setLoading(false);
+    }
+  };
 
   const handleBack = () => {
     if (currentQuestion > 0) {
@@ -63,21 +65,66 @@ export default function CandidateInterview() {
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
+    } else {
+      handleSubmit();
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    console.log("Final Answers:", answers);
+
+    const prompt = `
+      Based on the following questions asked in an interview and candidate's responses, create an evaluation score for the candidate out of 100:
+      **Questions and Answers:** ${JSON.stringify(answers, null, 2)}
+      Provide an out of 100 score. Divide weightages among each question. If a question is not answered then count 0 marks for that. Your response should be just one number. 
+`;
+
+    console.log(prompt);
+
+    try {
+      const response = await axios.post(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          model: "gpt-4o",
+          messages: [{ role: "user", content: prompt }],
+        },
+        {
+          headers: {
+            Authorization: `Bearer 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`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const score = response.data.choices[0].message.content;
+      console.log(score);
+      const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
+      const candidateId = validCandidate._id;
+
+      if (!isNaN(score)) {
+        const response = await fetch(`/api/candidate/update/${candidateId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ evaluationScore: score }),
+        });
+
+        if (!response.ok) throw new Error("Failed to evaluate candidate");
+      }
+    } catch (error) {
+      console.error("Error generating interview questions:", error);
+    }
+
     navigate("/candidate/video-instructions");
   };
 
   return (
     <CandidateLayout>
       <div className="max-w-4xl mx-auto px-4">
-        {/* Back Button, Progress Bar, and Question Count */}
         <div className="flex items-center justify-between mb-12">
           <button
             onClick={handleBack}
             className="flex items-center text-gray-600 hover:text-gray-900"
+            disabled={currentQuestion === 0}
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -96,9 +143,8 @@ export default function CandidateInterview() {
           </button>
 
           <div className="flex-1 mx-4">
-            {/* Progress Bar */}
             <div className="flex gap-2">
-              {[...Array(4)].map((_, index) => (
+              {[...Array(questions.length)].map((_, index) => (
                 <div
                   key={index}
                   className={`h-1 flex-1 rounded-full ${
@@ -110,11 +156,11 @@ export default function CandidateInterview() {
           </div>
 
           <div className="text-gray-600">
-            ({String(currentQuestion + 1).padStart(2, "0")}/04)
+            ({String(currentQuestion + 1).padStart(2, "0")}/
+            {String(questions.length).padStart(2, "0")})
           </div>
         </div>
 
-        {/* Question Content */}
         <div className="space-y-8">
           <h1 className="text-3xl font-bold text-center">
             Demo Audio Question
@@ -123,13 +169,13 @@ export default function CandidateInterview() {
             {questions[currentQuestion]}
           </p>
 
-          {/* Recording Interface */}
           <div className="bg-gray-50 rounded-lg p-12 flex items-center justify-center">
             <button
-              onClick={() => setIsRecording(!isRecording)}
+              onClick={startRecording}
               className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
                 isRecording ? "bg-red-500" : "bg-[#05B4B4]"
               }`}
+              disabled={loading}
             >
               <svg
                 className="w-8 h-8 text-white"
@@ -142,40 +188,13 @@ export default function CandidateInterview() {
             </button>
           </div>
 
-          {/* Submit Button and Note */}
-          <div className="mt-8 space-y-4">
-            <div className="flex justify-center">
-              <CandidateButton
-                onClick={
-                  currentQuestion === questions.length - 1
-                    ? handleSubmit
-                    : handleNext
-                }
-              >
-                {currentQuestion === questions.length - 1
-                  ? "Submit"
-                  : "Submit & Continue"}
-              </CandidateButton>
-            </div>
-
-            <p className="text-center text-sm text-gray-500">
-              Note: Do not refresh the page or you'll lose your data
-            </p>
-          </div>
-        </div>
-
-        {/* Video Preview */}
-        <div className="fixed bottom-4 right-4 w-50 h-30 bg-white rounded-lg overflow-hidden">
-          <img
-            src={SmallVideoPlaceholder}
-            alt=""
-            className="w-full h-full object-cover"
-          />
-          {/* Status Indicators */}
-          {/* <div className="absolute bottom-2 right-2 flex gap-2">
-            <div className="w-4 h-4 bg-[#05B4B4] rounded-full" />
-            <div className="w-4 h-4 bg-[#05B4B4] rounded-full" />
-          </div> */}
+          <button
+            onClick={handleNext}
+            className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold rounded-lg disabled:opacity-50"
+            disabled={loading}
+          >
+            {currentQuestion < questions.length - 1 ? "Next" : "Submit"}
+          </button>
         </div>
       </div>
     </CandidateLayout>

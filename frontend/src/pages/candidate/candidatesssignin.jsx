@@ -18,12 +18,19 @@ export default function CandidateSignin() {
     interviewId: "",
   });
 
-  const { loading, error } = useSelector((state) => state.candidate);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [resume, setResume] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [data, setData] = useState({});
+
+  const [saving, setSaving] = useState(false);
+  const { loading, error } = useSelector((state) => {
+    console.log("Redux State:", state.candidate);
+    return state.candidate;
+  });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -40,34 +47,60 @@ export default function CandidateSignin() {
     try {
       const res = await fetch("/api/auth/candidatelogin", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
+      setData(data);
+      console.log("Login Response:", data);
 
-      if (data.success === false) {
+      if (!data.success) {
         dispatch(signInFailure(data.message));
         return;
       }
 
+      if (!data.validCandidate) {
+        dispatch(signInFailure("Invalid credentials"));
+        return;
+      }
+
       dispatch(signInSuccess(data));
+
+      localStorage.setItem("interviewId", data.interviewId);
+      localStorage.setItem(
+        "validCandidate",
+        JSON.stringify(data.validCandidate)
+      );
+
+      // Proceed to the next page first!
+      navigate("/candidate/instructions");
+
+      // Then fetch extra data without blocking login
+      setSaving(true);
       await fetchJobDetails(data.validCandidate.jobRef);
       await fetchCandidate(data.validCandidate._id);
-
-      navigate("/candidate/instructions");
+      setSaving(false);
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
   };
 
+  // Effect to proceed when loading is true again
+  // useEffect(() => {
+  //   if (data?.success) {
+  //     dispatch(signInSuccess(data));
+  //     navigate("/candidate/instructions");
+  //   }
+  // }, [data, dispatch, navigate]);
+
+  // const jobId = JSON.parse(localStorage.getItem("validCandidate")).jobRef;
+  // const candidateId = JSON.parse(localStorage.getItem("validCandidate"))._id;
+
   const fetchJobDetails = async (jobId) => {
     try {
       const { data } = await axios.get(`/api/job/get/${jobId}`);
       setJob(data);
-      localStorage.setItem("job", JSON.stringify(data)); // Store job in localStorage
     } catch (err) {
       console.error("Error fetching job details:", err.message);
     }
@@ -77,20 +110,10 @@ export default function CandidateSignin() {
     try {
       const { data } = await axios.get(`/api/candidate/get/${candidateId}`);
       setResume(data.resumeText);
-      localStorage.setItem("resume", data.resumeText); // Store resume in localStorage
     } catch (err) {
       console.error("Error fetching candidate details:", err.message);
     }
   };
-
-  // On page load, retrieve data if available
-  useEffect(() => {
-    const storedJob = localStorage.getItem("job");
-    const storedResume = localStorage.getItem("resume");
-
-    if (storedJob) setJob(JSON.parse(storedJob));
-    if (storedResume) setResume(storedResume);
-  }, []);
 
   const generateQuestions = async () => {
     if (!job || !resume) return;
@@ -124,6 +147,7 @@ export default function CandidateSignin() {
 
       setQuestions(generatedQuestions);
       localStorage.setItem("questions", JSON.stringify(generatedQuestions)); // Store immediately
+      setSaving(false);
     } catch (error) {
       console.error("Error generating interview questions:", error);
     }
@@ -133,7 +157,7 @@ export default function CandidateSignin() {
     if (job && resume) {
       generateQuestions();
     }
-  }, [job, resume]);
+  }, [job, resume]); // Ensure dependencies are fully loaded
 
   return (
     <CandidateLayout>
@@ -154,6 +178,7 @@ export default function CandidateSignin() {
             {error && (
               <p className="text-red-500 text-xs sm:text-sm mb-3 text-center">
                 {error}
+                {"fsjhilguser"}
               </p>
             )}
 
