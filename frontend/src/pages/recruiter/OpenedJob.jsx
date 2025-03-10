@@ -22,7 +22,7 @@ export default function Dashboard() {
   // Fetch jobs for recruiter
   useEffect(() => {
     if (!recruiterRef) return;
-    setError(null); // Reset error before fetching
+    setError(null);
 
     const fetchJobs = async () => {
       try {
@@ -35,7 +35,9 @@ export default function Dashboard() {
           return;
         }
 
-        setJobs(data);
+        // Filter only active jobs
+        const activeJobs = data.filter((job) => job.active === true);
+        setJobs(activeJobs);
       } catch (err) {
         setError("Something went wrong while fetching jobs");
       } finally {
@@ -58,23 +60,26 @@ export default function Dashboard() {
 
       await Promise.all(
         jobs.map(async (job) => {
-          try {
-            const response = await fetch(`/api/candidate/stats/${job._id}`);
-            if (!response.ok) throw new Error("Failed to fetch stats");
+          // Only fetch stats if job is active (redundant check since jobs are already filtered)
+          if (job.active) {
+            try {
+              const response = await fetch(`/api/candidate/stats/${job._id}`);
+              if (!response.ok) throw new Error("Failed to fetch stats");
 
-            const data = await response.json();
+              const data = await response.json();
 
-            statsMap[job._id] = {
-              totalCandidates: Number(data.totalCandidates) || 0,
-              shortlistedCandidates: Number(data.shortlistedCandidates) || 0,
-              hiredCandidates: Number(data.hiredCandidates) || 0,
-            };
+              statsMap[job._id] = {
+                totalCandidates: Number(data.totalCandidates) || 0,
+                shortlistedCandidates: Number(data.shortlistedCandidates) || 0,
+                hiredCandidates: Number(data.hiredCandidates) || 0,
+              };
 
-            total += statsMap[job._id].totalCandidates;
-            shortlisted += statsMap[job._id].shortlistedCandidates;
-            hired += statsMap[job._id].hiredCandidates;
-          } catch (err) {
-            console.error(`Error fetching stats for job ${job._id}:`, err);
+              total += statsMap[job._id].totalCandidates;
+              shortlisted += statsMap[job._id].shortlistedCandidates;
+              hired += statsMap[job._id].hiredCandidates;
+            } catch (err) {
+              console.error(`Error fetching stats for job ${job._id}:`, err);
+            }
           }
         })
       );

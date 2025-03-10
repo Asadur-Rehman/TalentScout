@@ -5,6 +5,7 @@ import ProfileModal from "./ProfileModal";
 import Layout from "./RecruiterLayout";
 import { FiMoreVertical } from "react-icons/fi";
 import jsPDF from "jspdf";
+import { ShareModal } from "./ShareModal";
 
 const JobDashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const JobDashboard = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     console.log("Fetching job and candidates for job ID:", id);
@@ -146,7 +148,7 @@ const JobDashboard = () => {
   };
 
   const handleShareJob = () => {
-    // Implement share functionality
+    setIsShareModalOpen(true);
     setShowMenu(false);
   };
 
@@ -423,6 +425,12 @@ const JobDashboard = () => {
           setIsProfileModalOpen(false);
         }}
         candidateId={selectedCandidateId}
+      />
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        jobId={id}
       />
     </div>
   );

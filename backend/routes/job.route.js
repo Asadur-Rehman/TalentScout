@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/create", verifyToken, createJob);
 router.delete("/delete/:id", verifyToken, deleteJob);
-router.post("/update/:id", verifyToken, updateJob);
+router.post("/update/:id", updateJob);
 router.get("/get/:id", getJob);
 router.get("/get", getJobs);
 router.get("/getbyrecruiter/:recruiterRef", verifyToken, getJobsByRecruiter);

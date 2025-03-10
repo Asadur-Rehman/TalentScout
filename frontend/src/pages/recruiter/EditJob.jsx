@@ -261,7 +261,7 @@ const EditJob = () => {
       };
 
       const response = await fetch(`/api/job/update/${id}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
