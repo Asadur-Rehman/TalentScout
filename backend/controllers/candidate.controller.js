@@ -85,7 +85,7 @@ export const updateCandidate = async (req, res, next) => {
       req.params.id,
       updatedData,
       { new: true }
-    );
+    ).select("-resume");
 
     res.status(200).json(updatedCandidate);
   } catch (error) {

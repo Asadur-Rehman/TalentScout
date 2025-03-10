@@ -33,6 +33,8 @@ export default function CandidateSignin() {
     }));
   };
 
+  // ... existing code ...
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(signInStart());
@@ -53,11 +55,20 @@ export default function CandidateSignin() {
         return;
       }
 
-      dispatch(signInSuccess(data));
-      await fetchJobDetails(data.validCandidate.jobRef);
-      await fetchCandidate(data.validCandidate._id);
+      localStorage.setItem(
+        "validCandidate",
+        JSON.stringify(data.validCandidate)
+      );
 
+      dispatch(signInSuccess(data));
+
+      // Navigate immediately after basic auth
       navigate("/candidate/instructions");
+
+      // Continue with background tasks after navigation
+      fetchJobDetails(data.validCandidate.jobRef).then(() => {
+        fetchCandidate(data.validCandidate._id);
+      });
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
@@ -67,44 +78,45 @@ export default function CandidateSignin() {
     try {
       const { data } = await axios.get(`/api/job/get/${jobId}`);
       setJob(data);
-      localStorage.setItem("job", JSON.stringify(data)); // Store job in localStorage
+      localStorage.setItem("job", JSON.stringify(data));
+      return data; // Return data for chaining
     } catch (err) {
       console.error("Error fetching job details:", err.message);
     }
   };
 
-  // ... existing code ...
-
   const fetchCandidate = async (candidateId) => {
     try {
-      const { data } = await axios.get(`/api/interview/get/${formData.interviewId}`);
+      const { data } = await axios.get(
+        `/api/interview/get/${formData.interviewId}`
+      );
       setResume(data.resumeText);
-      localStorage.setItem("resume", data.resumeText); // Store resume in localStorage
+      localStorage.setItem("resume", data.resumeText);
 
       // Check if candidate already has questions
       if (data.questions && data.questions.length > 0) {
         setQuestions(data.questions);
         localStorage.setItem("questions", JSON.stringify(data.questions));
       } else {
-        // Only generate questions if they don't exist
-        if (job) {
-          await generateQuestions(data._id);
-        }
+        // Generate questions in background
+        generateQuestions(data._id);
       }
     } catch (err) {
       console.error("Error fetching candidate details:", err.message);
     }
   };
 
+  // ... rest of the code remains the same ...
+
   const generateQuestions = async (candidateId) => {
     if (!job || !resume) return;
 
     const prompt = `
-    Based on the following job description and candidate resume, generate Seven total interview questions out of which four should be general-purpose and three should be technical interview questions:
-    **Job Details:** ${JSON.stringify(job, null, 2)}
-    **Candidate Resume:** ${resume}
-    The questions should be relevant to the role and assess the candidate's skills, experience, and problem-solving ability. You can use resume and ask about things mentioned in resume and also use job description to make questions as relevant as possible. 
-    Provide only the seven questions.
+    Generate 7 interview questions based on this job description and candidate resume. The questions should be a mix of technical and behavioral questions relevant to the role. Format your response as plain questions only, one per line, with no numbering, labels, or additional text.
+
+    Context for generating questions:
+    Job Details: ${JSON.stringify(job, null, 2)}
+    Resume: ${resume}
   `;
 
     try {
@@ -124,7 +136,8 @@ export default function CandidateSignin() {
 
       const generatedQuestions = response.data.choices[0].message.content
         .split("\n")
-        .filter((q) => q.trim());
+        .filter((q) => q.trim())
+        .map((q) => q.replace(/^\d+\.\s*/, ""));
 
       // Save questions to candidate in database
       await axios.post(`/api/interview/update/${formData.interviewId}`, {
@@ -215,7 +228,7 @@ export default function CandidateSignin() {
     <CandidateLayout>
       <div className="max-w-2xl mx-auto space-y-4">
         <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold">AI-powered assessment</h1>
+          <h1 className="text-2xl font-bold">AI-powered assessment</h1>
           <p className="text-gray-600">
             Please check your email for interview details
           </p>

@@ -21,6 +21,7 @@ export default function CandidateInterview() {
   recognition.lang = "en-US";
 
   const questions = JSON.parse(localStorage.getItem("questions")) || [];
+  // const interviewId = JSON.parse(localStorage.getItem("interviewId")) || [];
 
   const startRecording = async () => {
     try {
@@ -70,12 +71,20 @@ export default function CandidateInterview() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
+    // Navigate immediately
+    navigate("/candidate/coding-interview");
+
+    // Continue with AI evaluation in the background
+    processEvaluation();
+  };
+
+  const processEvaluation = async () => {
     console.log("Final Answers:", answers);
 
     const prompt = `
-Based on the following interview questions and the candidate's responses, generate:  
-
+      Based on the following interview questions and the candidate's responses, generate:  
+  
 1. **Overall Score (out of 100)** – Calculate the candidate’s total evaluation score based on a weighted scoring system:  
    - **General Questions (Q1 - Q4): 40% weightage (10% each)**  
    - **Technical Questions (Q5 - Q7): 60% weightage (20% each)**  
@@ -102,11 +111,8 @@ Based on the following interview questions and the candidate's responses, genera
 ${JSON.stringify(answers, null, 2)}
 
 Ensure the response is structured, professional, and easy to read.
-`;
+  `;
 
-    console.log(prompt);
-
-    // ... existing code ...
     try {
       const response = await axios.post(
         "https://api.openai.com/v1/chat/completions",
@@ -123,19 +129,15 @@ Ensure the response is structured, professional, and easy to read.
       );
 
       const responseContent = response.data.choices[0].message.content;
-      // Extract score (assuming it's the first line) and report content
       const [scoreStr, ...reportLines] = responseContent.split("\n");
       const score = parseInt(scoreStr);
       const evaluationReport = reportLines.join("\n").trim();
-
-      console.log("Score:", score);
-      console.log("Report:", evaluationReport);
 
       const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
       const candidateId = validCandidate._id;
 
       if (!isNaN(score)) {
-        const response = await fetch(`/api/candidate/update/${candidateId}`, {
+        await fetch(`/api/candidate/update/${candidateId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -143,15 +145,12 @@ Ensure the response is structured, professional, and easy to read.
             evaluationReport: evaluationReport,
           }),
         });
-
-        if (!response.ok) throw new Error("Failed to evaluate candidate");
       }
     } catch (error) {
-      console.error("Error generating interview questions:", error);
+      console.error("Error in background evaluation:", error);
+      // Consider storing the error in localStorage or another state management solution
+      // so it can be displayed on the next page if needed
     }
-    // ... existing code ...
-
-    navigate("/candidate/coding-interview");
   };
 
   return (
