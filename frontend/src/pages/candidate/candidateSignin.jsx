@@ -119,6 +119,10 @@ export default function CandidateSignin() {
     Resume: ${resume}
   `;
 
+
+
+  
+
     try {
       const response = await axios.post(
         "https://api.openai.com/v1/chat/completions",
