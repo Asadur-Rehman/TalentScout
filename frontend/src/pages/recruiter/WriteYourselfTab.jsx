@@ -8,10 +8,8 @@ export default function WriteYourselfTab({
   setDescription,
   formData,
 }) {
+  const llama = import.meta.env.VITE_LLAMA;
   const [loading, setLoading] = useState(false);
-
-  const apikey =
-    "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";
 
   const handleGenerate = async () => {
     if (!formData) {
@@ -43,19 +41,15 @@ export default function WriteYourselfTab({
         Keep the language professional, engaging, and concise.
       `;
 
-
-
-      
     try {
       const response = await axios.post(
-        "https://api.openai.com/v1/chat/completions",
+        "/llama38b/v1/chat/completions",
         {
-          model: "gpt-4o",
+          model: llama,
           messages: [{ role: "user", content: prompt }],
         },
         {
           headers: {
-            Authorization: `Bearer ${apikey}`,
             "Content-Type": "application/json",
           },
         }

@@ -80,49 +80,75 @@ export default function CandidateInterview() {
   };
 
   const processEvaluation = async () => {
+    const llama = import.meta.env.VITE_LLAMA;
+
     console.log("Final Answers:", answers);
 
     const prompt = `
-      Based on the following interview questions and the candidate's responses, generate:  
-  
-1. **Overall Score (out of 100)** – Calculate the candidate’s total evaluation score based on a weighted scoring system:  
-   - **General Questions (Q1 - Q4): 40% weightage (10% each)**  
-   - **Technical Questions (Q5 - Q7): 60% weightage (20% each)**  
-   - If a question is not answered, assign **0 marks** for that question.  
-   - Your response should start with **just one number** (the total score).  
+Based on the following interview questions and the candidate’s responses, generate a **detailed evaluation report**. Ensure that the **individual question scores are calculated first**, and then sum them up to determine the **final score**. Your response should begin with just **one number**—the final score—before proceeding to the detailed breakdown.
 
-2. **Detailed Breakdown & Report**, including:  
-   - **Scoring Breakdown:** Show the marks assigned to each question based on the weightage.  
-   - **Question-wise Performance Analysis:**  
-     - **Question Asked**  
-     - **Candidate’s Response**  
-     - **Evaluation** (Assess clarity, depth, correctness, and job relevance).  
-     - **Score Given (out of allocated weightage points)**  
-   - **Soft Skills & Communication Rating:** (Confidence, clarity, problem-solving skills).  
-   - **Overall Performance Summary:** Key strengths, weaknesses, and improvement areas.  
-   - **Final Recommendation:** (Shortlisted / Not Shortlisted + Next Steps).  
+---
 
-**Weightage Distribution:**  
+### **1. Overall Score (Out of 100)**  
+- First, compute individual scores for each question.  
+- Then, sum up these scores to calculate the **final evaluation score**.  
+- Display only the **final score** as the first output.
+
+---
+
+### **2. Detailed Breakdown & Candidate Evaluation**  
+
+#### **A. Scoring Breakdown**  
+- Display a **tabular format** showing the score assigned to each question based on weightage.  
+
+#### **B. Question-Wise Performance Analysis**  
+For each question, provide:  
+- **Question Asked**  
+- **Candidate’s Response**  
+- **Evaluation** (Analyze clarity, depth, correctness, and job relevance).  
+- **Score Given (out of allocated weightage points)**  
+
+#### **C. Soft Skills & Communication Rating (Out of 10)**  
+Evaluate the candidate’s **communication, confidence, clarity, and problem-solving skills.**  
+
+#### **D. Overall Performance Summary**  
+Summarize the candidate’s:  
+- **Key Strengths** (Highlight their strong areas).  
+- **Weaknesses & Areas for Improvement** (Provide actionable feedback).  
+
+#### **E. Final Recommendation**  
+Provide a clear recommendation:  
+- **Shortlisted / Not Shortlisted**  
+- Suggested **next steps**, such as additional technical assessments, follow-up interviews, or rejection with feedback.  
+
+---
+
+### **Weightage Distribution:**  
 - **General Questions (Q1 - Q4):** 10 points each (Total: 40)  
 - **Technical Questions (Q5 - Q7):** 20 points each (Total: 60)  
 - **Final Score: Out of 100**  
 
-**Questions and Answers:**  
+---
+
+### **Candidate’s Responses:**  
 ${JSON.stringify(answers, null, 2)}
 
-Ensure the response is structured, professional, and easy to read.
-  `;
+Ensure that the report is:  
+**Well-structured** with clear headings and formatting.  
+**Insightful & Professional**, with meaningful analysis.  
+**Concise but Comprehensive**, providing valuable feedback.
+**The final score should be the first output and the sum of the individual questions scores.**
+`;
 
     try {
       const response = await axios.post(
-        "https://api.openai.com/v1/chat/completions",
+        "/llama38b/v1/chat/completions",
         {
-          model: "gpt-4o",
+          model: llama,
           messages: [{ role: "user", content: prompt }],
         },
         {
           headers: {
-            Authorization: `Bearer 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`,
             "Content-Type": "application/json",
           },
         }

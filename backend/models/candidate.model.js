@@ -22,6 +22,7 @@ const candidateSchema = new mongoose.Schema(
     resumeScore: { type: Number, default: 0 },
     evaluationScore: { type: Number, default: 0 },
     evaluationReport: { type: String, default: "" },
+    status: { type: String, default: "Pending" },
     jobRef: { type: String, required: true },
   },
   { timestamps: true }

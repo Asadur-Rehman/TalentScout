@@ -18,6 +18,8 @@ export default function CandidateSignin() {
     interviewId: "",
   });
 
+  const llama = import.meta.env.VITE_LLAMA;
+
   const { loading, error } = useSelector((state) => state.candidate);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -112,27 +114,22 @@ export default function CandidateSignin() {
     if (!job || !resume) return;
 
     const prompt = `
-    Generate 7 interview questions based on this job description and candidate resume. The questions should be a mix of technical and behavioral questions relevant to the role. Format your response as plain questions only, one per line, with no numbering, labels, or additional text.
+    Generate 7 interview questions based on this job description and candidate resume. The questions should be a mix of technical and behavioral questions relevant to the role. Format your response as plain questions only, one per line, with no numbering, labels, or additional text or anything else.
 
     Context for generating questions:
     Job Details: ${JSON.stringify(job, null, 2)}
     Resume: ${resume}
   `;
 
-
-
-  
-
     try {
       const response = await axios.post(
-        "https://api.openai.com/v1/chat/completions",
+        "/llama38b/v1/chat/completions",
         {
-          model: "gpt-4o",
+          model: llama,
           messages: [{ role: "user", content: prompt }],
         },
         {
           headers: {
-            Authorization: `Bearer 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`,
             "Content-Type": "application/json",
           },
         }
@@ -198,7 +195,7 @@ export default function CandidateSignin() {
 
   //   try {
   //     const response = await axios.post(
-  //       "https://api.openai.com/v1/chat/completions",
+  //       "/llama38b/v1/chat/completions",
   //       {
   //         model: "gpt-4o",
   //         messages: [{ role: "user", content: prompt }],

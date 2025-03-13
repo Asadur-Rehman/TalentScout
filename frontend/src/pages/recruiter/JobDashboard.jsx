@@ -82,36 +82,127 @@ const JobDashboard = () => {
 
       // Create new PDF document
       const doc = new jsPDF();
+      const pageHeight = doc.internal.pageSize.height;
+      let yPosition = 20; // Initial Y position for content
+      const margin = 20;
+      const lineHeight = 7;
 
-      // Add title
-      doc.setFontSize(16);
-      doc.text("Candidate Evaluation Report", 20, 20);
+      // Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text("Candidate Evaluation Report", margin, yPosition);
+      yPosition += 12;
 
-      // Add candidate info
+      // Candidate Information
       doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
       doc.text(
         `Candidate Name: ${candidateData.firstname} ${candidateData.lastname}`,
-        20,
-        40
+        margin,
+        yPosition
       );
-      doc.text(`Evaluation Score: ${candidateData.evaluationScore}`, 20, 50);
+      yPosition += 7;
+      doc.text(
+        `Evaluation Score: ${candidateData.evaluationScore}`,
+        margin,
+        yPosition
+      );
+      yPosition += 10;
 
-      // Add evaluation report content
-      doc.setFontSize(11);
-      const reportText = doc.splitTextToSize(
-        candidateData.evaluationReport,
-        doc.internal.pageSize.width - 40
+      // Section: Scoring Breakdown
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Scoring Breakdown", margin, yPosition);
+      yPosition += 8;
+
+      // Score List
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      const scores =
+        candidateData.evaluationReport.match(/- \*\*Q\d+:\*\* \d+\/\d+/g) || [];
+
+      scores.forEach((score) => {
+        if (yPosition + lineHeight > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+        doc.text(score.replace(/\*\*/g, ""), margin + 5, yPosition);
+        yPosition += lineHeight;
+      });
+
+      yPosition += 10;
+
+      // Section: Question-wise Performance Analysis
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Question-wise Performance Analysis", margin, yPosition);
+      yPosition += 8;
+
+      // Extract & Format Each Question Block
+      const questions = candidateData.evaluationReport.split("\n\n");
+      questions.forEach((section) => {
+        if (section.includes("Q")) {
+          const lines = doc.splitTextToSize(
+            section.replace(/\*\*/g, ""),
+            doc.internal.pageSize.width - margin * 2
+          );
+          lines.forEach((line) => {
+            if (yPosition + lineHeight > pageHeight - margin) {
+              doc.addPage();
+              yPosition = margin;
+            }
+            doc.text(line, margin, yPosition);
+            yPosition += lineHeight;
+          });
+          yPosition += 5;
+        }
+      });
+
+      yPosition += 10;
+
+      // Section: Final Recommendation
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Final Recommendation", margin, yPosition);
+      yPosition += 8;
+
+      doc.setFont("helvetica", "normal");
+      const recommendation = candidateData.evaluationReport.match(
+        /\*\*Final Recommendation:\*\* .*/g
       );
-      doc.text(reportText, 20, 70);
+      if (recommendation) {
+        const recommendationText = recommendation[0].replace(/\*\*/g, "");
+        doc.text(recommendationText, margin, yPosition);
+        yPosition += lineHeight;
+      }
+
+      yPosition += 10;
+
+      // Section: Next Steps
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Next Steps", margin, yPosition);
+      yPosition += 8;
+
+      doc.setFont("helvetica", "normal");
+      const nextSteps = candidateData.evaluationReport.match(
+        /\*\*Next Steps:\*\* .*/g
+      );
+      if (nextSteps) {
+        const nextStepsText = nextSteps[0].replace(/\*\*/g, "");
+        doc.text(nextStepsText, margin, yPosition);
+        yPosition += lineHeight;
+      }
 
       // Generate timestamp for filename
       const timestamp = new Date().toISOString().split("T")[0];
 
       // Download PDF
-      doc.save(`candidate-evaluation-${candidateData.name}-${timestamp}.pdf`);
+      doc.save(
+        `candidate-evaluation-${candidateData.firstname}-${timestamp}.pdf`
+      );
     } catch (error) {
       console.error("Error downloading report:", error);
-      // Handle error (show notification to user)
     }
   };
 
@@ -129,10 +220,29 @@ const JobDashboard = () => {
       const interview = await interviewResponse.json();
       console.log("Interview Created:", interview);
 
-      // You might want to show a success message or update the UI here
+      // Update candidate status
+      const candidateUpdate = await fetch(
+        `/api/candidate/update/${candidateId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Interviewing" }),
+        }
+      );
+
+      if (!candidateUpdate.ok)
+        throw new Error("Failed to update candidate status");
+
+      // Update local state to trigger re-render
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, status: "Interviewing" }
+            : candidate
+        )
+      );
     } catch (error) {
       console.error("Error creating interview:", error);
-      // Handle error (show notification to user)
     }
   };
 
@@ -169,6 +279,7 @@ const JobDashboard = () => {
       const updatedJob = await response.json();
       console.log("Job closed successfully:", updatedJob);
       setJob(updatedJob); // Update state to reflect the job is now closed
+      navigate("/recruiter");
     } catch (error) {
       console.error("Error closing job:", error.message);
     } finally {
@@ -342,8 +453,11 @@ const JobDashboard = () => {
                       <button
                         className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
                         onClick={() => handleInviteInterview(candidate._id)}
+                        disabled={candidate.status !== "Pending"} // Optional: Disable button if already invited
                       >
-                        Invite for Interview
+                        {candidate.status && candidate.status !== "Pending"
+                          ? "Invitation Sent"
+                          : "Invite for Interview"}
                       </button>
                     </div>
                   ))

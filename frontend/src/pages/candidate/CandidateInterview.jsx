@@ -116,9 +116,9 @@ export default function CandidateInterview() {
     //     // ... existing code ...
     //     try {
     //       const response = await axios.post(
-    //         "https://api.openai.com/v1/chat/completions",
+    //         "llama38b/v1/chat/completions",
     //         {
-    //           model: "gpt-4o",
+    //           model: llama,
     //           messages: [{ role: "user", content: prompt }],
     //         },
     //         {

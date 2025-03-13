@@ -15,7 +15,11 @@ export const createInterview = async (req, res, next) => {
 
     // Send email
     const emailSubject = "Interview Scheduled";
-    const emailBody = `Dear ${candidate.name},\n\nYour interview has been scheduled.\nInterview ID: ${interview._id}\nLogin using this id to https://talentscout.onrender.com/candidatelogin and attempt the interview.\n\nBest of luck!\nHR Team`;
+    const emailBody = `Dear ${
+      candidate.firstname + " " + candidate.lastname
+    },\n\nYour interview has been scheduled.\nInterview ID: ${
+      interview._id
+    }.\nLogin using this id to https://talentscout.onrender.com/candidatelogin and attempt the interview.\n\nBest of luck!\nHR Team`;
 
     await sendEmail(candidate.email, emailSubject, emailBody);
 
