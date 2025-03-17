@@ -1,42 +1,51 @@
-// import bcryptjs from 'bcryptjs';
-import Recruiter from '../models/recruiter.model.js';
+import bcryptjs from "bcryptjs";
+import Recruiter from "../models/recruiter.model.js";
 //import { errorHandler } from '../utils/error.js';
 //import Listing from '../models/listing.model.js';
 
 export const test = (req, res) => {
   res.json({
-    message: 'Api route is working!',
+    message: "Api route is working!",
   });
 };
 
-// export const updateUser = async (req, res, next) => {
-//   if (req.user.id !== req.params.id)
-//     return next(errorHandler(401, 'You can only update your own account!'));
-//   try {
-//     if (req.body.password) {
-//       req.body.password = bcryptjs.hashSync(req.body.password, 10);
-//     }
+export const updateRecruiter = async (req, res, next) => {
+  if (req.recruiter.id !== req.params.id)
+    return next(errorHandler(401, "You can only update your own account!"));
+  try {
+    if (req.body.password) {
+      req.body.password = bcryptjs.hashSync(req.body.password, 10);
+    }
 
-//     const updatedUser = await User.findByIdAndUpdate(
-//       req.params.id,
-//       {
-//         $set: {
-//           username: req.body.username,
-//           email: req.body.email,
-//           password: req.body.password,
-//           avatar: req.body.avatar,
-//         },
-//       },
-//       { new: true }
-//     );
+    const updatedRecruiter = await Recruiter.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          username: req.body.username,
+          email: req.body.email,
+          password: req.body.password,
+        },
+      },
+      { new: true }
+    );
 
-//     const { password, ...rest } = updatedUser._doc;
+    const { password, ...rest } = updatedRecruiter._doc;
 
-//     res.status(200).json(rest);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const checkRecruiter = async (req, res, next) => {
+  try {
+    const recruiter = await Recruiter.findOne({ email: req.body.email });
+
+    res.status(200).json({ res: !!recruiter }); // Returns { res: true } or { res: false }
+  } catch (error) {
+    next(error);
+  }
+};
 
 // export const deleteUser = async (req, res, next) => {
 //   if (req.user.id !== req.params.id)
@@ -65,13 +74,13 @@ export const test = (req, res) => {
 
 // export const getUser = async (req, res, next) => {
 //   try {
-    
+
 //     const user = await User.findById(req.params.id);
-  
+
 //     if (!user) return next(errorHandler(404, 'User not found!'));
-  
+
 //     const { password: pass, ...rest } = user._doc;
-  
+
 //     res.status(200).json(rest);
 //   } catch (error) {
 //     next(error);

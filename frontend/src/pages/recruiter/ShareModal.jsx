@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useState } from 'react';
 
-export function ShareModal({ isOpen, onClose }) {
+export function ShareModal({ isOpen, onClose, jobId }) {
+  const [isCopied, setIsCopied] = useState(false);
+
   if (!isOpen) return null;
+
+  // Dynamically detect the base URL (localhost vs. production)
+  const baseURL = window.location.origin;
+  const jobApplicationURL = jobId ? `${baseURL}/job-application/${jobId}` : "";
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(jobApplicationURL);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -30,11 +46,15 @@ export function ShareModal({ isOpen, onClose }) {
         </div>
         <input
           type="text"
-          placeholder="job.sample.com"
+          value={jobApplicationURL}
+          readOnly
           className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
         />
-        <button className="w-full px-4 py-2 bg-[#144066] hover:bg-[#0B2544] text-white rounded-md transition-colors">
-          Share
+        <button
+          onClick={handleCopy}
+          className="w-full px-4 py-2 bg-[#144066] hover:bg-[#0B2544] text-white rounded-md transition-colors"
+        >
+          {isCopied ? "Link copied!" : "Copy Link"}
         </button>
         <button
           onClick={onClose}

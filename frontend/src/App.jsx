@@ -23,6 +23,8 @@ import VideoInterview from "./pages/candidate/VideoInterview";
 import CodingInterview from "./pages/candidate/CodingInterview";
 import InterviewCompletion from "./pages/candidate/InterviewCompletion";
 import RecruiterPrivateRoute from "./pages/recruiter/RecruiterPrivateRoute";
+import CandidatePrivateRoute from "./pages/candidate/CandidatePrivateRoute";
+import EditJob from "./pages/recruiter/EditJob";
 
 export default function App() {
   return (
@@ -42,45 +44,58 @@ export default function App() {
           />
           <Route path="/recruiter/opened-jobs" element={<OpenedJobs />} />
           <Route path="/recruiter/open-job" element={<OpenJobForm />} />
+          <Route path="/recruiter/edit-job/:id" element={<EditJob />} />
           <Route
             path="/recruiter/job-description"
             element={<JobDescription />}
           />
-          <Route path="/recruiter/job-dashboard" element={<JobDashboard />} />
+          <Route
+            path="/recruiter/job-dashboard/:id"
+            element={<JobDashboard />}
+          />
           <Route path="/recruiter" element={<RecruiterHome />} />
-          <Route path="/job-application" element={<JobApplication />} />
 
           <Route
-            path="/recruiter/shortlisted-candidates"
+            path="/recruiter/shortlisted-candidates/:id"
             element={<ShortlistedCandidates />}
           />
           <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
         </Route>
 
+        <Route path="/job-application/:id" element={<JobApplication />} />
+
         <Route path="/faq" element={<FAQPage />} />
-        <Route
-          path="/candidate/instructions"
-          element={<CandidateInstructions />}
-        />
-        <Route
-          path="/candidate/permissions"
-          element={<CandidatePermissions />}
-        />
-        <Route path="/candidate/interview" element={<CandidateInterview />} />
-        <Route
-          path="/candidate/video-instructions"
-          element={<VideoInterviewInstructions />}
-        />
-        <Route path="/candidate/completion" element={<CandidateCompletion />} />
-        <Route path="/candidate/video-interview" element={<VideoInterview />} />
-        <Route
-          path="/candidate/coding-interview"
-          element={<CodingInterview />}
-        />
-        <Route
-          path="/candidate/interview-completion"
-          element={<InterviewCompletion />}
-        />
+        <Route element={<CandidatePrivateRoute />}>
+          <Route
+            path="/candidate/instructions"
+            element={<CandidateInstructions />}
+          />
+          <Route
+            path="/candidate/permissions"
+            element={<CandidatePermissions />}
+          />
+          <Route path="/candidate/interview" element={<CandidateInterview />} />
+          <Route
+            path="/candidate/video-instructions"
+            element={<VideoInterviewInstructions />}
+          />
+          <Route
+            path="/candidate/completion"
+            element={<CandidateCompletion />}
+          />
+          <Route
+            path="/candidate/video-interview"
+            element={<VideoInterview />}
+          />
+          <Route
+            path="/candidate/coding-interview"
+            element={<CodingInterview />}
+          />
+          <Route
+            path="/candidate/interview-completion"
+            element={<InterviewCompletion />}
+          />
+        </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

@@ -1,98 +1,361 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import TalentScout from "../../assets/Group 5.svg";
 import ProfileModal from "./ProfileModal";
 import Layout from "./RecruiterLayout";
+import { FiMoreVertical } from "react-icons/fi";
+import jsPDF from "jspdf";
+import { ShareModal } from "./ShareModal";
 
 const JobDashboard = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [job, setJob] = useState(null);
+  const [candidates, setCandidates] = useState([]);
+  const [shortlistedCandidates, setShortlistedCandidates] = useState([]);
+  const [activeTab, setActiveTab] = useState("applicants");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [selectedCandidateId, setSelectedCandidateId] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  const applicants = [
-    {
-      name: "Shahmeer Sheraz",
-      education: "Bachelors",
-      experience: "3 years",
-      resumeScore: "67",
-      image: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      name: "Shahmeer Sheraz",
-      education: "Bachelors",
-      experience: "3 years",
-      resumeScore: "67",
-      image: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      name: "Shahmeer Sheraz",
-      education: "Bachelors",
-      experience: "3 years",
-      resumeScore: "67",
-      image: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      name: "Shahmeer Sheraz",
-      education: "Bachelors",
-      experience: "3 years",
-      resumeScore: "67",
-      image: "/placeholder.svg?height=32&width=32",
-    },
-  ];
+  useEffect(() => {
+    console.log("Fetching job and candidates for job ID:", id);
+
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`/api/job/get/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch job details");
+        const data = await response.json();
+        console.log("Job details fetched:", data);
+        setJob(data);
+      } catch (err) {
+        console.error("Error fetching job details:", err.message);
+        setError(err.message);
+      }
+    };
+
+    const fetchCandidates = async () => {
+      try {
+        const response = await fetch(`/api/candidate/getbyjob/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch candidates");
+        const data = await response.json();
+        console.log("Candidates fetched:", data);
+        setCandidates(data);
+      } catch (err) {
+        console.error("Error fetching candidates:", err.message);
+        setCandidates([]); // Instead of setting error, fallback to an empty list
+      }
+    };
+
+    const fetchShortlistedCandidates = async () => {
+      try {
+        const response = await fetch(`/api/candidate/shortlisted/${id}`);
+        if (!response.ok)
+          throw new Error("Failed to fetch shortlisted candidates");
+        const data = await response.json();
+        console.log("Shortlisted candidates fetched:", data);
+        setShortlistedCandidates(data);
+      } catch (err) {
+        console.error("Error fetching shortlisted candidates:", err.message);
+        setShortlistedCandidates([]); // Ensure fallback to empty array
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+    fetchCandidates();
+    fetchShortlistedCandidates();
+  }, [id]);
+
+  // ... existing code ...
+
+  const handleDownloadReport = async (candidateId) => {
+    try {
+      // Fetch candidate data including evaluation report
+      const response = await fetch(`/api/candidate/get/${candidateId}`);
+      if (!response.ok) throw new Error("Failed to fetch candidate data");
+      const candidateData = await response.json();
+
+      // Create new PDF document
+      const doc = new jsPDF();
+      const pageHeight = doc.internal.pageSize.height;
+      let yPosition = 20; // Initial Y position for content
+      const margin = 20;
+      const lineHeight = 7;
+
+      // Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text("Candidate Evaluation Report", margin, yPosition);
+      yPosition += 12;
+
+      // Candidate Information
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `Candidate Name: ${candidateData.firstname} ${candidateData.lastname}`,
+        margin,
+        yPosition
+      );
+      yPosition += 7;
+      doc.text(
+        `Evaluation Score: ${candidateData.evaluationScore}`,
+        margin,
+        yPosition
+      );
+      yPosition += 10;
+
+      // Section: Scoring Breakdown
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Scoring Breakdown", margin, yPosition);
+      yPosition += 8;
+
+      // Score List
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      const scores =
+        candidateData.evaluationReport.match(/- \*\*Q\d+:\*\* \d+\/\d+/g) || [];
+
+      scores.forEach((score) => {
+        if (yPosition + lineHeight > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+        doc.text(score.replace(/\*\*/g, ""), margin + 5, yPosition);
+        yPosition += lineHeight;
+      });
+
+      yPosition += 10;
+
+      // Section: Question-wise Performance Analysis
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Question-wise Performance Analysis", margin, yPosition);
+      yPosition += 8;
+
+      // Extract & Format Each Question Block
+      const questions = candidateData.evaluationReport.split("\n\n");
+      questions.forEach((section) => {
+        if (section.includes("Q")) {
+          const lines = doc.splitTextToSize(
+            section.replace(/\*\*/g, ""),
+            doc.internal.pageSize.width - margin * 2
+          );
+          lines.forEach((line) => {
+            if (yPosition + lineHeight > pageHeight - margin) {
+              doc.addPage();
+              yPosition = margin;
+            }
+            doc.text(line, margin, yPosition);
+            yPosition += lineHeight;
+          });
+          yPosition += 5;
+        }
+      });
+
+      yPosition += 10;
+
+      // Section: Final Recommendation
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Final Recommendation", margin, yPosition);
+      yPosition += 8;
+
+      doc.setFont("helvetica", "normal");
+      const recommendation = candidateData.evaluationReport.match(
+        /\*\*Final Recommendation:\*\* .*/g
+      );
+      if (recommendation) {
+        const recommendationText = recommendation[0].replace(/\*\*/g, "");
+        doc.text(recommendationText, margin, yPosition);
+        yPosition += lineHeight;
+      }
+
+      yPosition += 10;
+
+      // Section: Next Steps
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Next Steps", margin, yPosition);
+      yPosition += 8;
+
+      doc.setFont("helvetica", "normal");
+      const nextSteps = candidateData.evaluationReport.match(
+        /\*\*Next Steps:\*\* .*/g
+      );
+      if (nextSteps) {
+        const nextStepsText = nextSteps[0].replace(/\*\*/g, "");
+        doc.text(nextStepsText, margin, yPosition);
+        yPosition += lineHeight;
+      }
+
+      // Generate timestamp for filename
+      const timestamp = new Date().toISOString().split("T")[0];
+
+      // Download PDF
+      doc.save(
+        `candidate-evaluation-${candidateData.firstname}-${timestamp}.pdf`
+      );
+    } catch (error) {
+      console.error("Error downloading report:", error);
+    }
+  };
+
+  const handleInviteInterview = async (candidateId) => {
+    try {
+      // Create interview
+      const interviewResponse = await fetch(`/api/interview/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateRef: candidateId }),
+      });
+
+      if (!interviewResponse.ok) throw new Error("Failed to create interview");
+
+      const interview = await interviewResponse.json();
+      console.log("Interview Created:", interview);
+
+      // Update candidate status
+      const candidateUpdate = await fetch(
+        `/api/candidate/update/${candidateId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Interviewing" }),
+        }
+      );
+
+      if (!candidateUpdate.ok)
+        throw new Error("Failed to update candidate status");
+
+      // Update local state to trigger re-render
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, status: "Interviewing" }
+            : candidate
+        )
+      );
+    } catch (error) {
+      console.error("Error creating interview:", error);
+    }
+  };
+
+  const handleViewProfile = (candidateId) => {
+    console.log("Opening profile modal for candidate ID:", candidateId);
+    setSelectedCandidateId(candidateId);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleEditJob = () => {
+    navigate(`/recruiter/edit-job/${id}`);
+    setShowMenu(false);
+  };
+
+  const handleShareJob = () => {
+    setIsShareModalOpen(true);
+    setShowMenu(false);
+  };
+
+  const handleCloseJob = async () => {
+    try {
+      const response = await fetch(`/api/job/update/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ active: false }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to close the job");
+      }
+
+      const updatedJob = await response.json();
+      console.log("Job closed successfully:", updatedJob);
+      setJob(updatedJob); // Update state to reflect the job is now closed
+      navigate("/recruiter");
+    } catch (error) {
+      console.error("Error closing job:", error.message);
+    } finally {
+      setShowMenu(false);
+    }
+  };
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
     <div>
       <Layout>
         <header className="flex justify-between items-center mb-8">
           <h2 className="text-xl font-bold">
-            Opened Jobs &gt; React JS Developer
+            Opened Jobs &gt; {job?.title || "Job Title"}
           </h2>
         </header>
 
+        {/* Job Details Section */}
         <section className="mb-8 border-b pb-6 bg-white m-6 p-6 rounded-xl shadow">
-          <h2
-            className="text-xl font-semibold mb-4"
-            style={{ color: "#144066" }}
-          >
-            Job Specific Information
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold" style={{ color: "#144066" }}>
+              Job Specific Information
+            </h2>
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <FiMoreVertical className="text-gray-600 text-xl" />
+              </button>
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border">
+                  <div className="py-1">
+                    <button
+                      onClick={handleEditJob}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Edit Job
+                    </button>
+                    <button
+                      onClick={handleShareJob}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Share Job
+                    </button>
+                    <button
+                      onClick={handleCloseJob}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Close Job
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-gray-500 mb-2">
-            <strong>
-              Job Title: Junior ReactJS Frontend Engineer required at
-              CodeVenture LLC
-            </strong>
+            <strong>Job Title: {job?.title}</strong>
           </p>
-
           <p className="text-gray-600 mb-4">
             <strong className="text-gray-500">Job Description:</strong>
             <textarea
-              className="w-full bg-white text-gray-500 border border-gray-500 rounded p-2 mt-2 rounded-xl resize-none"
+              className="w-full bg-white text-gray-500 border border-gray-500 rounded p-2 mt-2 resize-none"
               readOnly
-              rows="8"
-            >
-              We are seeking a skilled React Native Developer with at least 2
-              years of experience to join our dynamic development team. The
-              ideal candidate will be responsible for building and maintaining
-              mobile applications for both iOS and Android platforms using React
-              Native. You will collaborate with cross-functional teams to
-              design, develop, and implement innovative solutions, ensuring a
-              seamless user experience. Key Responsibilities: Develop and
-              maintain high-quality mobile applications using React Native. Work
-              with UI/UX designers to implement visually appealing and
-              responsive user interfaces. Write clean, efficient, and reusable
-              code. Integrate third-party libraries and APIs. Troubleshoot and
-              debug application issues. Collaborate with backend developers to
-              integrate frontend with backend systems. Participate in code
-              reviews and follow best practices for mobile development. Skills:
-              Proficient in React Native, with expertise in building and
-              maintaining cross-platform mobile applications for iOS and
-              Android. Strong understanding of UI/UX design principles,
-              responsive design, and implementing visually appealing interface.
-            </textarea>
+              rows="6"
+              value={job?.description || ""}
+            />
           </p>
 
           <p className="font-medium text-gray-500 mb-2">Required Skills:</p>
           <div className="flex gap-2 flex-wrap mb-4">
-            {["React", "JavaScript", "Node", "HTML", "CSS"].map((skill) => (
+            {job?.skills?.map((skill, index) => (
               <span
-                key={skill}
+                key={index}
                 className="text-white px-3 py-1 rounded-2xl text-sm"
                 style={{ backgroundColor: "#144066" }}
               >
@@ -100,146 +363,168 @@ const JobDashboard = () => {
               </span>
             ))}
           </div>
-          <div>
-            <p className="font-medium text-gray-500">Number Of Vacancies: 3</p>
-          </div>
 
-          <div className="font-medium text-gray-500">
-            <p className="font-medium text-gray-500">
-              Job Location: Karachi, Pakistan
-            </p>
-          </div>
+          <p className="font-medium text-gray-500">
+            Number Of Vacancies: {job?.hires}
+          </p>
+          <p className="font-medium text-gray-500">
+            Job Location: {job?.location}
+          </p>
+          <p className="font-medium text-gray-500">Job Type: {job?.type}</p>
 
-          <div>
-            <p className="font-medium text-gray-500 mb-2">Employment Type:</p>
-            <div className="flex gap-2 flex-wrap mb-4">
-              {["Part-time", "On-site"].map((type) => (
-                <span
-                  key={type}
-                  className="p-3 rounded-lg text-sm bg-white text-[#21315C] border border-gray-300"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-500 mb-2">Experience:</p>
-            <div className="flex gap-2 flex-wrap mb-4">
-              {["Junior-level"].map((type) => (
-                <span
-                  key={type}
-                  className="p-3 rounded-lg text-sm bg-white text-[#21315C] border border-gray-300"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="font-medium text-gray-500 mb-2">
-              Expected Monthly Salary?
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              {["Rs. 100k-150k"].map((type) => (
-                <span
-                  key={type}
-                  className="p-3 rounded-lg text-sm bg-white text-[#21315C] border border-gray-300"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
+          <p className="font-medium text-gray-500">
+            Employment Type: {job?.type}
+          </p>
+          <p className="font-medium text-gray-500">
+            Expected Monthly Salary: {job?.salary}
+          </p>
         </section>
 
+        {/* Candidates Section */}
         <section className="mb-8 bg-white m-6 p-6 rounded-xl shadow">
-          <h2 className="text-xl font-semibold mb-6 text-[#144066]">
-            Job Applicants
-          </h2>
+          {/* Tabs */}
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <button
+                className={`${
+                  activeTab === "applicants"
+                    ? "border-[#144066] text-[#144066]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                onClick={() => setActiveTab("applicants")}
+              >
+                Job Applicants ({candidates.length})
+              </button>
+              <button
+                className={`${
+                  activeTab === "shortlisted"
+                    ? "border-[#144066] text-[#144066]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                onClick={() => setActiveTab("shortlisted")}
+              >
+                Shortlisted Candidates ({shortlistedCandidates.length})
+              </button>
+            </nav>
+          </div>
 
-          <div className="bg-[#E6EDFF] rounded-xl overflow-hidden">
-            {/* Table Header */}
+          <div className="bg-[#E6EDFF] rounded-xl overflow-hidden mt-6">
             <div className="grid grid-cols-6 gap-4 p-4 text-sm font-medium text-black">
               <div className="text-center">Name</div>
               <div className="text-center">Education</div>
               <div className="text-center">Experience</div>
-              <div className="text-center">Resume Score</div>
+              <div className="text-center">
+                {activeTab === "applicants"
+                  ? "Resume Score"
+                  : "Evaluation Score"}
+              </div>
               <div className="text-center">Profile</div>
               <div className="text-center">Action</div>
             </div>
 
-            {/* Applicant Rows */}
             <div className="divide-y divide-gray-200">
-              {applicants.map((applicant, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={applicant.image}
-                      alt={applicant.name}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <span className="font-medium text-[#121212]">
-                      {applicant.name}
-                    </span>
-                  </div>
-                  <div className="text-[#121212] text-center">
-                    {applicant.education}
-                  </div>
-                  <div className="text-[#121212] text-center">
-                    {applicant.experience}
-                  </div>
-                  <div className="text-[#121212] text-center">
-                    {applicant.resumeScore}
-                  </div>
-                  <div className="flex justify-center">
-                    <button
-                      className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
-                      onClick={() => setIsProfileModalOpen(true)}
+              {activeTab === "applicants" ? (
+                candidates.length > 0 ? (
+                  candidates.map((candidate, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                      <div className="text-[#121212] text-center">
+                        {candidate.firstname + " " + candidate.lastname}
+                      </div>
+                      <div className="text-[#121212] text-center">
+                        {candidate.education}
+                      </div>
+                      <div className="text-[#121212] text-center">
+                        {candidate.experience} years
+                      </div>
+                      <div className="text-[#121212] text-center">
+                        {candidate.resumeScore}
+                      </div>
+                      <div className="flex justify-center">
+                        <button
+                          className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
+                          onClick={() => handleViewProfile(candidate._id)}
+                        >
+                          View Profile
+                        </button>
+                      </div>
+                      <button
+                        className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
+                        onClick={() => handleInviteInterview(candidate._id)}
+                        disabled={candidate.status !== "Pending"} // Optional: Disable button if already invited
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        ></path>
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        ></path>
-                      </svg>
-                      View Profile
-                    </button>
+                        {candidate.status && candidate.status !== "Pending"
+                          ? "Invitation Sent"
+                          : "Invite for Interview"}
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 p-4">
+                    No applicants found
+                  </p>
+                )
+              ) : shortlistedCandidates.length > 0 ? (
+                shortlistedCandidates.map((candidate, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
+                  >
+                    <div className="text-[#121212] text-center">
+                      {candidate.firstname + " " + candidate.lastname}
+                    </div>
+                    <div className="text-[#121212] text-center">
+                      {candidate.education}
+                    </div>
+                    <div className="text-[#121212] text-center">
+                      {candidate.experience} years
+                    </div>
+                    <div className="text-center">
+                      {candidate.evaluationScore === 0 ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
+                          • Pending Interview
+                        </span>
+                      ) : (
+                        <span className="text-[#121212]">
+                          {candidate.evaluationScore}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
+                        onClick={() => handleViewProfile(candidate._id)}
+                      >
+                        View Profile
+                      </button>
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleDownloadReport(candidate._id)}
+                        className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
+                      >
+                        Download Report
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex justify-center">
-                    <button className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm">
-                      Invite for Interview
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-center text-gray-500 p-4">
+                  No shortlisted candidates found
+                </p>
+              )}
             </div>
           </div>
         </section>
 
         <section className="p-8" style={{ marginTop: -40 }}>
           <div className="flex justify-end mt-6 space-x-4">
-            <button className="px-6 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm">
+            <button className="px-6 py-2 text-sm text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm">
               Back
             </button>
+
             <button className="px-6 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm">
               Next
             </button>
@@ -249,7 +534,17 @@ const JobDashboard = () => {
 
       <ProfileModal
         isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
+        onClose={() => {
+          console.log("Closing profile modal");
+          setIsProfileModalOpen(false);
+        }}
+        candidateId={selectedCandidateId}
+      />
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        jobId={id}
       />
     </div>
   );

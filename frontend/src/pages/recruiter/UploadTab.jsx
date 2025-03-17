@@ -1,24 +1,32 @@
 "use client";
+import { useRef, useState } from "react";
+import upload from "../../assets/upload.svg";
+export default function UploadTab({ description, setDescription }) {
+  const [file, setFile] = useState(null);
+  const fileRef = useRef(null);
 
-import { useState } from "react";
+  const handleFileChange = async (e) => {
+    const uploadedFile = e.target.files[0];
+    setFile(uploadedFile);
+    const formData = new FormData();
+    formData.append("resume", uploadedFile);
 
-export default function JobDescriptionForm() {
-  const defaultDescription = `We are seeking a skilled React Native Developer with at least 2 years of experience to join our dynamic development team. The ideal candidate will be responsible for building and maintaining mobile applications for both iOS and Android platforms using React Native. You will collaborate with cross-functional teams to design, develop, and implement innovative solutions, ensuring a seamless user experience.
+    try {
+      const res = await fetch("/api/text-extract/extract", {
+        method: "POST",
+        body: formData,
+      });
 
-Key Responsibilities:
-• Develop and maintain high-quality mobile applications using React Native.
-• Work with UI/UX designers to implement visually appealing and responsive user interfaces.
-• Write clean, efficient, and reusable code.
-• Integrate third-party libraries and APIs.
-• Troubleshoot and debug application issues.
-• Collaborate with backend developers to integrate frontend with backend systems.
-• Participate in code reviews and follow best practices for mobile development.`;
-
-  const [description, setDescription] = useState(defaultDescription);
-
-  const handleGenerate = () => {
-    // Handle AI generation here
-    console.log("Generating description...");
+      const data = await res.json();
+      if (data.success) {
+        console.log("Extracted text:", data.text);
+        setDescription(data.text); 
+      } else {
+        console.error("Failed to extract text:", data.message);
+      }
+    } catch (error) {
+      console.error("Error extracting resume text:", error);
+    }
   };
 
   return (
@@ -32,28 +40,26 @@ Key Responsibilities:
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-6 h-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-5 h-5 text-blue-500"
-                >
-                  <path d="M12 3v3m6.366 2.366a9 9 0 010 12.728M7.634 7.634a9 9 0 000 12.728M3 12h3m9-9h3M3 21h3m9-9h3m-3 9h3" />
-                </svg>
+              <img src={upload} alt="upload" className="h-10" />
               </div>
               <span className="text-sm font-medium text-gray-700">
-                Generate with AI
+                Upload a PDF
               </span>
             </div>
             <button
-              onClick={handleGenerate}
+              onClick={() => fileRef.current.click()}
               className="px-4 py-2 text-sm font-medium text-white bg-[#0B2544] hover:bg-[#0B2544]/90 rounded-md transition-colors"
             >
               Upload
+              <input
+                type="file"
+                ref={fileRef}
+                name="resume"
+                hidden
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="opacity-0 absolute w-full h-full cursor-pointer"
+              />
             </button>
           </div>
 

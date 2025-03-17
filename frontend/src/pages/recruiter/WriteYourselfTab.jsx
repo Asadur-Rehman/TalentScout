@@ -1,13 +1,66 @@
 "use client";
-
 import { useState } from "react";
+import axios from "axios";
+import Stars from "../../assets/stars.svg";
 
-export default function JobDescriptionForm() {
-  const [description, setDescription] = useState("");
+export default function WriteYourselfTab({
+  description,
+  setDescription,
+  formData,
+}) {
+  const llama = import.meta.env.VITE_LLAMA;
+  const [loading, setLoading] = useState(false);
 
-  const handleGenerate = () => {
-    // Handle AI generation here
-    console.log("Generating description...");
+  const handleGenerate = async () => {
+    if (!formData) {
+      console.error("Form data is missing.");
+      return;
+    }
+
+    setLoading(true);
+
+    const prompt = `
+        Write a professional job description for a "${formData.experience} ${
+      formData.title
+    }" role.
+        
+        **Do NOT include job title, location, salary, company details, or application instructions.**
+        
+        Structure:
+        - Begin with a brief but engaging introduction (2-3 sentences) that sets the tone for the role.
+        - Follow with clearly structured sections:
+          - Key responsibilities
+          - Required technical and soft skills
+          - Daily tasks
+          - Expected contributions to projects
+          - Required qualifications
+        
+        The role requires expertise in:
+        - ${formData.skills.join("\n- ")}
+    
+        Keep the language professional, engaging, and concise.
+      `;
+
+    try {
+      const response = await axios.post(
+        "/llama38b/v1/chat/completions",
+        {
+          model: llama,
+          messages: [{ role: "user", content: prompt }],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setDescription(response.data.choices[0].message.content);
+    } catch (error) {
+      console.error("Error generating job description:", error);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -21,18 +74,7 @@ export default function JobDescriptionForm() {
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-6 h-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-5 h-5 text-blue-500"
-                >
-                  <path d="M12 3v3m6.366 2.366a9 9 0 010 12.728M7.634 7.634a9 9 0 000 12.728M3 12h3m9-9h3M3 21h3m9-9h3m-3 9h3" />
-                </svg>
+                <img src={Stars} className="h-10" />
               </div>
               <span className="text-sm font-medium text-gray-700">
                 Generate with AI
@@ -41,8 +83,9 @@ export default function JobDescriptionForm() {
             <button
               onClick={handleGenerate}
               className="px-4 py-2 text-sm font-medium text-white bg-[#0B2544] hover:bg-[#0B2544]/90 rounded-md transition-colors"
+              disabled={loading}
             >
-              Generate
+              {loading ? "Generating..." : "Generate"}
             </button>
           </div>
 

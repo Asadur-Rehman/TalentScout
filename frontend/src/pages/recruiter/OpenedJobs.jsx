@@ -18,7 +18,7 @@ const OpenedJobs = () => {
       </aside>
       <main className="flex-1 p-8">
         <header className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-bold">OPEN A JOB</h2>
+          <h2 className="text-xl font-bold">Open a Job</h2>
           <button className="bg-blue-600 text-white px-4 py-2 rounded">
             + Open a Job
           </button>

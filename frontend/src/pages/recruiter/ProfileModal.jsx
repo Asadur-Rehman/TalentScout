@@ -1,77 +1,162 @@
-export default function ProfileModal({ isOpen, onClose }) {
+import { useEffect } from "react";
+import { useState } from "react";
+
+export default function ProfileModal({ isOpen, onClose, candidateId }) {
   if (!isOpen) return null;
+
+  const [candidate, setCandidate] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const id = candidateId;
+
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  const viewResume = async (userId) => {
+    try {
+      const response = await fetch(`/api/candidate/resume/${userId}`);
+      if (!response.ok) throw new Error("Failed to fetch resume");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank"); // Opens in a new tab
+    } catch (error) {
+      console.error("Error viewing resume:", error);
+    }
+  };
+
+  // ... existing code ...
+  const handleShortlist = async () => {
+    try {
+      // Update candidate's shortlist status only
+      const response = await fetch(`/api/candidate/update/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shortlist: true }),
+      });
+
+      if (!response.ok) throw new Error("Failed to shortlist candidate");
+
+      const updatedCandidate = await response.json();
+      setCandidate(updatedCandidate);
+    } catch (error) {
+      console.error("Error shortlisting candidate:", error);
+    }
+  };
+  // ... existing code ...
+
+  const downloadResume = async (userId) => {
+    try {
+      const response = await fetch(`/api/candidate/resume/${userId}`);
+      if (!response.ok) throw new Error("Failed to fetch resume");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resume.docx"; // Change extension if needed
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Updated Candidate Data:", candidate);
+  }, [candidate]);
+
+  useEffect(() => {
+    const fetchCandidate = async () => {
+      try {
+        const response = await fetch(`/api/candidate/get/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch candidates");
+        const data = await response.json();
+        console.log("Candidate fetched:", data);
+        setCandidate(data);
+      } catch (err) {
+        console.error("Error fetching candidate:", err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCandidate();
+  }, [id]);
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  console.log("useless comit");
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <button
-        onClick={onClose}
-        className="absolute h-10 w-10 bg-white right-4 top-4 text-black text-center hover:text-gray-600 z-10 rounded-3xl"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
-
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] relative">
         {/* Close Button - Positioned relative to modal */}
-
+        <button
+          onClick={onClose}
+          className="absolute h-10 w-10 bg-white right-[-10px] top-[-10px] text-black hover:text-gray-600 z-10 rounded-3xl flex items-center justify-center"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
         <div className="p-8">
           {/* Profile Header */}
           <div className="flex items-start gap-4">
-            <img
-              src="/placeholder.svg?height=80&width=80"
-              alt=""
-              className="w-20 h-20 rounded-full bg-gray-200"
-            />
             <div className="flex-1">
               <h2 className="text-2xl font-semibold text-gray-900">
-                Shahmeer Sheraz
+                {candidate?.firstname} {candidate?.lastname}
               </h2>
-              <p className="text-gray-600">Website Designer (UI/UX)</p>
+              <p className="text-gray-600">
+                {candidate?.jobTitle || "Frontend Developer"}
+              </p>
             </div>
-            <button className="px-6 py-2 text-sm text-white font-medium rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors">
-              Shortlist
+            <button
+              className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
+                candidate?.shortlist
+                  ? "bg-white border border-[#0B2544] hover:bg-white text-[#0B2544]"
+                  : "bg-[#144066] hover:bg-[#0B2544] text-white"
+              }`}
+              onClick={handleShortlist}
+              disabled={candidate?.shortlist}
+            >
+              {candidate?.shortlist ? "Shortlisted" : "Shortlist"}
             </button>
           </div>
 
           {/* Two-column Layout */}
-          <div className="mt-8 grid grid-cols-[2fr,1fr] gap-12">
+          <div className="mt-2 grid grid-cols-[2fr,1fr] gap-12">
             {/* Left Column: Cover Letter */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">COVER LETTER</h3>
-              <div className="space-y-4 text-gray-600">
-                <p>Dear Sir,</p>
-                <p>
-                  I am writing to express my interest in the fourth grade
-                  instructional position that is currently available in the Fort
-                  Wayne Community School System. I learned of the opening
-                  through a notice posted on JobZone, IPFW's job database. I am
-                  confident that my academic background and curriculum
-                  development skills would be successfully utilized in this
-                  teaching position.
-                </p>
-                <p>
-                  I have just completed my Bachelor of Science degree in
-                  Elementary Education and have successfully completed Praxis I
-                  and Praxis II. During my student teaching experience, I
-                  developed and initiated a three-week curriculum sequence on
-                  animal species and earth resources. This collaborative unit
-                  involved working with three other third grade teachers within
-                  my team, and culminated in a field trip to the Indianapolis
-                  Zoo Animal Research Unit.
-                </p>
-                <p>Sincerely,</p>
-                <p>Esther Howard</p>
+              <h3 className="text-lg font-semibold mb-6">Cover Letter</h3>
+              <div className="">
+                <div className="space-y-4 text-gray-600">
+                  {candidate?.coverletter ? (
+                    candidate.coverletter
+                      .split("\n")
+                      .map((para, index) => <p key={index}>{para}</p>)
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      No cover letter provided.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -91,8 +176,10 @@ export default function ProfileModal({ isOpen, onClose }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">DATE OF BIRTH</p>
-                    <p className="font-medium">14 June, 2021</p>
+                    <p className="text-sm text-gray-500">Date of Birth</p>
+                    <p className="font-medium">
+                      {formatDate(candidate?.birth)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -107,8 +194,8 @@ export default function ProfileModal({ isOpen, onClose }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">NATIONALITY</p>
-                    <p className="font-medium">Pakistan</p>
+                    <p className="text-sm text-gray-500">Nationality</p>
+                    <p className="font-medium">{candidate?.country}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -123,8 +210,8 @@ export default function ProfileModal({ isOpen, onClose }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">EXPERIENCE</p>
-                    <p className="font-medium">7 Years</p>
+                    <p className="text-sm text-gray-500">Experience</p>
+                    <p className="font-medium">{candidate.experience}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -145,8 +232,8 @@ export default function ProfileModal({ isOpen, onClose }) {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">EDUCATIONS</p>
-                    <p className="font-medium">Master Degree</p>
+                    <p className="text-sm text-gray-500">Education</p>
+                    <p className="font-medium">{candidate.education}</p>
                   </div>
                 </div>
               </div>
@@ -159,14 +246,17 @@ export default function ProfileModal({ isOpen, onClose }) {
                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
-                      PDF
+                      Pdf
                     </div>
                     <div>
-                      <p className="font-medium">Esther Howard</p>
+                      <p className="font-medium">Resume</p>
                       <p className="text-sm text-gray-500">PDF</p>
                     </div>
                   </div>
-                  <button className="text-[#144066] hover:text-[#0B2544]">
+                  <button
+                    className="text-[#144066] hover:text-[#0B2544]"
+                    onClick={() => viewResume(id)}
+                  >
                     <svg
                       className="w-6 h-6"
                       fill="none"
@@ -206,8 +296,8 @@ export default function ProfileModal({ isOpen, onClose }) {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">EMAIL ADDRESS</p>
-                      <p className="font-medium">esther.howard@gmail.com</p>
+                      <p className="text-sm text-gray-500">Email Address</p>
+                      <p className="font-medium">{candidate?.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -226,8 +316,8 @@ export default function ProfileModal({ isOpen, onClose }) {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">PHONE</p>
-                      <p className="font-medium">+92 123456789</p>
+                      <p className="text-sm text-gray-500">Phone</p>
+                      <p className="font-medium">+92 {candidate.contact}</p>
                     </div>
                   </div>
                 </div>

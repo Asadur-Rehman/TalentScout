@@ -6,6 +6,10 @@ const recruiterSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    organizationname: {
+      type: String,
+      required: false,
+    },
     email: {
       type: String,
       required: true,

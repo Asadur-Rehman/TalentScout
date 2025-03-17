@@ -39,7 +39,7 @@ const recruiterSlice = createSlice({
       state.loading = true;
     },
     deleteRecruiterSuccess: (state) => {
-      state.currentUser = null;
+      state.currentRecruiter = null;
       state.loading = false;
       state.error = null;
     },
@@ -51,7 +51,7 @@ const recruiterSlice = createSlice({
       state.loading = true;
     },
     signOutRecruiterSuccess: (state) => {
-      state.currentUser = null;
+      state.currentRecruiter = null;
       state.loading = false;
       state.error = null;
     },

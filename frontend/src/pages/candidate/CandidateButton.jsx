@@ -10,9 +10,9 @@ export default function CandidateButton({
 }) {
   const baseStyles = "px-8 py-2 rounded-md transition-colors text-center";
   const variants = {
-    primary: "bg-[#05B4B4] text-white hover:bg-[#049A9A]",
+    primary: "bg-[#05B4B4] text-white ",
     secondary:
-      "bg-transparent text-[#05B4B4] border border-[#05B4B4] hover:bg-[#05B4B4] hover:text-white",
+      "bg-transparent text-[#05B4B4] border border-[#05B4B4] ",
   };
 
   const ButtonComponent = href ? "a" : "button";
