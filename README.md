@@ -29,7 +29,7 @@
 - **Backend**: Node.js, Express.js  
 - **Database**: MongoDB  
 - **Cloud Services**: AWS  
-- **AI Integration**: TensorFlow.js, OpenAI APIs  
+- **AI Integration**: TensorFlow.js,
 
 ---
 
