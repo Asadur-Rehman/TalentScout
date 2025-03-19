@@ -1,5 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables
+
+const key = process.env.VITE_API_KEY; // Use process.env instead
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,7 +23,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/llama38b/, ""),
         model: "gpt-4o",
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${key}`,
         },
       },
     },

@@ -13,6 +13,7 @@
     "@fontsource/montserrat": "^5.1.1",
     "@reduxjs/toolkit": "^2.5.1",
     "axios": "^1.8.1",
+    "dotenv": "^16.4.7",
     "firebase": "^11.3.0",
     "jspdf": "^3.0.0",
     "pdfjs-dist": "^4.10.38",
