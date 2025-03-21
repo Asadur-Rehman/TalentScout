@@ -9,6 +9,7 @@ export default function WriteYourselfTab({
   formData,
 }) {
   const llama = import.meta.env.VITE_LLAMA;
+  const api_key = import.meta.env.VITE_API_KEY;
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
@@ -43,17 +44,21 @@ export default function WriteYourselfTab({
 
     try {
       const response = await axios.post(
-        "/llama38b/v1/chat/completions",
+        "/llama38b/chat/completions", // Remove `/v1`
         {
-          model: llama,
+          model: import.meta.env.VITE_LLAMA,
           messages: [{ role: "user", content: prompt }],
         },
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_API_KEY}`, // Add authorization header here
           },
         }
       );
+      
+
+      console.log(response);
 
       setDescription(response.data.choices[0].message.content);
     } catch (error) {

@@ -6,7 +6,6 @@ dotenv.config(); // Load environment variables
 
 const key = process.env.VITE_API_KEY; // Use process.env instead
 
-
 // https://vite.dev/config/
 export default defineConfig({
   server: {
@@ -17,14 +16,10 @@ export default defineConfig({
         secure: false,
       },
       "/llama38b": {
-        target: "https://api.openai.com",
+        target: "https://api.runpod.ai/v2/dnvfkwaqdz9hkh/openai/v1",
         changeOrigin: true,
-        secure: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/llama38b/, ""),
-        model: "gpt-4o",
-        headers: {
-          Authorization: `Bearer ${key}`,
-        },
       },
     },
   },

@@ -123,14 +123,15 @@ export default function CandidateSignin() {
 
     try {
       const response = await axios.post(
-        "/llama38b/v1/chat/completions",
+        "/llama38b/chat/completions", // Remove `/v1`
         {
-          model: llama,
+          model: import.meta.env.VITE_LLAMA,
           messages: [{ role: "user", content: prompt }],
         },
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_API_KEY}`, // Add authorization header here
           },
         }
       );
