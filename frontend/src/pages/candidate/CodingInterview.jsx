@@ -9,6 +9,7 @@ import CodeEditor from "./CodeEditor";
 export default function CandidateInterview() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const navigate = useNavigate();
 
   const questions = [
@@ -36,9 +37,10 @@ export default function CandidateInterview() {
 
   return (
     <CandidateLayout>
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-full mx-auto px-4">
         {/* Back Button, Progress Bar, and Question Count */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="max-w-3xl mx-auto px-4 flex flex-row items-center mb-12 ">
+        <div className="flex items-center justify-between">
           <button
             onClick={handleBack}
             className="flex items-center text-gray-600 hover:text-gray-900"
@@ -57,7 +59,7 @@ export default function CandidateInterview() {
               />
             </svg>
             Back
-          </button>
+          </button></div>
 
           <div className="flex-1 mx-4">
             {/* Progress Bar */}
@@ -80,9 +82,29 @@ export default function CandidateInterview() {
 
         {/* Question Content */}
         <div className="space-y-8">
-          <h1 className="text-3xl font-bold text-center">Video Question</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Coding Question</h1>
+            <div className="relative">
+              <select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#05B4B4] focus:border-transparent"
+              >
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="csharp">C#</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
 
-          <div className="flex flex-row w-full gap-4 px-6">
+          <div className="flex flex-row w-full gap-4 ">
             <div className="w-2/5 bg-[#F2FDFF] p-6 rounded-lg shadow-md">
               <p className="text-gray-700 text-lg leading-relaxed">
                 Hi Asad! Can you tell me about React Hooks, their use, with
@@ -90,12 +112,9 @@ export default function CandidateInterview() {
               </p>
             </div>
             <div className="w-3/5 flex items-center justify-center">
-              {/* <img
-                src={InterviewPlaceholder}
-                alt="Video Question Image"
-                className="rounded-lg shadow-lg max-w-full h-auto"
-              /> */}
-              <CodeEditor />
+              <div className="w-full h-[400px] bg-white rounded-lg shadow-lg overflow-hidden">
+                <CodeEditor language={selectedLanguage} />
+              </div>
             </div>
           </div>
 
@@ -123,11 +142,11 @@ export default function CandidateInterview() {
 
         {/* Video Preview */}
         <div className="fixed bottom-4 right-4 w-50 h-30 bg-white rounded-lg overflow-hidden">
-          <img
+          {/* <img
             src={SmallVideoPlaceholder}
             alt=""
             className="w-full h-full object-cover"
-          />
+          /> */}
           {/* Status Indicators */}
           {/* <div className="absolute bottom-2 right-2 flex gap-2">
             <div className="w-4 h-4 bg-[#05B4B4] rounded-full" />
