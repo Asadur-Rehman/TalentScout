@@ -9,6 +9,7 @@ import {
   getCandidatesByJob,
   getShortlistedCandidates,
   getCandidateResume,
+  getCandidatesByRecruiter,
 } from "../controllers/candidate.controller.js";
 import upload from "../multerConfig.js"; // Import multer config
 
@@ -22,6 +23,7 @@ router.get("/get", getCandidates);
 router.get("/resume/:id", getCandidateResume);
 router.get("/stats/:jobRef", getCandidateStats);
 router.get("/getbyjob/:jobRef", getCandidatesByJob);
+router.get("/getbyrecruiter/:recruiterRef", getCandidatesByRecruiter); // This route is for getting all shortlisted candidates
 router.get("/shortlisted/:jobRef", getShortlistedCandidates);
 
 export default router;

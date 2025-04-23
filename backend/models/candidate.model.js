@@ -12,6 +12,7 @@ const candidateSchema = new mongoose.Schema(
     education: { type: String, required: true },
     experience: { type: Number, required: true },
     coverletter: { type: String, required: true },
+    position: { type: String, required: true },
     resume: {
       data: Buffer,
       contentType: String,

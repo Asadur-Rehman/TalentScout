@@ -226,7 +226,7 @@ const JobDashboard = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "Interviewing" }),
+          body: JSON.stringify({ status: "Shortlisted", shortlist: true }),
         }
       );
 
@@ -237,7 +237,7 @@ const JobDashboard = () => {
       setCandidates((prevCandidates) =>
         prevCandidates.map((candidate) =>
           candidate._id === candidateId
-            ? { ...candidate, status: "Interviewing" }
+            ? { ...candidate, status: "Shortlisted", shortlist: true }
             : candidate
         )
       );

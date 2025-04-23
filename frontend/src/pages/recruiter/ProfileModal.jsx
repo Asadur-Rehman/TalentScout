@@ -35,7 +35,7 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
       const response = await fetch(`/api/candidate/update/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shortlist: true }),
+        body: JSON.stringify({ status: "Shortlisted", shortlist: true }),
       });
 
       if (!response.ok) throw new Error("Failed to shortlist candidate");

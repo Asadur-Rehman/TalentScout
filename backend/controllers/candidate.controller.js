@@ -1,4 +1,5 @@
 import Candidate from "../models/candidate.model.js";
+import Job from "../models/job.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createCandidate = async (req, res, next) => {
@@ -15,6 +16,7 @@ export const createCandidate = async (req, res, next) => {
       coverletter,
       resumeText,
       resumeScore,
+      position,
       jobRef,
     } = req.body;
 
@@ -34,6 +36,7 @@ export const createCandidate = async (req, res, next) => {
       education,
       experience,
       coverletter,
+      position,
       resume: {
         data: req.file.buffer, // Store file as binary data
         contentType: req.file.mimetype, // Store file type
@@ -200,6 +203,33 @@ export const getShortlistedCandidates = async (req, res, next) => {
     }
 
     res.status(200).json(shortlistedCandidates);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCandidatesByRecruiter = async (req, res, next) => {
+  try {
+    const { recruiterRef } = req.params; // recruiterId should come from route params
+
+    // Step 1: Get all jobs for this recruiter
+    const jobs = await Job.find({ recruiterRef });
+    const jobIds = jobs.map((job) => job._id.toString());
+
+    if (!jobIds.length) {
+      return next(errorHandler(404, "No jobs found for this recruiter!"));
+    }
+
+    // Step 2: Find candidates where jobRef is in jobIds
+    const candidates = await Candidate.find({ jobRef: { $in: jobIds } }).select(
+      "-resume"
+    );
+
+    if (!candidates.length) {
+      return next(errorHandler(404, "No candidates found for this recruiter!"));
+    }
+
+    res.status(200).json(candidates);
   } catch (error) {
     next(error);
   }

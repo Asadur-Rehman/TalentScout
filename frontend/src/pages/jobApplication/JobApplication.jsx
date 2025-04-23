@@ -25,6 +25,7 @@ const JobApplication = () => {
     experience: "",
     coverletter: "",
     resumeScore: "",
+    position: "General",
     jobRef: id,
   });
 
@@ -41,6 +42,10 @@ const JobApplication = () => {
         }
         const data = await response.json();
         setJob(data);
+        setFormData((prevData) => ({
+          ...prevData,
+          position: data.title,
+        }));
       } catch (err) {
         setError(err.message);
       } finally {

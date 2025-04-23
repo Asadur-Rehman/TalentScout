@@ -108,3 +108,25 @@ export const getJobsByRecruiter = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getTotalJobsByRecruiter = async (req, res, next) => {
+  try {
+    const { recruiterRef } = req.params;
+
+    // Count only active jobs
+    const activeJobCount = await Job.countDocuments({
+      recruiterRef,
+      active: true,
+    });
+
+    if (activeJobCount === 0) {
+      return next(
+        errorHandler(404, "No active jobs found for this recruiter!")
+      );
+    }
+
+    res.status(200).json({ totalJobs: activeJobCount });
+  } catch (error) {
+    next(error);
+  }
+};
