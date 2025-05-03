@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+const env = loadEnv(mode, process.cwd(), "");
+
 // https://vite.dev/config/
 export default defineConfig({
   server: {
@@ -17,7 +19,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/llama38b/, ""),
         model: "gpt-4o-mini",
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${env.VITE_API_KEY}`,
         },
       },
     },
