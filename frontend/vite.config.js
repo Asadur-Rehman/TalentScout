@@ -1,9 +1,12 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
-const env = loadEnv(mode, process.cwd(), "");
+// Load environment variables
+const env = loadEnv(process.env.NODE_ENV, process.cwd(), "");
 
-// https://vite.dev/config/
+console.log("VITE_API_KEY:", env.VITE_API_KEY);
+console.log("VITE_LLAMA:", env.VITE_LLAMA);
+
 export default defineConfig({
   server: {
     proxy: {
@@ -17,9 +20,9 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/llama38b/, ""),
-        model: "gpt-4o-mini",
+        model: env.VITE_LLAMA, // Using the loaded env variable
         headers: {
-          Authorization: `Bearer ${env.VITE_API_KEY}`,
+          Authorization: `Bearer ${env.VITE_API_KEY}`, // Using the loaded env variable
         },
       },
     },

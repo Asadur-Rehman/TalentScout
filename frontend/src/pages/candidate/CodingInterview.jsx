@@ -3,8 +3,13 @@ import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
 import { useNavigate } from "react-router-dom";
 import CodeEditor from "./CodeEditor";
+import axios from "axios";
 
 export default function CandidateInterview() {
+  const [code, setCode] = useState("// Write your code here\n");
+
+  const answers = location.state?.answers || [];
+
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const navigate = useNavigate();
 
@@ -13,8 +18,111 @@ export default function CandidateInterview() {
   // Since there's only one coding question, we can directly access it
   const lastQuestion = questions[questions.length - 1];
 
+  // inside handleSubmit
   const handleSubmit = () => {
     navigate("/candidate/interview-completion");
+
+    processEvaluation();
+  };
+
+  const processEvaluation = async () => {
+    const llama = import.meta.env.VITE_LLAMA;
+
+    const updatedAnswers = [...answers, code];
+
+    console.log("Final Answers:", updatedAnswers);
+
+    const prompt = `
+  Based on the following interview questions and the candidate’s responses, generate a **detailed evaluation report**. First, evaluate each question individually and then compute the final score.
+  
+  ---
+  
+  ### **1. Detailed Breakdown & Candidate Evaluation**
+  
+  #### **A. Scoring Breakdown**
+  - Show the score assigned to each question.
+  - Weightage:
+    - **Q1–Q7 (General & Technical):** 10 points each = 70 total
+    - **Q8 (Coding Question):** 30 points
+  
+  #### **B. Question-Wise Performance Analysis**
+  For each question, include:
+  - **Question Asked**
+  - **Candidate’s Response**
+  - **Evaluation** (based on clarity, depth, accuracy, and job relevance)
+  - **Score Given (out of applicable points)**
+  
+  #### **C. Soft Skills & Communication Rating (Out of 10)**
+  Evaluate the candidate’s:
+  - Communication clarity  
+  - Confidence  
+  - Problem-solving approach  
+  - Overall professionalism
+  
+  #### **D. Overall Performance Summary**
+  Highlight:
+  - **Strengths**
+  - **Areas for Improvement** (with specific, actionable feedback)
+  
+  #### **E. Final Recommendation**
+  Clearly state:
+  - **Shortlisted / Not Shortlisted**
+  - Suggested next steps (e.g., technical round, HR interview, or rejection with reasoning)
+  
+  ---
+  
+  ### **Weightage Recap**
+  - Q1–Q7: 70 points  
+  - Q8 (Coding): 30 points  
+  - **Total: 100**
+  
+  ---
+  
+  ### **Candidate’s Responses:**
+  ${JSON.stringify(updatedAnswers, null, 2)}
+  
+  ---
+  
+  Place the **final total score** (out of 100) **on the last line of your response**.  
+  ⚠️ **Do not add any label or text — just the number.**
+  `;
+
+    try {
+      const response = await axios.post(
+        "/llama38b/v1/chat/completions",
+        {
+          model: llama,
+          messages: [{ role: "user", content: prompt }],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const responseContent = response.data.choices[0].message.content;
+      const lines = responseContent.trim().split("\n").filter(Boolean);
+      const scoreStr = lines[lines.length - 1].trim();
+      const score = parseInt(scoreStr);
+      const evaluationReport = lines.slice(0, -1).join("\n").trim();
+
+      const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
+      const candidateId = validCandidate._id;
+
+      if (!isNaN(score)) {
+        await fetch(`/api/candidate/update/${candidateId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            evaluationScore: score,
+            evaluationReport: evaluationReport,
+          }),
+        });
+      }
+    } catch (error) {
+      console.error("Error in background evaluation:", error);
+    }
   };
 
   return (
@@ -62,7 +170,11 @@ export default function CandidateInterview() {
             </div>
             <div className="w-3/5 flex items-center justify-center">
               <div className="w-full h-[400px] bg-white rounded-lg shadow-lg overflow-hidden">
-                <CodeEditor language={selectedLanguage} />
+                <CodeEditor
+                  language={selectedLanguage}
+                  code={code}
+                  setCode={setCode}
+                />
               </div>
             </div>
           </div>
