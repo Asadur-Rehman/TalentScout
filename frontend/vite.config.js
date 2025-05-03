@@ -15,9 +15,9 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/llama38b/, ""),
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer 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`,
         },
       },
     },

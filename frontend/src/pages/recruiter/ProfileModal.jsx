@@ -31,6 +31,14 @@ export default function ProfileModal({ isOpen, onClose, candidateId }) {
   // ... existing code ...
   const handleShortlist = async () => {
     try {
+      const interviewResponse = await fetch(`/api/interview/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateRef: candidateId }),
+      });
+
+      if (!interviewResponse.ok) throw new Error("Failed to create interview");
+
       // Update candidate's shortlist status only
       const response = await fetch(`/api/candidate/update/${id}`, {
         method: "POST",

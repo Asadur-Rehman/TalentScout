@@ -21,6 +21,7 @@ export default function CandidateInterview() {
   recognition.lang = "en-US";
 
   const questions = JSON.parse(localStorage.getItem("questions")) || [];
+  questions.pop();
   // const interviewId = JSON.parse(localStorage.getItem("interviewId")) || [];
 
   const startRecording = async () => {
@@ -76,7 +77,7 @@ export default function CandidateInterview() {
     navigate("/candidate/coding-interview");
 
     // Continue with AI evaluation in the background
-    processEvaluation();
+    // processEvaluation();
   };
 
   const processEvaluation = async () => {
