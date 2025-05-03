@@ -123,7 +123,6 @@ export default function CandidateInterview() {
     //         },
     //         {
     //           headers: {
-    //             Authorization: `Bearer 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`,
     //             "Content-Type": "application/json",
     //           },
     //         }
