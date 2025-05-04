@@ -8,7 +8,9 @@ export const createInterview = async (req, res, next) => {
     const interview = await Interview.create(req.body);
 
     // Fetch candidate details
-    const candidate = await Candidate.findById(req.body.candidateRef);
+    const candidate = await Candidate.findById(req.body.candidateRef).select(
+      "-resume"
+    );
     if (!candidate) {
       return next(errorHandler(404, "Candidate not found!"));
     }

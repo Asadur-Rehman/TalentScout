@@ -12,6 +12,8 @@ import {
   getCandidatesByRecruiter,
   getHiredCandidates,
   getCandidateEvaluation,
+  hireCandidate,
+  rejectCandidate,
 } from "../controllers/candidate.controller.js";
 import upload from "../multerConfig.js"; // Import multer config
 
@@ -29,5 +31,7 @@ router.get("/getbyrecruiter/:recruiterRef", getCandidatesByRecruiter); // This r
 router.get("/shortlisted/:jobRef", getShortlistedCandidates);
 router.get("/hired/:jobRef", getHiredCandidates);
 router.get("/getEvaluation/:id", getCandidateEvaluation);
+router.post("/hire", hireCandidate);
+router.post("/reject", rejectCandidate);
 
 export default router;

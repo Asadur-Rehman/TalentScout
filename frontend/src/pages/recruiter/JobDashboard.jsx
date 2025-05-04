@@ -7,6 +7,7 @@ import { FiMoreVertical } from "react-icons/fi";
 import jsPDF from "jspdf";
 import { ShareModal } from "./ShareModal";
 import EvaluationDisplay from "./TechnicalReport";
+import axios from "axios";
 
 const JobDashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const JobDashboard = () => {
   const [selectedCandidateId, setSelectedCandidateId] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [candidateFeedback, setCandidateFeedback] = useState("");
+  const llama = import.meta.env.VITE_LLAMA;
 
   useEffect(() => {
     console.log("Fetching job and candidates for job ID:", id);
@@ -91,138 +94,138 @@ const JobDashboard = () => {
 
   // ... existing code ...
 
-  const handleDownloadReport = async (candidateId) => {
-    try {
-      // Fetch candidate data including evaluation report
-      const response = await fetch(`/api/candidate/get/${candidateId}`);
-      if (!response.ok) throw new Error("Failed to fetch candidate data");
-      const candidateData = await response.json();
+  // const handleDownloadReport = async (candidateId) => {
+  //   try {
+  //     // Fetch candidate data including evaluation report
+  //     const response = await fetch(`/api/candidate/get/${candidateId}`);
+  //     if (!response.ok) throw new Error("Failed to fetch candidate data");
+  //     const candidateData = await response.json();
 
-      // Create new PDF document
-      const doc = new jsPDF();
-      const pageHeight = doc.internal.pageSize.height;
-      let yPosition = 20; // Initial Y position for content
-      const margin = 20;
-      const lineHeight = 7;
+  //     // Create new PDF document
+  //     const doc = new jsPDF();
+  //     const pageHeight = doc.internal.pageSize.height;
+  //     let yPosition = 20; // Initial Y position for content
+  //     const margin = 20;
+  //     const lineHeight = 7;
 
-      // Title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
-      doc.text("Candidate Evaluation Report", margin, yPosition);
-      yPosition += 12;
+  //     // Title
+  //     doc.setFont("helvetica", "bold");
+  //     doc.setFontSize(18);
+  //     doc.text("Candidate Evaluation Report", margin, yPosition);
+  //     yPosition += 12;
 
-      // Candidate Information
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        `Candidate Name: ${candidateData.firstname} ${candidateData.lastname}`,
-        margin,
-        yPosition
-      );
-      yPosition += 7;
-      doc.text(
-        `Evaluation Score: ${candidateData.evaluationScore}`,
-        margin,
-        yPosition
-      );
-      yPosition += 10;
+  //     // Candidate Information
+  //     doc.setFontSize(12);
+  //     doc.setFont("helvetica", "normal");
+  //     doc.text(
+  //       `Candidate Name: ${candidateData.firstname} ${candidateData.lastname}`,
+  //       margin,
+  //       yPosition
+  //     );
+  //     yPosition += 7;
+  //     doc.text(
+  //       `Evaluation Score: ${candidateData.evaluationScore}`,
+  //       margin,
+  //       yPosition
+  //     );
+  //     yPosition += 10;
 
-      // Section: Scoring Breakdown
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text("Scoring Breakdown", margin, yPosition);
-      yPosition += 8;
+  //     // Section: Scoring Breakdown
+  //     doc.setFont("helvetica", "bold");
+  //     doc.setFontSize(14);
+  //     doc.text("Scoring Breakdown", margin, yPosition);
+  //     yPosition += 8;
 
-      // Score List
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      const scores =
-        candidateData.evaluationReport.match(/- \*\*Q\d+:\*\* \d+\/\d+/g) || [];
+  //     // Score List
+  //     doc.setFont("helvetica", "normal");
+  //     doc.setFontSize(12);
+  //     const scores =
+  //       candidateData.evaluationReport.match(/- \*\*Q\d+:\*\* \d+\/\d+/g) || [];
 
-      scores.forEach((score) => {
-        if (yPosition + lineHeight > pageHeight - margin) {
-          doc.addPage();
-          yPosition = margin;
-        }
-        doc.text(score.replace(/\*\*/g, ""), margin + 5, yPosition);
-        yPosition += lineHeight;
-      });
+  //     scores.forEach((score) => {
+  //       if (yPosition + lineHeight > pageHeight - margin) {
+  //         doc.addPage();
+  //         yPosition = margin;
+  //       }
+  //       doc.text(score.replace(/\*\*/g, ""), margin + 5, yPosition);
+  //       yPosition += lineHeight;
+  //     });
 
-      yPosition += 10;
+  //     yPosition += 10;
 
-      // Section: Question-wise Performance Analysis
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text("Question-wise Performance Analysis", margin, yPosition);
-      yPosition += 8;
+  //     // Section: Question-wise Performance Analysis
+  //     doc.setFont("helvetica", "bold");
+  //     doc.setFontSize(14);
+  //     doc.text("Question-wise Performance Analysis", margin, yPosition);
+  //     yPosition += 8;
 
-      // Extract & Format Each Question Block
-      const questions = candidateData.evaluationReport.split("\n\n");
-      questions.forEach((section) => {
-        if (section.includes("Q")) {
-          const lines = doc.splitTextToSize(
-            section.replace(/\*\*/g, ""),
-            doc.internal.pageSize.width - margin * 2
-          );
-          lines.forEach((line) => {
-            if (yPosition + lineHeight > pageHeight - margin) {
-              doc.addPage();
-              yPosition = margin;
-            }
-            doc.text(line, margin, yPosition);
-            yPosition += lineHeight;
-          });
-          yPosition += 5;
-        }
-      });
+  //     // Extract & Format Each Question Block
+  //     const questions = candidateData.evaluationReport.split("\n\n");
+  //     questions.forEach((section) => {
+  //       if (section.includes("Q")) {
+  //         const lines = doc.splitTextToSize(
+  //           section.replace(/\*\*/g, ""),
+  //           doc.internal.pageSize.width - margin * 2
+  //         );
+  //         lines.forEach((line) => {
+  //           if (yPosition + lineHeight > pageHeight - margin) {
+  //             doc.addPage();
+  //             yPosition = margin;
+  //           }
+  //           doc.text(line, margin, yPosition);
+  //           yPosition += lineHeight;
+  //         });
+  //         yPosition += 5;
+  //       }
+  //     });
 
-      yPosition += 10;
+  //     yPosition += 10;
 
-      // Section: Final Recommendation
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text("Final Recommendation", margin, yPosition);
-      yPosition += 8;
+  //     // Section: Final Recommendation
+  //     doc.setFont("helvetica", "bold");
+  //     doc.setFontSize(14);
+  //     doc.text("Final Recommendation", margin, yPosition);
+  //     yPosition += 8;
 
-      doc.setFont("helvetica", "normal");
-      const recommendation = candidateData.evaluationReport.match(
-        /\*\*Final Recommendation:\*\* .*/g
-      );
-      if (recommendation) {
-        const recommendationText = recommendation[0].replace(/\*\*/g, "");
-        doc.text(recommendationText, margin, yPosition);
-        yPosition += lineHeight;
-      }
+  //     doc.setFont("helvetica", "normal");
+  //     const recommendation = candidateData.evaluationReport.match(
+  //       /\*\*Final Recommendation:\*\* .*/g
+  //     );
+  //     if (recommendation) {
+  //       const recommendationText = recommendation[0].replace(/\*\*/g, "");
+  //       doc.text(recommendationText, margin, yPosition);
+  //       yPosition += lineHeight;
+  //     }
 
-      yPosition += 10;
+  //     yPosition += 10;
 
-      // Section: Next Steps
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text("Next Steps", margin, yPosition);
-      yPosition += 8;
+  //     // Section: Next Steps
+  //     doc.setFont("helvetica", "bold");
+  //     doc.setFontSize(14);
+  //     doc.text("Next Steps", margin, yPosition);
+  //     yPosition += 8;
 
-      doc.setFont("helvetica", "normal");
-      const nextSteps = candidateData.evaluationReport.match(
-        /\*\*Next Steps:\*\* .*/g
-      );
-      if (nextSteps) {
-        const nextStepsText = nextSteps[0].replace(/\*\*/g, "");
-        doc.text(nextStepsText, margin, yPosition);
-        yPosition += lineHeight;
-      }
+  //     doc.setFont("helvetica", "normal");
+  //     const nextSteps = candidateData.evaluationReport.match(
+  //       /\*\*Next Steps:\*\* .*/g
+  //     );
+  //     if (nextSteps) {
+  //       const nextStepsText = nextSteps[0].replace(/\*\*/g, "");
+  //       doc.text(nextStepsText, margin, yPosition);
+  //       yPosition += lineHeight;
+  //     }
 
-      // Generate timestamp for filename
-      const timestamp = new Date().toISOString().split("T")[0];
+  //     // Generate timestamp for filename
+  //     const timestamp = new Date().toISOString().split("T")[0];
 
-      // Download PDF
-      doc.save(
-        `candidate-evaluation-${candidateData.firstname}-${timestamp}.pdf`
-      );
-    } catch (error) {
-      console.error("Error downloading report:", error);
-    }
-  };
+  //     // Download PDF
+  //     doc.save(
+  //       `candidate-evaluation-${candidateData.firstname}-${timestamp}.pdf`
+  //     );
+  //   } catch (error) {
+  //     console.error("Error downloading report:", error);
+  //   }
+  // };
 
   const handleInviteInterview = async (candidateId) => {
     try {
@@ -306,10 +309,105 @@ const JobDashboard = () => {
   };
 
   const handleHire = async (candidateId) => {
-    console.log("Hired");
+    try {
+      const hireResponse = await fetch(`/api/candidate/hire`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateRef: candidateId }),
+      });
+
+      if (!hireResponse.ok) throw new Error("Failed to hire candidate");
+
+      const candidateUpdate = await fetch(
+        `/api/candidate/update/${candidateId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Hired", hired: true }),
+        }
+      );
+
+      if (!candidateUpdate.ok)
+        throw new Error("Failed to update candidate status");
+
+      // Update local state to trigger re-render
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, status: "Hired", hired: true }
+            : candidate
+        )
+      );
+    } catch (error) {
+      console.error("Error hiring Candidate:", error);
+    }
   };
+
   const handleReject = async (candidateId) => {
-    console.log("Rejected");
+    try {
+      // Fetch evaluation report for the candidate
+      const evalResponse = await axios.get(
+        `/api/candidate/getEvaluation/${candidateId}`
+      );
+      const { evaluationScore, evaluationReport } = evalResponse.data;
+
+      // Prepare feedback prompt
+      const prompt = `Based on the following candidate evaluation report, write a detailed and constructive feedback paragraph directly addressed to the candidate, explaining why they were not selected for the role. The tone should be respectful, honest, and supportive. Acknowledge their strengths, explain what was important for the position, and offer clear but kind insight into the areas that impacted the decision. Do not include greetings, sign-offs, or placeholders like [Candidate Name]. Just return the feedback paragraph only, as it will be embedded in a custom email. Here is the report:
+  ${evaluationReport}`;
+
+      // Get feedback from AI
+      const feedbackResponse = await axios.post(
+        "/llama38b/v1/chat/completions",
+        {
+          model: llama,
+          messages: [{ role: "user", content: prompt }],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const candidateFeedback =
+        feedbackResponse.data.choices[0].message.content;
+
+      // Send rejection request with feedback
+      const rejectResponse = await fetch(`/api/candidate/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidateRef: candidateId,
+          candidateFeedback,
+        }),
+      });
+
+      if (!rejectResponse.ok) throw new Error("Failed to reject candidate");
+
+      // Update candidate status to "Rejected"
+      const candidateUpdate = await fetch(
+        `/api/candidate/update/${candidateId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Rejected" }),
+        }
+      );
+
+      if (!candidateUpdate.ok)
+        throw new Error("Failed to update candidate status");
+
+      // Update local state to reflect rejection
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, status: "Rejected" }
+            : candidate
+        )
+      );
+    } catch (error) {
+      console.error("Error rejecting candidate:", error);
+    }
   };
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;

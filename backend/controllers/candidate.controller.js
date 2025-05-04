@@ -1,6 +1,7 @@
 import Candidate from "../models/candidate.model.js";
 import Job from "../models/job.model.js";
 import { errorHandler } from "../utils/error.js";
+import sendEmail from "../utils/email.js";
 
 export const createCandidate = async (req, res, next) => {
   try {
@@ -269,6 +270,65 @@ export const getCandidateEvaluation = async (req, res, next) => {
       evaluationScore: candidate.evaluationScore,
       evaluationReport: candidate.evaluationReport,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const hireCandidate = async (req, res, next) => {
+  try {
+    // Fetch candidate details
+    const candidate = await Candidate.findById(req.body.candidateRef).select(
+      "-resume"
+    );
+    if (!candidate) {
+      return next(errorHandler(404, "Candidate not found!"));
+    }
+
+    // Send email
+    const emailSubject = `Hiring Update: ${candidate.position}`;
+
+    const emailBody = `Dear ${candidate.firstname} ${candidate.lastname},\n\nCongratulations! We are pleased to inform you that you have been selected for the position of ${candidate.position}.\n\nWe were impressed with your performance and believe you will be a valuable addition to our team.\n\nOur HR team will contact you shortly with further onboarding details.\n\nWelcome aboard!\n\nBest regards,\nHR Team`;
+
+    await sendEmail(candidate.email, emailSubject, emailBody);
+
+    return res.status(201).json(emailSubject);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rejectCandidate = async (req, res, next) => {
+  try {
+    // Fetch candidate details
+    const candidate = await Candidate.findById(req.body.candidateRef).select(
+      "-resume"
+    );
+    if (!candidate) {
+      return next(errorHandler(404, "Candidate not found!"));
+    }
+
+    // Send email
+    const emailSubject = `Hiring Update: ${candidate.position}`;
+
+    const emailBody = `Dear ${candidate.firstname} ${candidate.lastname},
+    
+    Thank you for taking the time to interview for the position of ${candidate.position}. We appreciate your interest in the role and the effort you put into the evaluation process.
+    
+    After careful consideration, we have decided to move forward with other candidates at this time. This decision was not easy, as we recognize the strengths and experience you bring to the table.
+    
+    Here is some detailed feedback based on your performance during the interview:
+    
+    ${req.body.candidateFeedback}
+    
+    We truly value the time you spent with us and wish you all the best in your future endeavors.
+    
+    Best regards,
+    HR Team`;
+
+    await sendEmail(candidate.email, emailSubject, emailBody);
+
+    return res.status(201).json(emailSubject);
   } catch (error) {
     next(error);
   }
