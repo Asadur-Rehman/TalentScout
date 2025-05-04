@@ -74,7 +74,9 @@ export default function CandidateInterview() {
 
   const handleSubmit = () => {
     // Navigate immediately
-    navigate("/candidate/coding-interview");
+    navigate("/candidate/coding-interview", {
+      state: { answers },
+    });
 
     // Continue with AI evaluation in the background
     // processEvaluation();
@@ -86,59 +88,58 @@ export default function CandidateInterview() {
     console.log("Final Answers:", answers);
 
     const prompt = `
-Based on the following interview questions and the candidate’s responses, generate a **detailed evaluation report**. Ensure that the **individual question scores are calculated first**, and then sum them up to determine the **final score**. Your response should begin with just **one number**—the final score—before proceeding to the detailed breakdown.
+Based on the following interview questions and the candidate’s responses, generate a **detailed evaluation report**. First, evaluate each question individually and then compute the final score.
 
 ---
 
-### **1. Overall Score (Out of 100)**  
-- First, compute individual scores for each question.  
-- Then, sum up these scores to calculate the **final evaluation score**.  
-- Display only the **final score** as the first output.
+### **1. Detailed Breakdown & Candidate Evaluation**
+
+#### **A. Scoring Breakdown**
+- Show the score assigned to each question.
+- Weightage:
+  - **Q1–Q7 (General & Technical):** 10 points each = 70 total
+  - **Q8 (Coding Question):** 30 points
+
+#### **B. Question-Wise Performance Analysis**
+For each question, include:
+- **Question Asked**
+- **Candidate’s Response**
+- **Evaluation** (based on clarity, depth, accuracy, and job relevance)
+- **Score Given (out of applicable points)**
+
+#### **C. Soft Skills & Communication Rating (Out of 10)**
+Evaluate the candidate’s:
+- Communication clarity  
+- Confidence  
+- Problem-solving approach  
+- Overall professionalism
+
+#### **D. Overall Performance Summary**
+Highlight:
+- **Strengths**
+- **Areas for Improvement** (with specific, actionable feedback)
+
+#### **E. Final Recommendation**
+Clearly state:
+- **Shortlisted / Not Shortlisted**
+- Suggested next steps (e.g., technical round, HR interview, or rejection with reasoning)
 
 ---
 
-### **2. Detailed Breakdown & Candidate Evaluation**  
-
-#### **A. Scoring Breakdown**  
-- Display a **tabular format** showing the score assigned to each question based on weightage.  
-
-#### **B. Question-Wise Performance Analysis**  
-For each question, provide:  
-- **Question Asked**  
-- **Candidate’s Response**  
-- **Evaluation** (Analyze clarity, depth, correctness, and job relevance).  
-- **Score Given (out of allocated weightage points)**  
-
-#### **C. Soft Skills & Communication Rating (Out of 10)**  
-Evaluate the candidate’s **communication, confidence, clarity, and problem-solving skills.**  
-
-#### **D. Overall Performance Summary**  
-Summarize the candidate’s:  
-- **Key Strengths** (Highlight their strong areas).  
-- **Weaknesses & Areas for Improvement** (Provide actionable feedback).  
-
-#### **E. Final Recommendation**  
-Provide a clear recommendation:  
-- **Shortlisted / Not Shortlisted**  
-- Suggested **next steps**, such as additional technical assessments, follow-up interviews, or rejection with feedback.  
+### **Weightage Recap**
+- Q1–Q7: 70 points  
+- Q8 (Coding): 30 points  
+- **Total: 100**
 
 ---
 
-### **Weightage Distribution:**  
-- **General Questions (Q1 - Q4):** 10 points each (Total: 40)  
-- **Technical Questions (Q5 - Q7):** 20 points each (Total: 60)  
-- **Final Score: Out of 100**  
-
----
-
-### **Candidate’s Responses:**  
+### **Candidate’s Responses:**
 ${JSON.stringify(answers, null, 2)}
 
-Ensure that the report is:  
-**Well-structured** with clear headings and formatting.  
-**Insightful & Professional**, with meaningful analysis.  
-**Concise but Comprehensive**, providing valuable feedback.
-**The final score should be the first output and the sum of the individual questions scores.**
+---
+
+Place the **final total score** (out of 100) **on the last line of your response**.  
+⚠️ **Do not add any label or text — just the number.**
 `;
 
     try {

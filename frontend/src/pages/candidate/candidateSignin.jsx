@@ -114,16 +114,23 @@ export default function CandidateSignin() {
     if (!job || !resume) return;
 
     const prompt = `
-Generate 7 interview questions based on this job description and candidate resume. The questions should be a mix of technical and behavioral questions relevant to the role.
-
-Additionally, generate 1 separate coding question that assesses the candidate's problem-solving and programming skills, based on the job description and resume.
-
-Format your response with all 8 questions (7 + 1 coding question), with one question per line, without any numbering, labels, or section titles.
-
-Context:
-Job Details: ${JSON.stringify(job, null, 2)}
-Resume: ${resume}
-`;
+    Based on the following job description and candidate resume, generate exactly 8 questions:
+    
+    - 7 questions should be a mix of technical and behavioral questions relevant to the role.
+    - 1 question should be a coding problem that evaluates the candidate’s problem-solving skills.
+    
+    IMPORTANT:
+    - The coding question should be simple and solvable using core features of any mainstream programming language (e.g., arrays, loops, strings). 
+    - Do NOT include coding tasks that require frameworks, libraries, UI components, or APIs.
+    - Output exactly 8 lines, one question per line.
+    - DO NOT number the questions or label them in any way.
+    - DO NOT include headings, section titles, or extra explanation.
+    - Just return 8 plain-text questions, each on its own line.
+    
+    Context:
+    Job Details: ${JSON.stringify(job, null, 2)}
+    Resume: ${resume}
+    `;
 
     try {
       const response = await axios.post(
