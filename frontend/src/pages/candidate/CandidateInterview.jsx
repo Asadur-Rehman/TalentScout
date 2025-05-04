@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
 import SmallVideoPlaceholder from "../../assets/SmallVideoPlaceholder.svg";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import avatar from "../../assets/avatar.png";
 export default function CandidateInterview() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [audioContext, setAudioContext] = useState(null);
+  const [audioAnalyser, setAudioAnalyser] = useState(null);
+  const [micStream, setMicStream] = useState(null);
+  
+  const canvasRef = useRef(null);
+  const animationRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -20,51 +28,186 @@ export default function CandidateInterview() {
     "Where do you see yourself in 5 years?",
   ];
 
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.lang = "en-US";
+  // Clean up visualization resources on unmount
+  useEffect(() => {
+    return () => {
+      stopVisualization();
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      if (audioContext) {
+        audioContext.close();
+      }
+    };
+  }, []);
 
-  // const questions = JSON.parse(localStorage.getItem("questions")) || [];
+  // Start audio visualization
+  const startVisualization = (analyser) => {
+    if (!canvasRef.current || !analyser) return;
+    
+    // Cancel any existing animation frame first
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas dimensions
+    canvas.width = canvas.clientWidth || 300;
+    canvas.height = canvas.clientHeight || 100;
+    
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    // Create a waveform visualization
+    const draw = () => {
+      animationRef.current = requestAnimationFrame(draw);
+      
+      // Get waveform data
+      analyser.getByteTimeDomainData(dataArray);
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw waveform
+      ctx.beginPath();
+      
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+      
+      for (let i = 0; i < bufferLength; i++) {
+        // Scale the waveform to make it more visible
+        const v = (dataArray[i] - 128) * 1.5 / 128.0 + 1;
+        const y = (v * canvas.height) / 2;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+        
+        x += sliceWidth;
+      }
+      
+      // Style the waveform
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#05B4B4";
+      ctx.stroke();
+      
+      // Draw a horizontal center line
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.strokeStyle = "rgba(150, 150, 150, 0.2)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    };
+    
+    // Start drawing loop
+    draw();
+  };
 
-  const startRecording = async () => {
+  // Stop visualization
+  const stopVisualization = () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    
+    // Clear canvas
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+  };
+
+  // Play question using TTS API
+  const playQuestion = async () => {
     try {
-      setIsRecording(true);
-      setLoading(true);
-
-      const questionToSend = [questions[currentQuestion]]; // Send as an array
-
-      const response = await axios.post("http://localhost:8000/interview/", {
-        questions: questionToSend, // Now sending as an array
+      setIsPlaying(true);
+      
+      await axios.post("http://localhost:8000/generate-tts/", {
+        text: questions[currentQuestion]
       });
+      
+      setIsPlaying(false);
+    } catch (error) {
+      console.error("Error playing question:", error);
+      setIsPlaying(false);
+    }
+  };
 
-      // const recordedAnswer = response.data.answers[questions[currentQuestion]]; // Extract answer
-      // // console.log("Recorded Answer:", response.data.answers[questions[currentQuestion]]);
-      // console.log("Recorded Answer:", recordedAnswer);
-      const recordedAnswer = response.data.answers;
-
+  // Record answer using STT API
+  const recordAnswer = async () => {
+    try {
+      setIsListening(true);
+      setIsRecording(true);
+      
+      // Set up microphone stream
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000
+        } 
+      });
+      setMicStream(stream);
+      
+      // Set up audio context for microphone visualization
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.6;
+      
+      const source = ctx.createMediaStreamSource(stream);
+      source.connect(analyser);
+      
+      setAudioContext(ctx);
+      setAudioAnalyser(analyser);
+      
+      // Start visualization for microphone input
+      startVisualization(analyser);
+      
+      const response = await axios.post("http://localhost:8000/generate-stt/");
+      const transcription = response.data.text;
+      
       setAnswers((prevAnswers) => {
         const updatedAnswers = [...prevAnswers];
-        updatedAnswers[currentQuestion] = recordedAnswer;
-        console.log(updatedAnswers);
+        updatedAnswers[currentQuestion] = transcription;
         return updatedAnswers;
       });
-      console.log("Answers:", answers);
-
+      
+      // Stop the visualization and microphone stream
+      stopVisualization();
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      
+      setIsListening(false);
       setIsRecording(false);
-      setLoading(false);
     } catch (error) {
       console.error("Error recording answer:", error);
       setError("Recording failed. Please try again.");
+      
+      // Stop the visualization and microphone stream on error
+      stopVisualization();
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      
+      setIsListening(false);
       setIsRecording(false);
-      setLoading(false);
     }
   };
 
   const handleBack = () => {
-    if (currentQuestion > 0) {
+    if (currentQuestion === 0) {
+      // Navigate to previous page when on first question
+      navigate(-1);
+    } else {
       setCurrentQuestion(currentQuestion - 1);
     }
   };
@@ -79,84 +222,6 @@ export default function CandidateInterview() {
 
   const handleSubmit = async () => {
     console.log("Final Answers:", answers);
-
-    //     const prompt = `
-    // Based on the following interview questions and the candidate's responses, generate:
-
-    // 1. **Overall Score (out of 100)** – Calculate the candidate’s total evaluation score based on a weighted scoring system:
-    //    - **General Questions (Q1 - Q4): 40% weightage (10% each)**
-    //    - **Technical Questions (Q5 - Q7): 60% weightage (20% each)**
-    //    - If a question is not answered, assign **0 marks** for that question.
-    //    - Your response should start with **just one number** (the total score).
-
-    // 2. **Detailed Breakdown & Report**, including:
-    //    - **Scoring Breakdown:** Show the marks assigned to each question based on the weightage.
-    //    - **Question-wise Performance Analysis:**
-    //      - **Question Asked**
-    //      - **Candidate’s Response**
-    //      - **Evaluation** (Assess clarity, depth, correctness, and job relevance).
-    //      - **Score Given (out of allocated weightage points)**
-    //    - **Soft Skills & Communication Rating:** (Confidence, clarity, problem-solving skills).
-    //    - **Overall Performance Summary:** Key strengths, weaknesses, and improvement areas.
-    //    - **Final Recommendation:** (Shortlisted / Not Shortlisted + Next Steps).
-
-    // **Weightage Distribution:**
-    // - **General Questions (Q1 - Q4):** 10 points each (Total: 40)
-    // - **Technical Questions (Q5 - Q7):** 20 points each (Total: 60)
-    // - **Final Score: Out of 100**
-
-    // **Questions and Answers:**
-    // ${JSON.stringify(answers, null, 2)}
-
-    // Ensure the response is structured, professional, and easy to read.
-    // `;
-
-    //     console.log(prompt);
-
-    //     // ... existing code ...
-    //     try {
-    //       const response = await axios.post(
-    //         "llama38b/v1/chat/completions",
-    //         {
-    //           model: llama,
-    //           messages: [{ role: "user", content: prompt }],
-    //         },
-    //         {
-    //           headers: {
-    //             "Content-Type": "application/json",
-    //           },
-    //         }
-    //       );
-
-    // const responseContent = response.data.choices[0].message.content;
-    // Extract score (assuming it's the first line) and report content
-    // const [scoreStr, ...reportLines] = responseContent.split("\n");
-    // const score = parseInt(scoreStr);
-    // const evaluationReport = reportLines.join("\n").trim();
-
-    // console.log("Score:", score);
-    // console.log("Report:", evaluationReport);
-
-    // const validCandidate = JSON.parse(localStorage.getItem("validCandidate"));
-    // const candidateId = validCandidate._id;
-
-    // if (!isNaN(score)) {
-    //   const response = await fetch(`/api/candidate/update/${candidateId}`, {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({
-    //       evaluationScore: score,
-    //       evaluationReport: evaluationReport,
-    //     }),
-    //   });
-
-    //   if (!response.ok) throw new Error("Failed to evaluate candidate");
-    // }
-    // } catch (error) {
-    //   console.error("Error generating interview questions:", error);
-    // }
-    // ... existing code ...
-
     navigate("/candidate/video-instructions");
   };
 
@@ -167,7 +232,6 @@ export default function CandidateInterview() {
           <button
             onClick={handleBack}
             className="flex items-center text-gray-600 hover:text-gray-900"
-            disabled={currentQuestion === 0}
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -202,6 +266,26 @@ export default function CandidateInterview() {
             ({String(currentQuestion + 1).padStart(2, "0")}/
             {String(questions.length).padStart(2, "0")})
           </div>
+          
+          <button
+            onClick={handleNext}
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            Next
+            <svg
+              className="w-5 h-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
         </div>
 
         <div className="space-y-8 align-center justify-center flex flex-col w-2/4 mx-auto">
@@ -212,31 +296,49 @@ export default function CandidateInterview() {
             {questions[currentQuestion]}
           </p>
 
-          <div className="bg-gray-50 rounded-lg p-12 flex items-center justify-center ">
+          <div className="bg-white rounded-lg p-12 flex flex-col items-center justify-center gap-4">
             <button
-              onClick={startRecording}
-              className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors  ${
-                isRecording ? "bg-red-500" : "bg-[#05B4B4]"
+              onClick={isRecording ? null : playQuestion}
+              className={`rounded-full flex items-center justify-center transition-all duration-300 ${
+                (isPlaying || isRecording) ? "scale-110" : ""
               }`}
-              disabled={loading}
+              disabled={isPlaying || isRecording || loading}
             >
-              <svg
-                className="w-8 h-8 text-white"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .56-.44 1-1 1s-1-.44-1-1V6z" />
-                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-              </svg>
+              <div className="relative">
+                {isPlaying && (
+                  <>
+                    <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-r from-purple-500 via-yellow-400 to-purple-500 opacity-75 animate-pulse-ring"></div>
+                    <div className="absolute inset-0 -m-12 rounded-full bg-gradient-to-r from-purple-600 via-yellow-400 to-purple-600 opacity-50 animate-pulse-ring animation-delay-300"></div>
+                    <div className="absolute inset-0 -m-16 rounded-full bg-gradient-to-r from-purple-700 via-yellow-500 to-purple-700 opacity-30 animate-pulse-ring animation-delay-700"></div>
+                  </>
+                )}
+                <img 
+                  src={avatar} 
+                  alt="Avatar" 
+                  className="w-20 h-20 object-contain relative z-10"
+                />
+              </div>
             </button>
+            
+            {isListening && (
+              <>
+                <p className="text-red-500 font-medium">Listening...</p>
+                <canvas 
+                  ref={canvasRef} 
+                  className="w-full h-10 mt-2"
+                />
+              </>
+            )}
           </div>
 
           <button
-            onClick={handleNext}
-            className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold rounded-lg disabled:opacity-50 text-center"
-            disabled={loading}
+            onClick={isListening ? null : (isRecording ? handleNext : recordAnswer)}
+            className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold disabled:opacity-50 text-center"
+            disabled={isPlaying || loading}
           >
-            {currentQuestion < questions.length - 1 ? "Next" : "Submit"}
+            {isListening ? "Listening..." : 
+              (isRecording ? "Next" : 
+                "Submit Answer" )}
           </button>
         </div>
       </div>
