@@ -6,6 +6,7 @@ import Layout from "./RecruiterLayout";
 import { FiMoreVertical } from "react-icons/fi";
 import jsPDF from "jspdf";
 import { ShareModal } from "./ShareModal";
+import EvaluationDisplay from "./TechnicalReport";
 
 const JobDashboard = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const JobDashboard = () => {
   const [job, setJob] = useState(null);
   const [candidates, setCandidates] = useState([]);
   const [shortlistedCandidates, setShortlistedCandidates] = useState([]);
+  const [hiredCandidates, setHiredCandidates] = useState([]);
   const [activeTab, setActiveTab] = useState("applicants");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,6 +68,22 @@ const JobDashboard = () => {
       }
     };
 
+    const fetchHiredCandidates = async () => {
+      try {
+        const response = await fetch(`/api/candidate/hired/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch hired candidates");
+        const data = await response.json();
+        console.log("Hired candidates fetched:", data);
+        setHiredCandidates(data);
+      } catch (err) {
+        console.error("Error fetching hired candidates:", err.message);
+        setHiredCandidates([]); // Ensure fallback to empty array
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHiredCandidates();
     fetchJobDetails();
     fetchCandidates();
     fetchShortlistedCandidates();
@@ -287,6 +305,13 @@ const JobDashboard = () => {
     }
   };
 
+  const handleHire = async (candidateId) => {
+    console.log("Hired");
+  };
+  const handleReject = async (candidateId) => {
+    console.log("Rejected");
+  };
+
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
@@ -405,22 +430,51 @@ const JobDashboard = () => {
               >
                 Shortlisted Candidates ({shortlistedCandidates.length})
               </button>
+              <button
+                className={`${
+                  activeTab === "hired"
+                    ? "border-[#144066] text-[#144066]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                onClick={() => setActiveTab("hired")}
+              >
+                Hired Candidates ({hiredCandidates.length})
+              </button>
             </nav>
           </div>
 
           <div className="bg-[#E6EDFF] rounded-xl overflow-hidden mt-6">
-            <div className="grid grid-cols-6 gap-4 p-4 text-sm font-medium text-black">
-              <div className="text-center">Name</div>
-              <div className="text-center">Education</div>
-              <div className="text-center">Experience</div>
-              <div className="text-center">
-                {activeTab === "applicants"
-                  ? "Resume Score"
-                  : "Evaluation Score"}
+            {activeTab !== "shortlisted" && (
+              <div className="grid grid-cols-6 gap-4 p-4 text-sm font-medium text-black">
+                <div className="text-center">Name</div>
+                <div className="text-center">Education</div>
+                <div className="text-center">Experience</div>
+                <div className="text-center">
+                  {activeTab === "applicants"
+                    ? "Resume Score"
+                    : "Evaluation Score"}
+                </div>
+                <div className="text-center">Profile</div>
+                <div className="text-center">Action</div>
               </div>
-              <div className="text-center">Profile</div>
-              <div className="text-center">Action</div>
-            </div>
+            )}
+
+            {activeTab === "shortlisted" && (
+              <div className="grid grid-cols-6 md:grid-cols-7 gap-4 p-4 text-sm font-medium text-black">
+                <div className="text-center">Name</div>
+                <div className="text-center">Education</div>
+                <div className="text-center">Experience</div>
+                <div className="text-center">
+                  {activeTab === "applicants"
+                    ? "Resume Score"
+                    : "Evaluation Score"}
+                </div>
+                <div className="text-center">Profile</div>
+                <div className="text-center">Action</div>
+
+                <div className="text-center">Hire / Reject</div>
+              </div>
+            )}
 
             <div className="divide-y divide-gray-200">
               {activeTab === "applicants" ? (
@@ -466,11 +520,54 @@ const JobDashboard = () => {
                     No applicants found
                   </p>
                 )
+              ) : activeTab === "hired" ? (
+                hiredCandidates.length > 0 ? (
+                  hiredCandidates.map((candidate, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
+                    >
+                      <div className="text-[#121212] text-center">
+                        {candidate.firstname + " " + candidate.lastname}
+                      </div>
+                      <div className="text-[#121212] text-center">
+                        {candidate.education}
+                      </div>
+                      <div className="text-[#121212] text-center">
+                        {candidate.experience} years
+                      </div>
+                      <div className="text-[#121212] text-center">
+                        {candidate.resumeScore}
+                      </div>
+                      <div className="flex justify-center">
+                        <button
+                          className="px-4 py-2 text-[#121212] hover:text-gray-900 flex items-center gap-2 border border-gray-400 rounded-md shadow-sm"
+                          onClick={() => handleViewProfile(candidate._id)}
+                        >
+                          View Profile
+                        </button>
+                      </div>
+                      {/* <button
+                        className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
+                        onClick={() => handleInviteInterview(candidate._id)}
+                        disabled={candidate.status !== "Pending"} // Optional: Disable button if already invited
+                      >
+                        {candidate.status && candidate.status !== "Pending"
+                          ? "Invitation Sent"
+                          : "Invite for Interview"}
+                      </button> */}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 p-4">
+                    No applicants hired yet
+                  </p>
+                )
               ) : shortlistedCandidates.length > 0 ? (
                 shortlistedCandidates.map((candidate, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-6 gap-4 p-4 bg-white items-center text-sm"
+                    className="grid grid-cols-7 gap-4 p-4 bg-white items-center text-sm"
                   >
                     <div className="text-[#121212] text-center">
                       {candidate.firstname + " " + candidate.lastname}
@@ -502,12 +599,47 @@ const JobDashboard = () => {
                     </div>
                     <div className="flex justify-center">
                       <button
-                        onClick={() => handleDownloadReport(candidate._id)}
+                        onClick={() =>
+                          window.open(
+                            `/recruiter/candidate-report/${candidate._id}`,
+                            "_blank"
+                          )
+                        }
                         className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
                       >
-                        Download Report
+                        View Report
                       </button>
                     </div>
+
+                    {/* Conditionally rendering Hire / Reject buttons when shortlisted */}
+                    {activeTab === "shortlisted" && (
+                      <div className="flex justify-center gap-2">
+                        {candidate.status === "Hired" ? (
+                          <span className="px-4 py-2 text-sm text-white bg-green-400 rounded-md cursor-not-allowed shadow-sm">
+                            Hired
+                          </span>
+                        ) : candidate.status === "Rejected" ? (
+                          <span className="px-4 py-2 text-sm text-white bg-red-400 rounded-md cursor-not-allowed shadow-sm">
+                            Rejected
+                          </span>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleHire(candidate._id)}
+                              className="px-4 py-2 text-sm text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors shadow-sm"
+                            >
+                              Hire
+                            </button>
+                            <button
+                              onClick={() => handleReject(candidate._id)}
+                              className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (

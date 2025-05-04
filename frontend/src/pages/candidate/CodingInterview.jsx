@@ -33,59 +33,27 @@ export default function CandidateInterview() {
     console.log("Final Answers:", updatedAnswers);
 
     const prompt = `
-  Based on the following interview questions and the candidate’s responses, generate a **detailed evaluation report**. First, evaluate each question individually and then compute the final score.
-  
-  ---
-  
-  ### **1. Detailed Breakdown & Candidate Evaluation**
-  
-  #### **A. Scoring Breakdown**
-  - Show the score assigned to each question.
-  - Weightage:
-    - **Q1–Q7 (General & Technical):** 10 points each = 70 total
-    - **Q8 (Coding Question):** 30 points
-  
-  #### **B. Question-Wise Performance Analysis**
-  For each question, include:
-  - **Question Asked**
-  - **Candidate’s Response**
-  - **Evaluation** (based on clarity, depth, accuracy, and job relevance)
-  - **Score Given (out of applicable points)**
-  
-  #### **C. Soft Skills & Communication Rating (Out of 10)**
-  Evaluate the candidate’s:
-  - Communication clarity  
-  - Confidence  
-  - Problem-solving approach  
-  - Overall professionalism
-  
-  #### **D. Overall Performance Summary**
-  Highlight:
-  - **Strengths**
-  - **Areas for Improvement** (with specific, actionable feedback)
-  
-  #### **E. Final Recommendation**
-  Clearly state:
-  - **Shortlisted / Not Shortlisted**
-  - Suggested next steps (e.g., technical round, HR interview, or rejection with reasoning)
-  
-  ---
-  
-  ### **Weightage Recap**
-  - Q1–Q7: 70 points  
-  - Q8 (Coding): 30 points  
-  - **Total: 100**
-  
-  ---
-  
-  ### **Candidate’s Responses:**
-  ${JSON.stringify(updatedAnswers, null, 2)}
-  
-  ---
-  
-  Place the **final total score** (out of 100) **on the last line of your response**.  
-  ⚠️ **Do not add any label or text — just the number.**
-  `;
+You are given an array of 8 interview questions and their corresponding candidate answers. Generate a strict 33-line evaluation report in the exact following format:
+
+For each question (Q1 to Q8), write:
+1. The **question** itself (Line 1, 5, 9, ... up to 29)
+2. The **candidate's answer** (Line 2, 6, 10, ... up to 30)
+3. An **evaluation summary** (Line 3, 7, 11, ... up to 31)
+4. A **score only** (Line 4, 8, 12, ... up to 32)
+   - For Q1–Q7, the score must be out of **10**
+   - For Q8 (coding question), the score must be out of **30**
+
+Finally, on **line 33**, output only the **total score** (sum of all 8 scores).  
+⚠️ Do not add any labels, extra lines, bullet points, or formatting — just the plain 33 lines exactly as described.
+
+---
+
+Questions:
+${JSON.stringify(questions, null, 2)}
+
+Answers:
+${JSON.stringify(updatedAnswers, null, 2)}
+`;
 
     try {
       const response = await axios.post(

@@ -208,10 +208,28 @@ export const getShortlistedCandidates = async (req, res, next) => {
   }
 };
 
+export const getHiredCandidates = async (req, res, next) => {
+  try {
+    const { jobRef } = req.params;
+
+    const shortlistedCandidates = await Candidate.find({
+      jobRef,
+      hired: true,
+    }).select("-resume");
+
+    if (!shortlistedCandidates.length) {
+      return next(errorHandler(404, "No shortlisted candidates found!"));
+    }
+
+    res.status(200).json(shortlistedCandidates);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getCandidatesByRecruiter = async (req, res, next) => {
   try {
     const { recruiterRef } = req.params; // recruiterId should come from route params
-
     // Step 1: Get all jobs for this recruiter
     const jobs = await Job.find({ recruiterRef });
     const jobIds = jobs.map((job) => job._id.toString());
@@ -230,6 +248,27 @@ export const getCandidatesByRecruiter = async (req, res, next) => {
     }
 
     res.status(200).json(candidates);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCandidateEvaluation = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const candidate = await Candidate.findById(id).select(
+      "evaluationScore evaluationReport"
+    );
+
+    if (!candidate) {
+      return next(errorHandler(404, "Candidate not found!"));
+    }
+
+    res.status(200).json({
+      evaluationScore: candidate.evaluationScore,
+      evaluationReport: candidate.evaluationReport,
+    });
   } catch (error) {
     next(error);
   }

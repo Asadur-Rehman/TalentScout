@@ -25,6 +25,7 @@ import InterviewCompletion from "./pages/candidate/InterviewCompletion";
 import RecruiterPrivateRoute from "./pages/recruiter/RecruiterPrivateRoute";
 import CandidatePrivateRoute from "./pages/candidate/CandidatePrivateRoute";
 import EditJob from "./pages/recruiter/EditJob";
+import EvaluationDisplay from "./pages/recruiter/TechnicalReport";
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             path="/recruiter/candidate-report"
             element={<CandidateReport />}
           />
+          <Route path="/recruiter/candidate-report/:id" element={<EvaluationDisplay />} />
           <Route path="/recruiter/opened-jobs" element={<OpenedJobs />} />
           <Route path="/recruiter/open-job" element={<OpenJobForm />} />
           <Route path="/recruiter/edit-job/:id" element={<EditJob />} />

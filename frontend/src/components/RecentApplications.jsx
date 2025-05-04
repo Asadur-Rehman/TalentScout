@@ -24,44 +24,45 @@ const RecentApplications = ({ candidates }) => {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-          {candidates.map((candidate) => (
-            <tr key={candidate._id} className="py-2">
-              <td className="py-4">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <div className="text-sm font-semibold">
-                      {candidate.firstname} {candidate.lastname}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {candidate.email}
+          {candidates &&
+            candidates.map((candidate) => (
+              <tr key={candidate._id} className="py-2">
+                <td className="py-4">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <div className="text-sm font-semibold">
+                        {candidate.firstname} {candidate.lastname}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {candidate.email}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
-              <td className="py-4 text-sm">
-                <span className="text-gray-600 italic">
-                  {candidate.position || "N/A"}
-                </span>
-              </td>
+                </td>
+                <td className="py-4 text-sm">
+                  <span className="text-gray-600 italic">
+                    {candidate.position || "N/A"}
+                  </span>
+                </td>
 
-              <td className="py-4">
-                <span
-                  className={`px-3 py-1 text-sm rounded-full capitalize ${getStatusStyle(
-                    candidate.status
-                  )}`}
-                >
-                  {candidate.status}
-                </span>
-              </td>
-              <td className="py-4 text-sm">
-                {new Date(candidate.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </td>
-            </tr>
-          ))}
+                <td className="py-4">
+                  <span
+                    className={`px-3 py-1 text-sm rounded-full capitalize ${getStatusStyle(
+                      candidate.status
+                    )}`}
+                  >
+                    {candidate.status}
+                  </span>
+                </td>
+                <td className="py-4 text-sm">
+                  {new Date(candidate.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
