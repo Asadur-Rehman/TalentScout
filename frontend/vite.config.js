@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 
 // Load environment variables
 const env = loadEnv(process.env.NODE_ENV, process.cwd(), "");
+console.log(env);
 
 console.log("VITE_API_KEY:", env.VITE_API_KEY);
 console.log("VITE_LLAMA:", env.VITE_LLAMA);
