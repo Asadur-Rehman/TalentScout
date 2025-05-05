@@ -307,9 +307,9 @@ export default function CandidateInterview() {
               <div className="relative">
                 {isPlaying && (
                   <>
-                    <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-r from-purple-500 via-yellow-400 to-purple-500 opacity-75 animate-pulse-ring"></div>
-                    <div className="absolute inset-0 -m-12 rounded-full bg-gradient-to-r from-purple-600 via-yellow-400 to-purple-600 opacity-50 animate-pulse-ring animation-delay-300"></div>
-                    <div className="absolute inset-0 -m-16 rounded-full bg-gradient-to-r from-purple-700 via-yellow-500 to-purple-700 opacity-30 animate-pulse-ring animation-delay-700"></div>
+                    <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 opacity-75 animate-pulse-ring"></div>
+                    <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 opacity-50 animate-pulse-ring animation-delay-300"></div>
+                    <div className="absolute inset-0 -m-16 rounded-full bg-gradient-to-r from-blue-700 via-yellow-500 to-blue-700 opacity-30 animate-pulse-ring animation-delay-700"></div>
                   </>
                 )}
                 <img 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
 import SmallVideoPlaceholder from "../../assets/SmallVideoPlaceholder.svg";
+import avatar from "../../assets/avatar.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -11,6 +12,15 @@ export default function CandidateInterview() {
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [audioContext, setAudioContext] = useState(null);
+  const [audioAnalyser, setAudioAnalyser] = useState(null);
+  const [micStream, setMicStream] = useState(null);
+  
+  const canvasRef = useRef(null);
+  const animationRef = useRef(null);
+
   const navigate = useNavigate();
 
   const SpeechRecognition =
@@ -24,20 +34,153 @@ export default function CandidateInterview() {
   questions.pop();
   // const interviewId = JSON.parse(localStorage.getItem("interviewId")) || [];
 
+  useEffect(() => {
+    return () => {
+      stopVisualization();
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      if (audioContext) {
+        audioContext.close();
+      }
+    };
+  }, []);
+
+  // Start audio visualization
+  const startVisualization = (analyser) => {
+    if (!canvasRef.current || !analyser) return;
+    
+    // Cancel any existing animation frame first
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas dimensions
+    canvas.width = canvas.clientWidth || 300;
+    canvas.height = canvas.clientHeight || 100;
+    
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    // Create a waveform visualization
+    const draw = () => {
+      animationRef.current = requestAnimationFrame(draw);
+      
+      // Get waveform data
+      analyser.getByteTimeDomainData(dataArray);
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw waveform
+      ctx.beginPath();
+      
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+      
+      for (let i = 0; i < bufferLength; i++) {
+        // Scale the waveform to make it more visible
+        const v = (dataArray[i] - 128) * 1.5 / 128.0 + 1;
+        const y = (v * canvas.height) / 2;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+        
+        x += sliceWidth;
+      }
+      
+      // Style the waveform
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#05B4B4";
+      ctx.stroke();
+      
+      // Draw a horizontal center line
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.strokeStyle = "rgba(150, 150, 150, 0.2)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    };
+    
+    // Start drawing loop
+    draw();
+  };
+
+  // Stop visualization
+  const stopVisualization = () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    
+    // Clear canvas
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+  };
+
+  // Play question using TTS API
+  const playQuestion = async () => {
+    try {
+      setIsPlaying(true);
+      
+      await axios.post("http://localhost:8000/generate-tts/", {
+        text: questions[currentQuestion]
+      });
+      
+      setIsPlaying(false);
+    } catch (error) {
+      console.error("Error playing question:", error);
+      setIsPlaying(false);
+    }
+  };
+
   const startRecording = async () => {
     try {
+      setIsListening(true);
       setIsRecording(true);
-      setLoading(true);
-
+      
+      // Set up microphone stream
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000
+        } 
+      });
+      setMicStream(stream);
+      
+      // Set up audio context for microphone visualization
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.6;
+      
+      const source = ctx.createMediaStreamSource(stream);
+      source.connect(analyser);
+      
+      setAudioContext(ctx);
+      setAudioAnalyser(analyser);
+      
+      // Start visualization for microphone input
+      startVisualization(analyser);
+      
       const questionToSend = [questions[currentQuestion]]; // Send as an array
 
       const response = await axios.post("http://localhost:8000/interview/", {
         questions: questionToSend, // Now sending as an array
       });
 
-      // const recordedAnswer = response.data.answers[questions[currentQuestion]]; // Extract answer
-      // // console.log("Recorded Answer:", response.data.answers[questions[currentQuestion]]);
-      // console.log("Recorded Answer:", recordedAnswer);
       const recordedAnswer = response.data.answers;
 
       setAnswers((prevAnswers) => {
@@ -47,12 +190,27 @@ export default function CandidateInterview() {
         return updatedAnswers;
       });
       console.log("Answers:", answers);
-
+      
+      // Stop the visualization and microphone stream
+      stopVisualization();
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      
+      setIsListening(false);
       setIsRecording(false);
       setLoading(false);
     } catch (error) {
       console.error("Error recording answer:", error);
       setError("Recording failed. Please try again.");
+      
+      // Stop the visualization and microphone stream on error
+      stopVisualization();
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      
+      setIsListening(false);
       setIsRecording(false);
       setLoading(false);
     }
@@ -88,7 +246,7 @@ export default function CandidateInterview() {
     console.log("Final Answers:", answers);
 
     const prompt = `
-Based on the following interview questions and the candidate’s responses, generate a **detailed evaluation report**. First, evaluate each question individually and then compute the final score.
+Based on the following interview questions and the candidate's responses, generate a **detailed evaluation report**. First, evaluate each question individually and then compute the final score.
 
 ---
 
@@ -103,12 +261,12 @@ Based on the following interview questions and the candidate’s responses, gene
 #### **B. Question-Wise Performance Analysis**
 For each question, include:
 - **Question Asked**
-- **Candidate’s Response**
+- **Candidate's Response**
 - **Evaluation** (based on clarity, depth, accuracy, and job relevance)
 - **Score Given (out of applicable points)**
 
 #### **C. Soft Skills & Communication Rating (Out of 10)**
-Evaluate the candidate’s:
+Evaluate the candidate's:
 - Communication clarity  
 - Confidence  
 - Problem-solving approach  
@@ -133,7 +291,7 @@ Clearly state:
 
 ---
 
-### **Candidate’s Responses:**
+### **Candidate's Responses:**
 ${JSON.stringify(answers, null, 2)}
 
 ---
@@ -223,41 +381,79 @@ Place the **final total score** (out of 100) **on the last line of your response
             ({String(currentQuestion + 1).padStart(2, "0")}/
             {String(questions.length).padStart(2, "0")})
           </div>
+          
+          <button
+            onClick={handleNext}
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            Next
+            <svg
+              className="w-5 h-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
         </div>
 
-        <div className="space-y-8 w-2/4 mx-auto">
+        <div className="space-y-8 align-center justify-center flex flex-col w-2/4 mx-auto">
           <h1 className="text-3xl font-bold text-center">
-            Demo Audio Question
+            Audio Question
           </h1>
           <p className="text-center max-w-3xl mx-auto">
             {questions[currentQuestion]}
           </p>
 
-          <div className="bg-gray-50 rounded-lg p-12 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-12 flex flex-col items-center justify-center gap-4">
             <button
-              onClick={startRecording}
-              className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
-                isRecording ? "bg-red-500" : "bg-[#05B4B4]"
+              onClick={isRecording ? null : playQuestion}
+              className={`rounded-full flex items-center justify-center transition-all duration-300 ${
+                (isPlaying || isRecording) ? "scale-110" : ""
               }`}
-              disabled={loading}
+              disabled={isPlaying || isRecording || loading}
             >
-              <svg
-                className="w-8 h-8 text-white"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .56-.44 1-1 1s-1-.44-1-1V6z" />
-                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-              </svg>
+              <div className="relative">
+                {isPlaying && (
+                  <>
+                    <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 opacity-75 animate-pulse-ring"></div>
+                    <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 opacity-50 animate-pulse-ring animation-delay-300"></div>
+                    <div className="absolute inset-0 -m-16 rounded-full bg-gradient-to-r from-blue-700 via-yellow-500 to-blue-700 opacity-30 animate-pulse-ring animation-delay-700"></div>
+                  </>
+                )}
+                <img 
+                  src={avatar} 
+                  alt="Avatar" 
+                  className="w-20 h-20 object-contain relative z-10"
+                />
+              </div>
             </button>
+            
+            {isListening && (
+              <>
+                <p className="text-red-500 font-medium">Listening...</p>
+                <canvas 
+                  ref={canvasRef} 
+                  className="w-full h-10 mt-2"
+                />
+              </>
+            )}
           </div>
 
           <button
-            onClick={handleNext}
+            onClick={isListening ? null : (isRecording ? handleNext : startRecording)}
             className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold rounded-lg disabled:opacity-50"
-            disabled={loading}
+            disabled={isPlaying || loading}
           >
-            {currentQuestion < questions.length - 1 ? "Next" : "Submit"}
+            {isListening ? "Listening..." : 
+              (isRecording ? "Next" : 
+                "Submit Answer" )}
           </button>
         </div>
       </div>
