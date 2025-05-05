@@ -40,7 +40,7 @@ You are given an array of 8 interview questions and their corresponding candidat
 
 For each question (Q1 to Q8), write:
 1. The **question** itself (Line 1, 5, 9, ... up to 29)
-2. The **candidate's answer** (Line 2, 6, 10, ... up to 30)
+2. The **candidate's answer** (Line 2, 6, 10, ... up to 30) or "Not answered by the candidate" if the answer is empty and for Q8, the answer which is the code provided by the candidate have to be returned in Serialized multiline form.
 3. An **evaluation summary** (Line 3, 7, 11, ... up to 31)
 4. A **score only** (Line 4, 8, 12, ... up to 32)
    - For Q1–Q7, the score must be out of **10**
