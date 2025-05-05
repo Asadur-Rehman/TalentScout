@@ -116,15 +116,15 @@ export default function CandidateSignin() {
     const prompt = `
 Based on the following job description and candidate resume, generate exactly 8 questions:
 
-7 questions should be a mix of technical and behavioral questions relevant ONLY to the specific technologies, tools, and responsibilities explicitly mentioned in the job description.
+7 questions should be a mix of technical and behavioral questions relevant ONLY to the specific technologies, tools, and responsibilities explicitly mentioned in the job description but not necessarily in resume.
 
 These questions should reflect skills and concepts that the candidate is likely to encounter in this role.
 
-Ensure the questions align with the candidate's resume so that the interviewer can effectively assess the candidate's qualifications against the role.
+Ensure the questions align with the job description more than the candidate's resume so that the interviewer can effectively assess the candidate's qualifications against the role.
 
 1 question should be a simple coding challenge designed to evaluate the candidate’s fundamental problem-solving skills using core programming constructs (e.g., arrays, loops, strings).
 
-Do NOT include coding tasks that require external libraries, frameworks (like React or Django), UI rendering, or APIs.
+Do NOT include coding tasks that require external libraries, frameworks, UI rendering, or APIs.
 
 IMPORTANT:
 
