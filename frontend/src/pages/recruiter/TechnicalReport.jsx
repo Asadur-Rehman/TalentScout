@@ -66,10 +66,26 @@ export default function EvaluationDisplay() {
           <h3 className="text-lg font-semibold text-blue-700">
             Q{idx + 1}: {entry.question}
           </h3>
-          <p className="mt-1 text-gray-800">
-            <span className="font-medium text-gray-600">Answer:</span>{" "}
-            {entry.answer}
-          </p>
+          {idx === 7 ? (
+            <div className="mt-1">
+              <p className="font-medium text-gray-600">Answer (Code):</p>
+              <pre className="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto text-gray-800 whitespace-pre-wrap">
+                {(() => {
+                  try {
+                    return JSON.parse(entry.answer);
+                  } catch (e) {
+                    return entry.answer; // fallback in case it's not stringified
+                  }
+                })()}
+              </pre>
+            </div>
+          ) : (
+            <p className="mt-1 text-gray-800">
+              <span className="font-medium text-gray-600">Answer:</span>{" "}
+              {entry.answer}
+            </p>
+          )}
+
           <p className="mt-1 text-gray-800">
             <span className="font-medium text-gray-600">Evaluation:</span>{" "}
             {entry.evaluation}

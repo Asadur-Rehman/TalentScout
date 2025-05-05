@@ -39,15 +39,18 @@ export default function CandidateInterview() {
 You are given an array of 8 interview questions and their corresponding candidate answers. Generate a strict 33-line evaluation report in the exact following format:
 
 For each question (Q1 to Q8), write:
-1. The **question** itself (Line 1, 5, 9, ... up to 29)
-2. The **candidate's answer** (Line 2, 6, 10, ... up to 30) or "Not answered by the candidate" if the answer is empty and for Q8, the answer which is the code provided by the candidate have to be returned in Serialized multiline form.
-3. An **evaluation summary** (Line 3, 7, 11, ... up to 31)
-4. A **score only** (Line 4, 8, 12, ... up to 32)
-   - For Q1–Q7, the score must be out of **10**
-   - For Q8 (coding question), the score must be out of **30**
+1. The **question** itself (Lines 1, 5, 9, ... up to 29)
+2. The **candidate's answer** (Lines 2, 6, 10, ... up to 30)
+   - If the answer is empty, write: "Not answered by the candidate"
+   - For Q8 (coding question), the answer MUST be returned in **serialized multiline format**: the entire code should be a **single-line string** with real line breaks replaced by '\\n' (backslash-n). Do not use actual line breaks in the output.
+3. An **evaluation summary** (Lines 3, 7, 11, ... up to 31)
+4. A **score only** (Lines 4, 8, 12, ... up to 32)
+   - For Q1–Q7, score out of **10**
+   - For Q8, score out of **30**
 
-Finally, on **line 33**, output only the **total score** (sum of all 8 scores).  
-⚠️ Do not add any labels, extra lines, bullet points, or formatting — just the plain 33 lines exactly as described.
+On **line 33**, write only the **total score** (sum of all 8 scores).
+
+⚠️ Absolutely NO labels, extra lines, markdown, explanations, indentation, or formatting. Output must be strictly 33 plain-text lines, exactly as described.
 
 ---
 
