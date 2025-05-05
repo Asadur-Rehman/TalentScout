@@ -8,7 +8,8 @@ import axios from "axios";
 export default function CandidateInterview() {
   const [code, setCode] = useState("// Write your code here\n");
 
-  const answers = location.state?.answers || [];
+  const answers = JSON.parse(localStorage.getItem("answers") || "[]");
+  console.log("Answers:", answers);
 
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const navigate = useNavigate();
@@ -28,9 +29,11 @@ export default function CandidateInterview() {
   const processEvaluation = async () => {
     const llama = import.meta.env.VITE_LLAMA;
 
-    const updatedAnswers = [...answers, code];
+    const updatedAnswers = [...answers, { [lastQuestion]: code }];
 
     console.log("Final Answers:", updatedAnswers);
+
+    console.log("Questions:", questions);
 
     const prompt = `
 You are given an array of 8 interview questions and their corresponding candidate answers. Generate a strict 33-line evaluation report in the exact following format:

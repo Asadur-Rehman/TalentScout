@@ -114,23 +114,32 @@ export default function CandidateSignin() {
     if (!job || !resume) return;
 
     const prompt = `
-    Based on the following job description and candidate resume, generate exactly 8 questions:
-    
-    - 7 questions should be a mix of technical and behavioral questions relevant to the role.
-    - 1 question should be a coding problem that evaluates the candidate’s problem-solving skills.
-    
-    IMPORTANT:
-    - The coding question should be simple and solvable using core features of any mainstream programming language (e.g., arrays, loops, strings). 
-    - Do NOT include coding tasks that require frameworks, libraries, UI components, or APIs.
-    - Output exactly 8 lines, one question per line.
-    - DO NOT number the questions or label them in any way.
-    - DO NOT include headings, section titles, or extra explanation.
-    - Just return 8 plain-text questions, each on its own line.
-    
-    Context:
-    Job Details: ${JSON.stringify(job, null, 2)}
-    Resume: ${resume}
-    `;
+Based on the following job description and candidate resume, generate exactly 8 questions:
+
+7 questions should be a mix of technical and behavioral questions relevant ONLY to the specific technologies, tools, and responsibilities explicitly mentioned in the job description.
+
+These questions should reflect skills and concepts that the candidate is likely to encounter in this role.
+
+Ensure the questions align with the candidate's resume so that the interviewer can effectively assess the candidate's qualifications against the role.
+
+1 question should be a simple coding challenge designed to evaluate the candidate’s fundamental problem-solving skills using core programming constructs (e.g., arrays, loops, strings).
+
+Do NOT include coding tasks that require external libraries, frameworks (like React or Django), UI rendering, or APIs.
+
+IMPORTANT:
+
+Output exactly 8 lines, one question per line.
+
+DO NOT number the questions or label them in any way.
+
+DO NOT include headings, section titles, or extra explanation.
+
+Just return 8 plain-text questions, each on its own line.
+
+Context:
+Job Details: ${JSON.stringify(job, null, 2)}
+Resume: ${resume}
+`;
 
     try {
       const response = await axios.post(

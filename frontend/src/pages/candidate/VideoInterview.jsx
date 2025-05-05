@@ -17,7 +17,7 @@ export default function CandidateInterview() {
   const [audioContext, setAudioContext] = useState(null);
   const [audioAnalyser, setAudioAnalyser] = useState(null);
   const [micStream, setMicStream] = useState(null);
-  
+
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
 
@@ -38,7 +38,7 @@ export default function CandidateInterview() {
     return () => {
       stopVisualization();
       if (micStream) {
-        micStream.getTracks().forEach(track => track.stop());
+        micStream.getTracks().forEach((track) => track.stop());
       }
       if (audioContext) {
         audioContext.close();
@@ -49,58 +49,58 @@ export default function CandidateInterview() {
   // Start audio visualization
   const startVisualization = (analyser) => {
     if (!canvasRef.current || !analyser) return;
-    
+
     // Cancel any existing animation frame first
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
-    
+
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
+    const ctx = canvas.getContext("2d");
+
     // Set canvas dimensions
     canvas.width = canvas.clientWidth || 300;
     canvas.height = canvas.clientHeight || 100;
-    
+
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-    
+
     // Create a waveform visualization
     const draw = () => {
       animationRef.current = requestAnimationFrame(draw);
-      
+
       // Get waveform data
       analyser.getByteTimeDomainData(dataArray);
-      
+
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw waveform
       ctx.beginPath();
-      
+
       const sliceWidth = canvas.width / bufferLength;
       let x = 0;
-      
+
       for (let i = 0; i < bufferLength; i++) {
         // Scale the waveform to make it more visible
-        const v = (dataArray[i] - 128) * 1.5 / 128.0 + 1;
+        const v = ((dataArray[i] - 128) * 1.5) / 128.0 + 1;
         const y = (v * canvas.height) / 2;
-        
+
         if (i === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
-        
+
         x += sliceWidth;
       }
-      
+
       // Style the waveform
       ctx.lineWidth = 2;
       ctx.strokeStyle = "#05B4B4";
       ctx.stroke();
-      
+
       // Draw a horizontal center line
       ctx.beginPath();
       ctx.moveTo(0, canvas.height / 2);
@@ -109,7 +109,7 @@ export default function CandidateInterview() {
       ctx.lineWidth = 1;
       ctx.stroke();
     };
-    
+
     // Start drawing loop
     draw();
   };
@@ -120,10 +120,10 @@ export default function CandidateInterview() {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
-    
+
     // Clear canvas
     if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
+      const ctx = canvasRef.current.getContext("2d");
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
   };
@@ -132,11 +132,11 @@ export default function CandidateInterview() {
   const playQuestion = async () => {
     try {
       setIsPlaying(true);
-      
+
       await axios.post("http://localhost:8000/generate-tts/", {
-        text: questions[currentQuestion]
+        text: questions[currentQuestion],
       });
-      
+
       setIsPlaying(false);
     } catch (error) {
       console.error("Error playing question:", error);
@@ -148,33 +148,33 @@ export default function CandidateInterview() {
     try {
       setIsListening(true);
       setIsRecording(true);
-      
+
       // Set up microphone stream
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 48000
-        } 
+          sampleRate: 48000,
+        },
       });
       setMicStream(stream);
-      
+
       // Set up audio context for microphone visualization
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 2048;
       analyser.smoothingTimeConstant = 0.6;
-      
+
       const source = ctx.createMediaStreamSource(stream);
       source.connect(analyser);
-      
+
       setAudioContext(ctx);
       setAudioAnalyser(analyser);
-      
+
       // Start visualization for microphone input
       startVisualization(analyser);
-      
+
       const questionToSend = [questions[currentQuestion]]; // Send as an array
 
       const response = await axios.post("http://localhost:8000/interview/", {
@@ -190,26 +190,26 @@ export default function CandidateInterview() {
         return updatedAnswers;
       });
       console.log("Answers:", answers);
-      
+
       // Stop the visualization and microphone stream
       stopVisualization();
       if (micStream) {
-        micStream.getTracks().forEach(track => track.stop());
+        micStream.getTracks().forEach((track) => track.stop());
       }
-      
+
       setIsListening(false);
       setIsRecording(false);
       setLoading(false);
     } catch (error) {
       console.error("Error recording answer:", error);
       setError("Recording failed. Please try again.");
-      
+
       // Stop the visualization and microphone stream on error
       stopVisualization();
       if (micStream) {
-        micStream.getTracks().forEach(track => track.stop());
+        micStream.getTracks().forEach((track) => track.stop());
       }
-      
+
       setIsListening(false);
       setIsRecording(false);
       setLoading(false);
@@ -231,12 +231,13 @@ export default function CandidateInterview() {
   };
 
   const handleSubmit = () => {
-    // Navigate immediately
-    navigate("/candidate/coding-interview", {
-      state: { answers },
-    });
+    // Store answers in localStorage
+    localStorage.setItem("answers", JSON.stringify(answers));
 
-    // Continue with AI evaluation in the background
+    // Navigate to the next page
+    navigate("/candidate/coding-interview");
+
+    // Optionally process evaluation
     // processEvaluation();
   };
 
@@ -381,7 +382,7 @@ Place the **final total score** (out of 100) **on the last line of your response
             ({String(currentQuestion + 1).padStart(2, "0")}/
             {String(questions.length).padStart(2, "0")})
           </div>
-          
+
           <button
             onClick={handleNext}
             className="flex items-center text-gray-600 hover:text-gray-900"
@@ -404,9 +405,7 @@ Place the **final total score** (out of 100) **on the last line of your response
         </div>
 
         <div className="space-y-8 align-center justify-center flex flex-col w-2/4 mx-auto">
-          <h1 className="text-3xl font-bold text-center">
-            Audio Question
-          </h1>
+          <h1 className="text-3xl font-bold text-center">Audio Question</h1>
           <p className="text-center max-w-3xl mx-auto">
             {questions[currentQuestion]}
           </p>
@@ -415,7 +414,7 @@ Place the **final total score** (out of 100) **on the last line of your response
             <button
               onClick={isRecording ? null : playQuestion}
               className={`rounded-full flex items-center justify-center transition-all duration-300 ${
-                (isPlaying || isRecording) ? "scale-110" : ""
+                isPlaying || isRecording ? "scale-110" : ""
               }`}
               disabled={isPlaying || isRecording || loading}
             >
@@ -427,33 +426,34 @@ Place the **final total score** (out of 100) **on the last line of your response
                     <div className="absolute inset-0 -m-16 rounded-full bg-gradient-to-r from-blue-700 via-yellow-500 to-blue-700 opacity-30 animate-pulse-ring animation-delay-700"></div>
                   </>
                 )}
-                <img 
-                  src={avatar} 
-                  alt="Avatar" 
+                <img
+                  src={avatar}
+                  alt="Avatar"
                   className="w-20 h-20 object-contain relative z-10"
                 />
               </div>
             </button>
-            
+
             {isListening && (
               <>
                 <p className="text-red-500 font-medium">Listening...</p>
-                <canvas 
-                  ref={canvasRef} 
-                  className="w-full h-10 mt-2"
-                />
+                <canvas ref={canvasRef} className="w-full h-10 mt-2" />
               </>
             )}
           </div>
 
           <button
-            onClick={isListening ? null : (isRecording ? handleNext : startRecording)}
+            onClick={
+              isListening ? null : isRecording ? handleNext : startRecording
+            }
             className="mt-4 w-full py-2 px-4 bg-[#05B4B4] text-white font-bold rounded-lg disabled:opacity-50"
             disabled={isPlaying || loading}
           >
-            {isListening ? "Listening..." : 
-              (isRecording ? "Next" : 
-                "Submit Answer" )}
+            {isListening
+              ? "Listening..."
+              : isRecording
+              ? "Next"
+              : "Submit Answer"}
           </button>
         </div>
       </div>

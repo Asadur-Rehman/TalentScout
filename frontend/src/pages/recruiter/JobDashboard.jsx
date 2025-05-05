@@ -547,13 +547,13 @@ const JobDashboard = () => {
                 <div className="text-center">Name</div>
                 <div className="text-center">Education</div>
                 <div className="text-center">Experience</div>
-                <div className="text-center">
-                  {activeTab === "applicants"
-                    ? "Resume Score"
-                    : "Evaluation Score"}
-                </div>
+                <div className="text-center">Resume Score</div>
                 <div className="text-center">Profile</div>
-                <div className="text-center">Action</div>
+                {activeTab === "hired" ? (
+                  <div className="text-center">Evaluation Score</div>
+                ) : (
+                  <div className="text-center">Action</div>
+                )}
               </div>
             )}
 
@@ -645,15 +645,9 @@ const JobDashboard = () => {
                           View Profile
                         </button>
                       </div>
-                      {/* <button
-                        className="px-4 py-2 text-sm text-white rounded-md bg-[#144066] hover:bg-[#0B2544] transition-colors shadow-sm"
-                        onClick={() => handleInviteInterview(candidate._id)}
-                        disabled={candidate.status !== "Pending"} // Optional: Disable button if already invited
-                      >
-                        {candidate.status && candidate.status !== "Pending"
-                          ? "Invitation Sent"
-                          : "Invite for Interview"}
-                      </button> */}
+                      <div className="text-[#121212] text-center">
+                        {candidate.evaluationScore}
+                      </div>
                     </div>
                   ))
                 ) : (
