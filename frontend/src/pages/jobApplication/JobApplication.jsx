@@ -13,6 +13,7 @@ const JobApplication = () => {
   const [file, setFile] = useState(null);
   const [resumeText, setResumeText] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -101,6 +102,11 @@ const JobApplication = () => {
 
       if (data.success) {
         setResumeText(data.text);
+
+        setUploadStatus("Uploading Resume");
+
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+
         setUploadStatus("Resume uploaded successfully!");
       } else {
         console.error("Failed to extract text:", data.message);
@@ -190,7 +196,12 @@ const JobApplication = () => {
   }, [formData, file]);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!file) return alert("Please select a resume file.");
+
+    setIsSubmitting(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     const uploadData = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -213,6 +224,7 @@ const JobApplication = () => {
       if (data.success === false) {
         setError(data.message);
         setLoading(false);
+        setIsSubmitting(false);
         return;
       }
 
@@ -246,6 +258,8 @@ const JobApplication = () => {
     } catch (error) {
       console.error("Submission error:", error);
       setError("Submission failed.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -482,7 +496,7 @@ const JobApplication = () => {
             onClick={handleSubmit}
             disabled={!isFormValid}
           >
-            Submit
+            {isSubmitting ? "Submitting" : "Submit"}
           </button>
         </div>
       </section>

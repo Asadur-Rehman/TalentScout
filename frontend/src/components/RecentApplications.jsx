@@ -25,6 +25,7 @@ const RecentApplications = ({ candidates }) => {
         </thead>
         <tbody className="divide-y divide-gray-100">
           {candidates &&
+            Array.isArray(candidates) &&
             candidates.map((candidate) => (
               <tr key={candidate._id} className="py-2">
                 <td className="py-4">

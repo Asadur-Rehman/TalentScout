@@ -65,55 +65,57 @@ const RecruiterDashboard = () => {
 
   return (
     <Layout>
-      <div className="p-4">
-        <div className="mb-4">
-          <h1 className="text-xl font-bold text-gray-900">
-            Dashboard Overview
-          </h1>
-          <p className="text-sm text-gray-500">
-            Welcome back, {recruiterName}!
-          </p>
+      {
+        <div className="p-4">
+          <div className="mb-4">
+            <h1 className="text-xl font-bold text-gray-900">
+              Dashboard Overview
+            </h1>
+            <p className="text-sm text-gray-500">
+              Welcome back, {recruiterName}!
+            </p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <StatsCard
+              icon="candidates"
+              value={candidates.length}
+              label="Total Candidates"
+              percentage="12"
+              isIncrease={true}
+            />
+            <StatsCard
+              icon="jobs"
+              value={activeJobs}
+              label="Active Jobs"
+              percentage="8"
+              isIncrease={true}
+            />
+            <StatsCard
+              icon="interviews"
+              value={shortlistedCount}
+              label="Shortlisted Candidates"
+              percentage="5"
+              isIncrease={false}
+            />
+            <StatsCard
+              icon="hired"
+              value={hiredCount}
+              label="Total Hired"
+              percentage="15"
+              isIncrease={true}
+            />
+          </div>
+
+          {/* Recent Applications */}
+          {/* Recent Applications */}
+          <RecentApplications candidates={candidates} />
+
+          {/* Upcoming Interviews */}
+          {/* <UpcomingInterviews /> */}
         </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <StatsCard
-            icon="candidates"
-            value={candidates.length}
-            label="Total Candidates"
-            percentage="12"
-            isIncrease={true}
-          />
-          <StatsCard
-            icon="jobs"
-            value={activeJobs}
-            label="Active Jobs"
-            percentage="8"
-            isIncrease={true}
-          />
-          <StatsCard
-            icon="interviews"
-            value={shortlistedCount}
-            label="Shortlisted Candidates"
-            percentage="5"
-            isIncrease={false}
-          />
-          <StatsCard
-            icon="hired"
-            value={hiredCount}
-            label="Total Hired"
-            percentage="15"
-            isIncrease={true}
-          />
-        </div>
-
-        {/* Recent Applications */}
-        {/* Recent Applications */}
-        <RecentApplications candidates={candidates} />
-
-        {/* Upcoming Interviews */}
-        {/* <UpcomingInterviews /> */}
-      </div>
+      }
     </Layout>
   );
 };

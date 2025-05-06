@@ -162,7 +162,18 @@ export default function CandidatePermissions() {
         </div>
 
         <div className="flex justify-center mt-8">
-          <CandidateButton onClick={handleNext}>Next</CandidateButton>
+          <CandidateButton
+            onClick={handleNext}
+            disabled={
+              !(
+                permissions.camera &&
+                permissions.microphone &&
+                permissions.screen
+              )
+            }
+          >
+            Next
+          </CandidateButton>
         </div>
       </div>
     </CandidateLayout>
