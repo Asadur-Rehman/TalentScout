@@ -90,7 +90,7 @@ const JobDashboard = () => {
     fetchJobDetails();
     fetchCandidates();
     fetchShortlistedCandidates();
-  }, [id]);
+  }, [id, candidates]);
 
   // ... existing code ...
 
