@@ -17,9 +17,11 @@ export default function CandidateInterview() {
   const [audioContext, setAudioContext] = useState(null);
   const [audioAnalyser, setAudioAnalyser] = useState(null);
   const [micStream, setMicStream] = useState(null);
+  const [videoStream, setVideoStream] = useState(null);
 
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
+  const videoRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -34,11 +36,30 @@ export default function CandidateInterview() {
   questions.pop();
   // const interviewId = JSON.parse(localStorage.getItem("interviewId")) || [];
 
+  // Initialize video stream when component mounts
   useEffect(() => {
+    const initializeVideo = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setVideoStream(stream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error("Error accessing camera:", error);
+      }
+    };
+
+    initializeVideo();
+
+    // Cleanup function
     return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
       stopVisualization();
       if (micStream) {
-        micStream.getTracks().forEach((track) => track.stop());
+        micStream.getTracks().forEach(track => track.stop());
       }
       if (audioContext) {
         audioContext.close();
@@ -455,6 +476,17 @@ Place the **final total score** (out of 100) **on the last line of your response
               ? "Next"
               : "Submit Answer"}
           </button>
+        </div>
+
+        {/* Video Preview */}
+        <div className="fixed bottom-4 right-4 w-48 h-36 bg-black rounded-lg overflow-hidden shadow-lg">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
     </CandidateLayout>

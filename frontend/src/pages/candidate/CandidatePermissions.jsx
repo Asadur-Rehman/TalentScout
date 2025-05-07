@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CandidateLayout from "./CandidateLayout";
 import CandidateButton from "./CandidateButton";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,8 @@ export default function CandidatePermissions() {
     microphone: false,
     screen: false,
   });
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   const navigate = useNavigate();
   const handleNext = () => {
@@ -19,8 +21,12 @@ export default function CandidatePermissions() {
     try {
       switch (type) {
         case "camera":
-          await navigator.mediaDevices.getUserMedia({ video: true });
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
           setPermissions((prev) => ({ ...prev, camera: true }));
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            streamRef.current = stream;
+          }
           break;
         case "microphone":
           await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -36,6 +42,15 @@ export default function CandidatePermissions() {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      // Cleanup video stream when component unmounts
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
   return (
     <CandidateLayout>
       <div className="max-w-2xl mx-auto space-y-6">
@@ -45,6 +60,17 @@ export default function CandidatePermissions() {
             To proceed with the interview, we need access to your camera and
             microphone. Please grant the necessary permissions.
           </p>
+        </div>
+
+        {/* Video Preview */}
+        <div className="fixed bottom-4 right-4 w-48 h-36 bg-black rounded-lg overflow-hidden shadow-lg">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+          />
         </div>
 
         <div className="space-y-4 mt-8">
