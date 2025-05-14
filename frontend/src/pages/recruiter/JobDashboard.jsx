@@ -25,6 +25,7 @@ const JobDashboard = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [candidateFeedback, setCandidateFeedback] = useState("");
   const llama = import.meta.env.VITE_LLAMA;
+  const key = import.meta.env.VITE_API_KEY;
 
   useEffect(() => {
     console.log("Fetching job and candidates for job ID:", id);
@@ -356,8 +357,13 @@ const JobDashboard = () => {
   ${evaluationReport}`;
 
       // Get feedback from AI
+      const url =
+        import.meta.env.MODE === "development"
+          ? "/llama38b/v1/chat/completions"
+          : "https://api.openai.com/v1/chat/completions";
+
       const feedbackResponse = await axios.post(
-        "/llama38b/v1/chat/completions",
+        url,
         {
           model: llama,
           messages: [{ role: "user", content: prompt }],
@@ -365,6 +371,7 @@ const JobDashboard = () => {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${key}`,
           },
         }
       );

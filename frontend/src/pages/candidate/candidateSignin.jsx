@@ -19,6 +19,7 @@ export default function CandidateSignin() {
   });
 
   const llama = import.meta.env.VITE_LLAMA;
+  const key = import.meta.env.VITE_API_URL;
 
   const { loading, error } = useSelector((state) => state.candidate);
   const dispatch = useDispatch();
@@ -142,8 +143,13 @@ Resume: ${resume}
 `;
 
     try {
+      const url =
+        import.meta.env.MODE === "development"
+          ? "/llama38b/v1/chat/completions"
+          : "https://api.openai.com/v1/chat/completions";
+
       const response = await axios.post(
-        "/llama38b/v1/chat/completions",
+        url,
         {
           model: llama,
           messages: [{ role: "user", content: prompt }],
@@ -151,6 +157,7 @@ Resume: ${resume}
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${key}`,
           },
         }
       );

@@ -40,7 +40,9 @@ export default function CandidateInterview() {
   useEffect(() => {
     const initializeVideo = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
         setVideoStream(stream);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -55,11 +57,11 @@ export default function CandidateInterview() {
     // Cleanup function
     return () => {
       if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
+        videoStream.getTracks().forEach((track) => track.stop());
       }
       stopVisualization();
       if (micStream) {
-        micStream.getTracks().forEach(track => track.stop());
+        micStream.getTracks().forEach((track) => track.stop());
       }
       if (audioContext) {
         audioContext.close();
@@ -264,6 +266,7 @@ export default function CandidateInterview() {
 
   const processEvaluation = async () => {
     const llama = import.meta.env.VITE_LLAMA;
+    const key = import.meta.env.VITE_API_KEY;
 
     console.log("Final Answers:", answers);
 
@@ -323,8 +326,13 @@ Place the **final total score** (out of 100) **on the last line of your response
 `;
 
     try {
+      const url =
+        import.meta.env.MODE === "development"
+          ? "/llama38b/v1/chat/completions"
+          : "https://api.openai.com/v1/chat/completions";
+
       const response = await axios.post(
-        "/llama38b/v1/chat/completions",
+        url,
         {
           model: llama,
           messages: [{ role: "user", content: prompt }],
@@ -332,6 +340,7 @@ Place the **final total score** (out of 100) **on the last line of your response
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${key}`,
           },
         }
       );
