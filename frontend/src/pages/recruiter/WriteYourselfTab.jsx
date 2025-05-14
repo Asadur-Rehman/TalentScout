@@ -1,7 +1,10 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { loadEnv } from "vite";
 import Stars from "../../assets/stars.svg";
+
+const env = loadEnv(process.env.NODE_ENV, process.cwd(), "");
 
 export default function WriteYourselfTab({
   description,
@@ -57,6 +60,7 @@ export default function WriteYourselfTab({
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${env.VITE_API_KEY}`,
           },
         }
       );
