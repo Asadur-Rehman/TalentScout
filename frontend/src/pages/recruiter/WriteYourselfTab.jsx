@@ -42,8 +42,14 @@ export default function WriteYourselfTab({
       `;
 
     try {
+      const url =
+        import.meta.env.MODE === "development"
+          ? "/llama38b/v1/chat/completions"
+          : "https://api.openai.com/v1/chat/completions";
+
       const response = await axios.post(
-        "/llama38b/v1/chat/completions",
+        // "/llama38b/v1/chat/completions",
+        url,
         {
           model: llama,
           messages: [{ role: "user", content: prompt }],

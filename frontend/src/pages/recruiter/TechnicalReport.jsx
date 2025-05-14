@@ -72,9 +72,14 @@ export default function EvaluationDisplay() {
               <pre className="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto text-gray-800 whitespace-pre-wrap">
                 {(() => {
                   try {
-                    return JSON.parse(entry.answer);
+                    const parsed = JSON.parse(entry.answer);
+                    // Replace escaped characters
+                    return parsed
+                      .replace(/\\n/g, "\n")
+                      .replace(/\\'/g, "'")
+                      .replace(/\\"/g, '"');
                   } catch (e) {
-                    return entry.answer; // fallback in case it's not stringified
+                    return entry.answer;
                   }
                 })()}
               </pre>
