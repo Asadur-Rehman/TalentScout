@@ -72,4 +72,4 @@ This project is licensed under the MIT License. See the LICENSE file for details
 For queries or feedback, please contact:
 
 Asad ur Rehman
-Email: aurehman.bese21seecs@seecs.edu.pk, aur63639@gmail.com
+Email: aurehman.bese21seecs@seecs.edu.pk
